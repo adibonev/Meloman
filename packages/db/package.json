@@ -1,0 +1,9 @@
+{
+  "name": "@meloman/db",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  }
+}

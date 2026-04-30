@@ -9,6 +9,7 @@
   "devDependencies": {
     "turbo": "latest"
   },
+  "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"

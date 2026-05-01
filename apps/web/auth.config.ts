@@ -9,6 +9,7 @@ export const authConfig: NextAuthConfig = {
     },
     session({ session, token }) {
       session.user.role = token.role as "player" | "admin" | "super_admin";
+      if (token.sub) session.user.id = token.sub;
       return session;
     },
   },

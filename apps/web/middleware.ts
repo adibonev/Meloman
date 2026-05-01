@@ -16,12 +16,17 @@ export default auth((req) => {
     localeStripped.startsWith("/admin") || localeStripped.startsWith("/host");
 
   if (isProtected) {
+    const localePrefix =
+      pathname.startsWith("/en/") || pathname === "/en" ? "/en" : "";
     const role = req.auth?.user?.role;
-    if (role !== "admin" && role !== "super_admin") {
-      const localePrefix = pathname.startsWith("/en/") || pathname === "/en"
-        ? "/en"
-        : "";
+    const isLoggedIn = !!req.auth?.user;
+
+    if (!isLoggedIn) {
       return NextResponse.redirect(new URL(`${localePrefix}/login`, req.url));
+    }
+
+    if (role !== "admin" && role !== "super_admin") {
+      return NextResponse.redirect(new URL(`${localePrefix}/`, req.url));
     }
   }
 

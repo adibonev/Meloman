@@ -45,6 +45,57 @@
     "passwordMin": "Паролата трябва да е поне 8 символа",
     "displayNameMin": "Името трябва да е поне 2 символа",
     "displayNameMax": "Името не може да е повече от 50 символа",
-    "passwordsMismatch": "Паролите не съвпадат"
+    "passwordsMismatch": "Паролите не съвпадат",
+    "titleMin": "Заглавието трябва да е поне 2 символа",
+    "titleMax": "Заглавието не може да е повече от 200 символа",
+    "descriptionMax": "Описанието не може да е повече от 500 символа"
+  },
+  "Admin": {
+    "panelLabel": "Admin Panel",
+    "logout": "Изход",
+    "nav": {
+      "quizzes": "Quiz-ове"
+    }
+  },
+  "AdminQuizzes": {
+    "title": "Quiz-ове",
+    "newQuiz": "Нов quiz",
+    "emptyState": "Все още няма създадени quiz-ове. Натисни \"Нов quiz\" за да започнеш.",
+    "columns": {
+      "title": "Заглавие",
+      "status": "Статус",
+      "theme": "Тема",
+      "created": "Създаден"
+    },
+    "status": {
+      "draft": "Чернова",
+      "published": "Публикуван",
+      "archived": "Архивиран"
+    }
+  },
+  "AdminNewQuiz": {
+    "title": "Нов quiz",
+    "backToList": "← Назад към списъка",
+    "titleLabel": "Заглавие",
+    "descriptionLabel": "Описание (по избор)",
+    "themeLabel": "Тема",
+    "languageLabel": "Език",
+    "themes": {
+      "modern": "Модерен (монохром)",
+      "vintage": "Винтидж 70-те",
+      "neon": "Неон 80-те"
+    },
+    "languages": {
+      "bg": "Български",
+      "en": "Английски"
+    },
+    "submit": "Създай quiz",
+    "submitting": "Създаване...",
+    "errors": {
+      "unauthorized": "Не си логнат.",
+      "forbidden": "Нямаш права да създаваш quiz-ове.",
+      "invalidData": "Невалидни данни. Провери полетата.",
+      "generic": "Нещо се обърка. Опитай отново."
+    }
   }
 }

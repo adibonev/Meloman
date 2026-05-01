@@ -5,6 +5,7 @@ type UserRole = "player" | "admin" | "super_admin";
 declare module "next-auth" {
   interface Session {
     user: {
+      id: string;
       role: UserRole;
     } & DefaultSession["user"];
   }

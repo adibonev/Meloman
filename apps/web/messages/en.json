@@ -45,6 +45,57 @@
     "passwordMin": "Password must be at least 8 characters",
     "displayNameMin": "Name must be at least 2 characters",
     "displayNameMax": "Name cannot be more than 50 characters",
-    "passwordsMismatch": "Passwords do not match"
+    "passwordsMismatch": "Passwords do not match",
+    "titleMin": "Title must be at least 2 characters",
+    "titleMax": "Title cannot be more than 200 characters",
+    "descriptionMax": "Description cannot be more than 500 characters"
+  },
+  "Admin": {
+    "panelLabel": "Admin Panel",
+    "logout": "Sign out",
+    "nav": {
+      "quizzes": "Quizzes"
+    }
+  },
+  "AdminQuizzes": {
+    "title": "Quizzes",
+    "newQuiz": "New quiz",
+    "emptyState": "No quizzes yet. Click \"New quiz\" to get started.",
+    "columns": {
+      "title": "Title",
+      "status": "Status",
+      "theme": "Theme",
+      "created": "Created"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    }
+  },
+  "AdminNewQuiz": {
+    "title": "New quiz",
+    "backToList": "← Back to list",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description (optional)",
+    "themeLabel": "Theme",
+    "languageLabel": "Language",
+    "themes": {
+      "modern": "Modern (monochrome)",
+      "vintage": "Vintage 70s",
+      "neon": "Neon 80s"
+    },
+    "languages": {
+      "bg": "Bulgarian",
+      "en": "English"
+    },
+    "submit": "Create quiz",
+    "submitting": "Creating...",
+    "errors": {
+      "unauthorized": "You are not signed in.",
+      "forbidden": "You do not have permission to create quizzes.",
+      "invalidData": "Invalid data. Please check the fields.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

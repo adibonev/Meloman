@@ -2,7 +2,9 @@
   "Home": {
     "tagline": "Music quiz and daily entertainment",
     "loginCta": "Sign in",
-    "registerCta": "Sign up"
+    "registerCta": "Sign up",
+    "welcome": "Welcome, {name}",
+    "logout": "Sign out"
   },
   "Login": {
     "title": "Sign in",

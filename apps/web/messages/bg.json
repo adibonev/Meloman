@@ -2,7 +2,9 @@
   "Home": {
     "tagline": "Музикален quiz и daily entertainment",
     "loginCta": "Влез",
-    "registerCta": "Регистрирай се"
+    "registerCta": "Регистрирай се",
+    "welcome": "Здравей, {name}",
+    "logout": "Изход"
   },
   "Login": {
     "title": "Вход",

@@ -8,6 +8,13 @@
       "when": 1777570198451,
       "tag": "0000_tiresome_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777668897198,
+      "tag": "0001_lonely_puck",
+      "breakpoints": true
     }
   ]
 }

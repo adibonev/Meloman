@@ -1,22 +1,24 @@
 import { z } from "zod";
 
+// Validation messages return translation KEYS (resolved via the
+// `Validation.*` namespace in messages/{locale}.json), not literal text.
 export const loginSchema = z.object({
-  email: z.string().email("Невалиден имейл адрес"),
-  password: z.string().min(1, "Паролата е задължителна"),
+  email: z.string().email("emailInvalid"),
+  password: z.string().min(1, "passwordRequired"),
 });
 
 export const registerSchema = z
   .object({
     displayName: z
       .string()
-      .min(2, "Името трябва да е поне 2 символа")
-      .max(50, "Името не може да е повече от 50 символа"),
-    email: z.string().email("Невалиден имейл адрес"),
-    password: z.string().min(8, "Паролата трябва да е поне 8 символа"),
+      .min(2, "displayNameMin")
+      .max(50, "displayNameMax"),
+    email: z.string().email("emailInvalid"),
+    password: z.string().min(8, "passwordMin"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Паролите не съвпадат",
+    message: "passwordsMismatch",
     path: ["confirmPassword"],
   });
 

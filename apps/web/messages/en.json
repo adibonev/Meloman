@@ -1,0 +1,48 @@
+{
+  "Home": {
+    "tagline": "Music quiz and daily entertainment",
+    "loginCta": "Sign in",
+    "registerCta": "Sign up"
+  },
+  "Login": {
+    "title": "Sign in",
+    "description": "Sign in to your account",
+    "registeredSuccess": "Registration successful! Sign in with your new account.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Sign up",
+    "errors": {
+      "credentials": "Invalid email or password.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "Register": {
+    "title": "Sign up",
+    "description": "Create a new account",
+    "displayNameLabel": "Display name",
+    "displayNamePlaceholder": "John Smith",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Sign up",
+    "submitting": "Creating account...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Sign in",
+    "errors": {
+      "invalidData": "Invalid data. Please check the fields.",
+      "emailTaken": "This email is already registered."
+    }
+  },
+  "Validation": {
+    "emailInvalid": "Invalid email address",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 8 characters",
+    "displayNameMin": "Name must be at least 2 characters",
+    "displayNameMax": "Name cannot be more than 50 characters",
+    "passwordsMismatch": "Passwords do not match"
+  }
+}

@@ -1,25 +1,33 @@
+import createIntlMiddleware from "next-intl/middleware";
 import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
 import { authConfig } from "@/auth.config";
+import { routing } from "@/i18n/routing";
 
+const intlMiddleware = createIntlMiddleware(routing);
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
-  const role = req.auth?.user?.role;
 
-  if (pathname.startsWith("/admin")) {
+  // Strip optional /en prefix to evaluate the logical route
+  const localeStripped = pathname.replace(/^\/en(\/|$)/, "/") || "/";
+  const isProtected =
+    localeStripped.startsWith("/admin") || localeStripped.startsWith("/host");
+
+  if (isProtected) {
+    const role = req.auth?.user?.role;
     if (role !== "admin" && role !== "super_admin") {
-      return Response.redirect(new URL("/login", req.url));
+      const localePrefix = pathname.startsWith("/en/") || pathname === "/en"
+        ? "/en"
+        : "";
+      return NextResponse.redirect(new URL(`${localePrefix}/login`, req.url));
     }
   }
 
-  if (pathname.startsWith("/host")) {
-    if (role !== "admin" && role !== "super_admin") {
-      return Response.redirect(new URL("/login", req.url));
-    }
-  }
+  return intlMiddleware(req);
 });
 
 export const config = {
-  matcher: ["/admin/:path*", "/host/:path*"],
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

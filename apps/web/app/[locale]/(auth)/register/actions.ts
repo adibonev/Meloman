@@ -4,7 +4,8 @@ import { db } from "@meloman/db";
 import { users } from "@meloman/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { registerSchema } from "@/lib/schemas/auth";
 
 export async function registerAction(formData: FormData) {
@@ -17,7 +18,7 @@ export async function registerAction(formData: FormData) {
 
   const parsed = registerSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: "Невалидни данни. Провери полетата." };
+    return { errorKey: "invalidData" as const };
   }
 
   const { displayName, email, password } = parsed.data;
@@ -29,7 +30,7 @@ export async function registerAction(formData: FormData) {
     .limit(1);
 
   if (existing) {
-    return { error: "Имейлът вече е регистриран." };
+    return { errorKey: "emailTaken" as const };
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
@@ -41,5 +42,6 @@ export async function registerAction(formData: FormData) {
     role: "player",
   });
 
-  redirect("/login?registered=1");
+  const locale = await getLocale();
+  redirect({ href: "/login?registered=1", locale });
 }

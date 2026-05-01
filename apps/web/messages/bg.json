@@ -1,0 +1,48 @@
+{
+  "Home": {
+    "tagline": "Музикален quiz и daily entertainment",
+    "loginCta": "Влез",
+    "registerCta": "Регистрирай се"
+  },
+  "Login": {
+    "title": "Вход",
+    "description": "Влез в акаунта си",
+    "registeredSuccess": "Регистрацията е успешна! Влез с новия си акаунт.",
+    "emailLabel": "Имейл",
+    "passwordLabel": "Парола",
+    "submit": "Влез",
+    "submitting": "Влизане...",
+    "noAccount": "Нямаш акаунт?",
+    "registerLink": "Регистрирай се",
+    "errors": {
+      "credentials": "Грешен имейл или парола.",
+      "generic": "Нещо се обърка. Опитай отново."
+    }
+  },
+  "Register": {
+    "title": "Регистрация",
+    "description": "Създай нов акаунт",
+    "displayNameLabel": "Потребителско име",
+    "displayNamePlaceholder": "Иван Иванов",
+    "emailLabel": "Имейл",
+    "passwordLabel": "Парола",
+    "passwordPlaceholder": "Минимум 8 символа",
+    "confirmPasswordLabel": "Потвърди паролата",
+    "submit": "Регистрирай се",
+    "submitting": "Регистрация...",
+    "haveAccount": "Вече имаш акаунт?",
+    "loginLink": "Влез",
+    "errors": {
+      "invalidData": "Невалидни данни. Провери полетата.",
+      "emailTaken": "Имейлът вече е регистриран."
+    }
+  },
+  "Validation": {
+    "emailInvalid": "Невалиден имейл адрес",
+    "passwordRequired": "Паролата е задължителна",
+    "passwordMin": "Паролата трябва да е поне 8 символа",
+    "displayNameMin": "Името трябва да е поне 2 символа",
+    "displayNameMax": "Името не може да е повече от 50 символа",
+    "passwordsMismatch": "Паролите не съвпадат"
+  }
+}

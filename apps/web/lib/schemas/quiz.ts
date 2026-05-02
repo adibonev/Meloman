@@ -2,8 +2,9 @@ import { z } from "zod";
 
 export const QUIZ_THEMES = ["modern", "vintage", "neon"] as const;
 export const QUIZ_LANGUAGES = ["bg", "en"] as const;
+export const QUIZ_STATUSES = ["draft", "published", "archived"] as const;
 
-export const createQuizSchema = z.object({
+const quizBaseFields = {
   title: z.string().min(2, "titleMin").max(200, "titleMax"),
   description: z
     .string()
@@ -12,6 +13,14 @@ export const createQuizSchema = z.object({
     .or(z.literal("").transform(() => undefined)),
   theme: z.enum(QUIZ_THEMES),
   language: z.enum(QUIZ_LANGUAGES),
+};
+
+export const createQuizSchema = z.object(quizBaseFields);
+
+export const updateQuizSchema = z.object({
+  ...quizBaseFields,
+  status: z.enum(QUIZ_STATUSES),
 });
 
 export type CreateQuizInput = z.infer<typeof createQuizSchema>;
+export type UpdateQuizInput = z.infer<typeof updateQuizSchema>;

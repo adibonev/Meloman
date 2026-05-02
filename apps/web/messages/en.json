@@ -97,5 +97,26 @@
       "invalidData": "Invalid data. Please check the fields.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "AdminQuizDetail": {
+    "title": "Edit quiz",
+    "backToList": "← Back to list",
+    "statusLabel": "Status",
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "submit": "Save changes",
+    "submitting": "Saving...",
+    "roundsTitle": "Rounds",
+    "roundsEmpty": "No rounds yet. (Rounds editor coming in the next step.)",
+    "errors": {
+      "unauthorized": "You are not signed in.",
+      "forbidden": "You do not have permission to edit quizzes.",
+      "invalidData": "Invalid data. Please check the fields.",
+      "notFound": "This quiz does not exist.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

@@ -58,7 +58,14 @@ export default async function AdminQuizzesPage({
             <tbody>
               {rows.map((quiz) => (
                 <tr key={quiz.id} className="border-t border-border">
-                  <td className="px-4 py-3">{quiz.title}</td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/quizzes/${quiz.id}`}
+                      className="text-foreground hover:underline"
+                    >
+                      {quiz.title}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {t(`status.${quiz.status}`)}
                   </td>

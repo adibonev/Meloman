@@ -110,12 +110,62 @@
     "submit": "Запази промените",
     "submitting": "Запазване...",
     "roundsTitle": "Рундове",
-    "roundsEmpty": "Все още няма добавени рундове. (Редакторът на рундове идва в следващата стъпка.)",
+    "roundsEmpty": "Все още няма добавени рундове.",
+    "addRound": "+ Добави рунд",
+    "roundTypes": {
+      "standard": "Стандартен",
+      "mystery_artist": "Mystery Artist",
+      "final": "Финален"
+    },
+    "moveUp": "Премести нагоре",
+    "moveDown": "Премести надолу",
     "errors": {
       "unauthorized": "Не си логнат.",
       "forbidden": "Нямаш права да редактираш quiz-ове.",
       "invalidData": "Невалидни данни. Провери полетата.",
       "notFound": "Този quiz не съществува.",
+      "generic": "Нещо се обърка. Опитай отново."
+    }
+  },
+  "AdminEditRound": {
+    "title": "Редакция на рунд",
+    "forQuiz": "От quiz: {title}",
+    "backToQuiz": "← Назад към quiz",
+    "submit": "Запази промените",
+    "submitting": "Запазване...",
+    "dangerZone": "Опасна зона",
+    "deleteHint": "Изтриването на рунд е необратимо. Всички въпроси в него ще бъдат изтрити (когато се добавят такива).",
+    "delete": "Изтрий рунда",
+    "deleting": "Изтриване...",
+    "deleteConfirm": "Сигурен ли си, че искаш да изтриеш този рунд? Действието е необратимо.",
+    "errors": {
+      "unauthorized": "Не си логнат.",
+      "forbidden": "Нямаш права да редактираш рундове.",
+      "invalidData": "Невалидни данни. Провери полетата.",
+      "notFound": "Този рунд не съществува.",
+      "generic": "Нещо се обърка. Опитай отново."
+    }
+  },
+  "AdminNewRound": {
+    "title": "Нов рунд",
+    "forQuiz": "Към quiz: {title}",
+    "backToQuiz": "← Назад към quiz",
+    "titleLabel": "Заглавие на рунда",
+    "roundTypeLabel": "Тип рунд",
+    "types": {
+      "standard": "Стандартен",
+      "mystery_artist": "Mystery Artist",
+      "final": "Финален"
+    },
+    "introSlideTextLabel": "Текст за intro slide (по избор)",
+    "introSlideTextHint": "Кратко описание, което ще се покаже преди първия въпрос (напр. \"5 въпроса, по 1 точка всеки\").",
+    "submit": "Създай рунд",
+    "submitting": "Създаване...",
+    "errors": {
+      "unauthorized": "Не си логнат.",
+      "forbidden": "Нямаш права да добавяш рундове.",
+      "invalidData": "Невалидни данни. Провери полетата.",
+      "quizNotFound": "Този quiz не съществува.",
       "generic": "Нещо се обърка. Опитай отново."
     }
   }

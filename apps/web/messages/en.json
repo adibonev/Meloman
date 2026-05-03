@@ -48,7 +48,20 @@
     "passwordsMismatch": "Passwords do not match",
     "titleMin": "Title must be at least 2 characters",
     "titleMax": "Title cannot be more than 200 characters",
-    "descriptionMax": "Description cannot be more than 500 characters"
+    "descriptionMax": "Description cannot be more than 500 characters",
+    "questionTextMin": "Question must be at least 5 characters",
+    "questionTextMax": "Question cannot be more than 500 characters",
+    "optionMin": "Option cannot be empty",
+    "optionMax": "Option cannot be more than 200 characters",
+    "correctIndexRange": "Pick one of the 4 options as the correct answer",
+    "timeLimitMin": "Time limit must be at least 5 seconds",
+    "timeLimitMax": "Time limit cannot be more than 120 seconds",
+    "pointsMin": "Points must be at least 1",
+    "pointsMax": "Points cannot be more than 10",
+    "answerMin": "Answer cannot be empty",
+    "answerMax": "Answer cannot be more than 200 characters",
+    "answersMin": "Add at least one accepted answer",
+    "answersMax": "No more than 20 accepted answers"
   },
   "Admin": {
     "panelLabel": "Admin Panel",
@@ -134,10 +147,22 @@
     "submit": "Save changes",
     "submitting": "Saving...",
     "dangerZone": "Danger zone",
-    "deleteHint": "Deleting a round is permanent. All questions inside it will also be deleted (once questions exist).",
+    "deleteHint": "Deleting a round is permanent. All questions inside it will also be deleted.",
     "delete": "Delete round",
     "deleting": "Deleting...",
     "deleteConfirm": "Are you sure you want to delete this round? This action cannot be undone.",
+    "questionsTitle": "Questions",
+    "questionsEmpty": "No questions yet.",
+    "addQuestion": "+ Add question",
+    "questionTypes": {
+      "multiple_choice": "Multiple Choice",
+      "open_text": "Open text",
+      "audio": "Audio",
+      "image_reveal": "Image Reveal",
+      "lyric_blank": "Lyric Fill-in",
+      "decade": "Decade/Year"
+    },
+    "questionMeta": "{seconds}s · {points} pt",
     "errors": {
       "unauthorized": "You are not signed in.",
       "forbidden": "You do not have permission to edit rounds.",
@@ -166,6 +191,59 @@
       "forbidden": "You do not have permission to add rounds.",
       "invalidData": "Invalid data. Please check the fields.",
       "quizNotFound": "This quiz does not exist.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "AdminNewQuestion": {
+    "chooserTitle": "Choose question type",
+    "titleMultipleChoice": "New Multiple Choice question",
+    "titleOpenText": "New open-text question",
+    "forRound": "In {quiz} → {round}",
+    "backToRound": "← Back to round",
+    "backToChooser": "← Pick a different type",
+    "comingSoon": "Coming soon",
+    "types": {
+      "multiple_choice": {
+        "name": "Multiple Choice",
+        "description": "Question with 4 options, one correct. Auto-graded."
+      },
+      "open_text": {
+        "name": "Open text",
+        "description": "Player types an answer. Matched against accepted variants (fuzzy)."
+      },
+      "audio": {
+        "name": "Audio",
+        "description": "5–15 sec MP3 clip + question. Auto-graded or open."
+      },
+      "image_reveal": {
+        "name": "Image Reveal",
+        "description": "Blurred image that clears over the question's time limit."
+      },
+      "lyric_blank": {
+        "name": "Lyric Fill-in",
+        "description": "Song lyrics with blanks. 1 point per correct word."
+      },
+      "decade": {
+        "name": "Decade / Year",
+        "description": "Player guesses a decade and/or specific year."
+      }
+    },
+    "questionTextLabel": "Question text",
+    "optionsLegend": "Options (select the radio next to the correct answer)",
+    "optionsHint": "Exactly 4 options are required. Empty options are not allowed.",
+    "optionLabel": "Option {letter}",
+    "acceptableAnswersLabel": "Accepted answers",
+    "acceptableAnswersHint": "One answer per line. The first will be shown as the \"correct answer\" on reveal. The others are used only for fuzzy matching (lowercase, no diacritics, Levenshtein ≤ 2).",
+    "acceptableAnswersPlaceholder": "Queen\nQueens\nКуин",
+    "timeLimitLabel": "Time limit (seconds)",
+    "pointsLabel": "Points for correct answer",
+    "submit": "Create question",
+    "submitting": "Creating...",
+    "errors": {
+      "unauthorized": "You are not signed in.",
+      "forbidden": "You do not have permission to add questions.",
+      "invalidData": "Invalid data. Please check the fields.",
+      "roundNotFound": "This round does not exist.",
       "generic": "Something went wrong. Please try again."
     }
   }

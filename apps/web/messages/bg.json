@@ -48,7 +48,20 @@
     "passwordsMismatch": "Паролите не съвпадат",
     "titleMin": "Заглавието трябва да е поне 2 символа",
     "titleMax": "Заглавието не може да е повече от 200 символа",
-    "descriptionMax": "Описанието не може да е повече от 500 символа"
+    "descriptionMax": "Описанието не може да е повече от 500 символа",
+    "questionTextMin": "Въпросът трябва да е поне 5 символа",
+    "questionTextMax": "Въпросът не може да е повече от 500 символа",
+    "optionMin": "Опцията не може да е празна",
+    "optionMax": "Опцията не може да е повече от 200 символа",
+    "correctIndexRange": "Избери една от 4-те опции като правилен отговор",
+    "timeLimitMin": "Времето трябва да е поне 5 секунди",
+    "timeLimitMax": "Времето не може да е повече от 120 секунди",
+    "pointsMin": "Точките трябва да са поне 1",
+    "pointsMax": "Точките не могат да са повече от 10",
+    "answerMin": "Отговорът не може да е празен",
+    "answerMax": "Отговорът не може да е повече от 200 символа",
+    "answersMin": "Добави поне един приет отговор",
+    "answersMax": "Не повече от 20 приети отговора"
   },
   "Admin": {
     "panelLabel": "Admin Panel",
@@ -134,10 +147,22 @@
     "submit": "Запази промените",
     "submitting": "Запазване...",
     "dangerZone": "Опасна зона",
-    "deleteHint": "Изтриването на рунд е необратимо. Всички въпроси в него ще бъдат изтрити (когато се добавят такива).",
+    "deleteHint": "Изтриването на рунд е необратимо. Всички въпроси в него ще бъдат изтрити.",
     "delete": "Изтрий рунда",
     "deleting": "Изтриване...",
     "deleteConfirm": "Сигурен ли си, че искаш да изтриеш този рунд? Действието е необратимо.",
+    "questionsTitle": "Въпроси",
+    "questionsEmpty": "Все още няма добавени въпроси.",
+    "addQuestion": "+ Добави въпрос",
+    "questionTypes": {
+      "multiple_choice": "Multiple Choice",
+      "open_text": "Свободен отговор",
+      "audio": "Аудио",
+      "image_reveal": "Image Reveal",
+      "lyric_blank": "Lyric Fill-in",
+      "decade": "Decade/Year"
+    },
+    "questionMeta": "{seconds} сек · {points} т.",
     "errors": {
       "unauthorized": "Не си логнат.",
       "forbidden": "Нямаш права да редактираш рундове.",
@@ -166,6 +191,59 @@
       "forbidden": "Нямаш права да добавяш рундове.",
       "invalidData": "Невалидни данни. Провери полетата.",
       "quizNotFound": "Този quiz не съществува.",
+      "generic": "Нещо се обърка. Опитай отново."
+    }
+  },
+  "AdminNewQuestion": {
+    "chooserTitle": "Избери тип въпрос",
+    "titleMultipleChoice": "Нов Multiple Choice въпрос",
+    "titleOpenText": "Нов въпрос със свободен отговор",
+    "forRound": "Към {quiz} → {round}",
+    "backToRound": "← Назад към рунда",
+    "backToChooser": "← Избери друг тип",
+    "comingSoon": "Скоро",
+    "types": {
+      "multiple_choice": {
+        "name": "Multiple Choice",
+        "description": "Въпрос с 4 опции, една правилна. Авто-оценяване."
+      },
+      "open_text": {
+        "name": "Свободен отговор",
+        "description": "Player пише текст. Сравнява се с приети варианти (fuzzy)."
+      },
+      "audio": {
+        "name": "Аудио",
+        "description": "5–15 сек MP3 клип + въпрос. Auto-grade или open."
+      },
+      "image_reveal": {
+        "name": "Image Reveal",
+        "description": "Размазана снимка, която се изчиства за времето на въпроса."
+      },
+      "lyric_blank": {
+        "name": "Lyric Fill-in",
+        "description": "Текст на песен с празни места. По 1 точка на дума."
+      },
+      "decade": {
+        "name": "Decade / Year",
+        "description": "Player познава десетилетие и/или конкретна година."
+      }
+    },
+    "questionTextLabel": "Текст на въпроса",
+    "optionsLegend": "Опции (избери радио бутона до правилния отговор)",
+    "optionsHint": "Точно 4 опции. Празни не са разрешени.",
+    "optionLabel": "Опция {letter}",
+    "acceptableAnswersLabel": "Приети отговори",
+    "acceptableAnswersHint": "По един отговор на ред. Първият ще се покаже като \"правилен отговор\" при reveal. Другите служат само за fuzzy matching (lowercase, без диакритики, Levenshtein ≤ 2).",
+    "acceptableAnswersPlaceholder": "Queen\nQueens\nКуин",
+    "timeLimitLabel": "Време за отговор (секунди)",
+    "pointsLabel": "Точки за правилен отговор",
+    "submit": "Създай въпрос",
+    "submitting": "Създаване...",
+    "errors": {
+      "unauthorized": "Не си логнат.",
+      "forbidden": "Нямаш права да добавяш въпроси.",
+      "invalidData": "Невалидни данни. Провери полетата.",
+      "roundNotFound": "Този рунд не съществува.",
       "generic": "Нещо се обърка. Опитай отново."
     }
   }

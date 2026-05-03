@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
-import { quizzes, rounds } from "@meloman/db/schema";
+import { questions, quizzes, rounds } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import { EditRoundForm } from "./edit-form";
 
 export default async function AdminRoundDetailPage({
@@ -30,6 +31,19 @@ export default async function AdminRoundDetailPage({
     .limit(1);
 
   if (!round) notFound();
+
+  const roundQuestions = await db
+    .select({
+      id: questions.id,
+      questionType: questions.questionType,
+      questionText: questions.questionText,
+      orderIndex: questions.orderIndex,
+      pointsBase: questions.pointsBase,
+      timeLimitSeconds: questions.timeLimitSeconds,
+    })
+    .from(questions)
+    .where(eq(questions.roundId, round.id))
+    .orderBy(asc(questions.orderIndex));
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -59,6 +73,51 @@ export default async function AdminRoundDetailPage({
           introSlideText: round.introSlideText ?? "",
         }}
       />
+
+      <section className="space-y-4 border-t border-border pt-8">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-xl uppercase tracking-wider">
+            {t("questionsTitle")}
+          </h2>
+          <Link
+            href={`/admin/quizzes/${quiz.id}/rounds/${round.id}/questions/new`}
+            className={buttonVariants({ size: "sm" })}
+          >
+            {t("addQuestion")}
+          </Link>
+        </div>
+
+        {roundQuestions.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("questionsEmpty")}</p>
+        ) : (
+          <ol className="space-y-2">
+            {roundQuestions.map((question, idx) => (
+              <li
+                key={question.id}
+                className="rounded-md border border-border bg-card px-4 py-3"
+              >
+                <div className="flex items-baseline gap-3">
+                  <span className="font-heading text-lg text-muted-foreground tabular-nums">
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-2 font-medium">
+                      {question.questionText}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t(`questionTypes.${question.questionType}`)} ·{" "}
+                      {t("questionMeta", {
+                        seconds: question.timeLimitSeconds,
+                        points: question.pointsBase,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   );
 }

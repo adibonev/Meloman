@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(dirname, "..", ".."),
   },
+  // Default Server Action body limit is 1 MB. Audio question uploads can be
+  // up to ~6 MB; bump the cap to match. (For larger files later, switch the
+  // upload to a signed-URL flow — see lib/r2.ts.)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "8mb",
+    },
+  },
 };
 
 export default withNextIntl(nextConfig);

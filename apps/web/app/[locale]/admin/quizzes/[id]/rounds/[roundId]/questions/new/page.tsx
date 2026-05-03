@@ -6,7 +6,14 @@ import { quizzes, rounds } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { QUESTION_TYPES, type QuestionType } from "@/lib/schemas/question";
 
-const IMPLEMENTED_TYPES: QuestionType[] = ["multiple_choice", "open_text"];
+const IMPLEMENTED_TYPES: QuestionType[] = [
+  "multiple_choice",
+  "open_text",
+  "audio",
+  "image_reveal",
+  "lyric_blank",
+  "decade",
+];
 
 const SLUG_BY_TYPE: Record<QuestionType, string> = {
   multiple_choice: "multiple-choice",

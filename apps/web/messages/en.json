@@ -61,7 +61,16 @@
     "answerMin": "Answer cannot be empty",
     "answerMax": "Answer cannot be more than 200 characters",
     "answersMin": "Add at least one accepted answer",
-    "answersMax": "No more than 20 accepted answers"
+    "answersMax": "No more than 20 accepted answers",
+    "attributionRequired": "Attribution is required for Wikipedia and PressKit sources",
+    "attributionMax": "Attribution cannot be more than 500 characters",
+    "lyricMin": "Lyric text must be at least 10 characters",
+    "lyricMax": "Lyric text cannot be more than 1000 characters",
+    "answersMinBlank": "Add at least one blank (___) in the text",
+    "answersMaxBlank": "No more than 10 blanks per question",
+    "blanksCountMismatch": "Number of answers does not match the number of ___ in the text",
+    "yearMin": "Year must be at least 1900",
+    "yearMax": "Year cannot be greater than 2030"
   },
   "Admin": {
     "panelLabel": "Admin Panel",
@@ -198,6 +207,10 @@
     "chooserTitle": "Choose question type",
     "titleMultipleChoice": "New Multiple Choice question",
     "titleOpenText": "New open-text question",
+    "titleAudio": "New audio question",
+    "titleImageReveal": "New Image Reveal question",
+    "titleLyricBlank": "New Lyric Fill-in question",
+    "titleDecade": "New Decade / Year question",
     "forRound": "In {quiz} → {round}",
     "backToRound": "← Back to round",
     "backToChooser": "← Pick a different type",
@@ -213,11 +226,11 @@
       },
       "audio": {
         "name": "Audio",
-        "description": "5–15 sec MP3 clip + question. Auto-graded or open."
+        "description": "5–30 sec MP3 clip + question. Auto-graded or open."
       },
       "image_reveal": {
         "name": "Image Reveal",
-        "description": "Blurred image that clears over the question's time limit."
+        "description": "Blurred image. Players try to guess what/who is on it."
       },
       "lyric_blank": {
         "name": "Lyric Fill-in",
@@ -235,15 +248,58 @@
     "acceptableAnswersLabel": "Accepted answers",
     "acceptableAnswersHint": "One answer per line. The first will be shown as the \"correct answer\" on reveal. The others are used only for fuzzy matching (lowercase, no diacritics, Levenshtein ≤ 2).",
     "acceptableAnswersPlaceholder": "Queen\nQueens\nКуин",
+    "correctYearLabel": "Exact year",
+    "derivedDecade": "Decade: {decade}s",
+    "scoringTitle": "Scoring",
+    "scoringDecade": "Correct decade: {points} pt",
+    "scoringYear": "Exact year: {points} pt",
+    "scoringMax": "Max for this question: {points} pt",
+    "pointsBaseLabel": "Base points",
+    "lyricTextLabel": "Lyric text with blanks",
+    "lyricTextPlaceholder": "Put a ___ in his ___, pull my ___, he's ___ dead",
+    "lyricTextHint": "Use {placeholder} (three underscores) wherever you want a blank.",
+    "blanksCount": "Detected blanks: {count}",
+    "blanksTooMany": "No more than {max} blanks per question. Remove a few.",
+    "answersLegend": "Correct words (one per blank)",
+    "answersHint": "Scoring is case-insensitive (Queen = queen). No variants — exactly one word per blank.",
+    "answerLabel": "Blank #{number}",
+    "pointsPerBlankLabel": "Points per blank",
+    "pointsPerBlankHint": "Total points for this question: {total}",
+    "imageFileLabel": "Image",
+    "imageFileHint": "JPG, PNG or WebP, up to 6 MB. The image is stored on Cloudflare R2.",
+    "copyrightWarning": "Make sure you have the rights to use this image. Recommended sources: Wikipedia (Creative Commons), official artist press kits, or original photos.",
+    "imageSourceLabel": "Image source",
+    "imageSources": {
+      "Wikipedia": "Wikipedia (CC)",
+      "PressKit": "Press kit",
+      "AlbumCover": "Album cover",
+      "Other": "Other"
+    },
+    "imageAttributionLabel": "Attribution / rights note",
+    "imageAttributionPlaceholder": "e.g. Photo by John Doe / CC BY-SA 4.0",
+    "audioFileLabel": "MP3 clip",
+    "audioFileHint": "Recommended 5–30 sec. .mp3 files only, up to 6 MB. Audio is stored on Cloudflare R2 and played through a signed URL.",
+    "audioDuration": "Detected duration: {seconds} sec (max {max})",
+    "audioOverRecommended": "This file exceeds the recommended 30 sec. During the quiz the clip will be capped to the answer time limit.",
+    "audioSilenceWarning": "Clip is {fileDuration} sec but the answer time is {timeLimit} sec — the last {silenceSeconds} sec will be silence.",
+    "audioCutWarning": "Clip is {fileDuration} sec but the answer time is {timeLimit} sec — playback will stop at {timeLimit} sec (cutting {cutSeconds} sec).",
     "timeLimitLabel": "Time limit (seconds)",
     "pointsLabel": "Points for correct answer",
     "submit": "Create question",
     "submitting": "Creating...",
+    "uploading": "Uploading...",
     "errors": {
       "unauthorized": "You are not signed in.",
       "forbidden": "You do not have permission to add questions.",
       "invalidData": "Invalid data. Please check the fields.",
       "roundNotFound": "This round does not exist.",
+      "audioMissing": "Attach an MP3 file.",
+      "audioTooLarge": "File too large. Limit: 6 MB.",
+      "audioWrongType": "Only .mp3 files are allowed.",
+      "imageMissing": "Attach an image.",
+      "imageTooLarge": "Image too large. Limit: 6 MB.",
+      "imageWrongType": "Only JPG, PNG or WebP are allowed.",
+      "uploadFailed": "Upload to R2 failed. Please try again.",
       "generic": "Something went wrong. Please try again."
     }
   }

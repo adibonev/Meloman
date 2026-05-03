@@ -61,7 +61,16 @@
     "answerMin": "Отговорът не може да е празен",
     "answerMax": "Отговорът не може да е повече от 200 символа",
     "answersMin": "Добави поне един приет отговор",
-    "answersMax": "Не повече от 20 приети отговора"
+    "answersMax": "Не повече от 20 приети отговора",
+    "attributionRequired": "За Wikipedia и PressKit attribution е задължително",
+    "attributionMax": "Attribution не може да е повече от 500 символа",
+    "lyricMin": "Текстът трябва да е поне 10 символа",
+    "lyricMax": "Текстът не може да е повече от 1000 символа",
+    "answersMinBlank": "Добави поне един blank в текста (___)",
+    "answersMaxBlank": "Не повече от 10 blanks в един въпрос",
+    "blanksCountMismatch": "Броят на отговорите не съвпада с броя на ___ в текста",
+    "yearMin": "Годината трябва да е поне 1900",
+    "yearMax": "Годината не може да е по-голяма от 2030"
   },
   "Admin": {
     "panelLabel": "Admin Panel",
@@ -198,6 +207,10 @@
     "chooserTitle": "Избери тип въпрос",
     "titleMultipleChoice": "Нов Multiple Choice въпрос",
     "titleOpenText": "Нов въпрос със свободен отговор",
+    "titleAudio": "Нов аудио въпрос",
+    "titleImageReveal": "Нов Image Reveal въпрос",
+    "titleLyricBlank": "Нов Lyric Fill-in въпрос",
+    "titleDecade": "Нов Decade / Year въпрос",
     "forRound": "Към {quiz} → {round}",
     "backToRound": "← Назад към рунда",
     "backToChooser": "← Избери друг тип",
@@ -213,11 +226,11 @@
       },
       "audio": {
         "name": "Аудио",
-        "description": "5–15 сек MP3 клип + въпрос. Auto-grade или open."
+        "description": "5–30 сек MP3 клип + въпрос. Auto-grade или open."
       },
       "image_reveal": {
         "name": "Image Reveal",
-        "description": "Размазана снимка, която се изчиства за времето на въпроса."
+        "description": "Размазана снимка. Играчите се мъчат да познаят какво/кой е на нея."
       },
       "lyric_blank": {
         "name": "Lyric Fill-in",
@@ -235,15 +248,58 @@
     "acceptableAnswersLabel": "Приети отговори",
     "acceptableAnswersHint": "По един отговор на ред. Първият ще се покаже като \"правилен отговор\" при reveal. Другите служат само за fuzzy matching (lowercase, без диакритики, Levenshtein ≤ 2).",
     "acceptableAnswersPlaceholder": "Queen\nQueens\nКуин",
+    "correctYearLabel": "Точна година",
+    "derivedDecade": "Decade: {decade}s",
+    "scoringTitle": "Точкуване",
+    "scoringDecade": "Точно decade: {points} т.",
+    "scoringYear": "Точна година: {points} т.",
+    "scoringMax": "Максимум за въпроса: {points} т.",
+    "pointsBaseLabel": "Базови точки",
+    "lyricTextLabel": "Текст с празни места",
+    "lyricTextPlaceholder": "Put a ___ in his ___, pull my ___, he's ___ dead",
+    "lyricTextHint": "Използвай {placeholder} (3 долни тирета) където искаш blank.",
+    "blanksCount": "Открити blanks: {count}",
+    "blanksTooMany": "Не повече от {max} blanks в един въпрос. Махни няколко.",
+    "answersLegend": "Правилни думи (по 1 на blank)",
+    "answersHint": "Точкуването е case-insensitive (Queen = queen). Не приема варианти — точно една дума на blank.",
+    "answerLabel": "Blank #{number}",
+    "pointsPerBlankLabel": "Точки на blank",
+    "pointsPerBlankHint": "Общо точки за въпроса: {total}",
+    "imageFileLabel": "Снимка",
+    "imageFileHint": "JPG, PNG или WebP, до 6 MB. Снимката се качва в Cloudflare R2.",
+    "copyrightWarning": "Увери се, че имаш права върху снимката. Препоръчителни източници: Wikipedia (Creative Commons), официални press kits на изпълнителите, или собствени снимки.",
+    "imageSourceLabel": "Източник на снимката",
+    "imageSources": {
+      "Wikipedia": "Wikipedia (CC)",
+      "PressKit": "Press kit",
+      "AlbumCover": "Обложка на албум",
+      "Other": "Друг"
+    },
+    "imageAttributionLabel": "Attribution / описание на правата",
+    "imageAttributionPlaceholder": "напр. Photo by John Doe / CC BY-SA 4.0",
+    "audioFileLabel": "MP3 клип",
+    "audioFileHint": "Препоръчително 5–30 сек. Само .mp3 файлове, до 6 MB. Аудиото се качва в Cloudflare R2 и се възпроизвежда през сигнатиран URL.",
+    "audioDuration": "Засечена продължителност: {seconds} сек (макс {max})",
+    "audioOverRecommended": "Файлът надхвърля препоръчителните 30 сек. По време на quiz клипът ще бъде отрязан до времето за отговор.",
+    "audioSilenceWarning": "Файлът е {fileDuration} сек, а времето за отговор е {timeLimit} сек — последните {silenceSeconds} сек ще са тишина.",
+    "audioCutWarning": "Файлът е {fileDuration} сек, но времето за отговор е {timeLimit} сек — клипът ще бъде отрязан на {timeLimit}-тата секунда (ще се изрежат {cutSeconds} сек).",
     "timeLimitLabel": "Време за отговор (секунди)",
     "pointsLabel": "Точки за правилен отговор",
     "submit": "Създай въпрос",
     "submitting": "Създаване...",
+    "uploading": "Качване...",
     "errors": {
       "unauthorized": "Не си логнат.",
       "forbidden": "Нямаш права да добавяш въпроси.",
       "invalidData": "Невалидни данни. Провери полетата.",
       "roundNotFound": "Този рунд не съществува.",
+      "audioMissing": "Прикачи MP3 файл.",
+      "audioTooLarge": "Файлът е твърде голям. Лимит: 6 MB.",
+      "audioWrongType": "Само .mp3 файлове са разрешени.",
+      "imageMissing": "Прикачи снимка.",
+      "imageTooLarge": "Снимката е твърде голяма. Лимит: 6 MB.",
+      "imageWrongType": "Само JPG, PNG или WebP са разрешени.",
+      "uploadFailed": "Качването в R2 не успя. Опитай отново.",
       "generic": "Нещо се обърка. Опитай отново."
     }
   }

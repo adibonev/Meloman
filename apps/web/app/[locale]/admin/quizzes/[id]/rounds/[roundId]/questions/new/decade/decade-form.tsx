@@ -5,11 +5,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import {
-  MULTIPLE_CHOICE_CORRECT_INDEXES,
-  createMultipleChoiceQuestionSchema,
-  type CreateMultipleChoiceQuestionInput,
+  DECADE_MAX_YEAR,
+  DECADE_MIN_YEAR,
+  createDecadeQuestionSchema,
+  decadeFromYear,
+  type CreateDecadeQuestionInput,
 } from "@/lib/schemas/question";
-import { createMultipleChoiceQuestionAction } from "./actions";
+import { createDecadeQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,9 +19,8 @@ import { Label } from "@/components/ui/label";
 type ValidationKey =
   | "questionTextMin"
   | "questionTextMax"
-  | "optionMin"
-  | "optionMax"
-  | "correctIndexRange"
+  | "yearMin"
+  | "yearMax"
   | "timeLimitMin"
   | "timeLimitMax"
   | "pointsMin"
@@ -28,7 +29,7 @@ type ValidationKey =
 const fieldClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
-export function MultipleChoiceForm({
+export function DecadeForm({
   quizId,
   roundId,
 }: {
@@ -50,27 +51,35 @@ export function MultipleChoiceForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<CreateMultipleChoiceQuestionInput>({
-    resolver: zodResolver(createMultipleChoiceQuestionSchema),
+  } = useForm<CreateDecadeQuestionInput>({
+    resolver: zodResolver(createDecadeQuestionSchema),
     defaultValues: {
-      options: ["", "", "", ""],
-      correctIndex: 0,
+      questionText: "",
+      correctYear: 1985,
       timeLimitSeconds: 20,
       pointsBase: 1,
     },
   });
 
-  function onSubmit(data: CreateMultipleChoiceQuestionInput) {
+  const watchedYear = Number(watch("correctYear"));
+  const watchedPoints = Number(watch("pointsBase")) || 1;
+  const validYear =
+    Number.isInteger(watchedYear) &&
+    watchedYear >= DECADE_MIN_YEAR &&
+    watchedYear <= DECADE_MAX_YEAR;
+  const derivedDecade = validYear ? decadeFromYear(watchedYear) : null;
+
+  function onSubmit(data: CreateDecadeQuestionInput) {
     setServerErrorKey(null);
     startTransition(async () => {
       const formData = new FormData();
       formData.set("questionText", data.questionText);
-      data.options.forEach((opt, i) => formData.set(`option${i}`, opt));
-      formData.set("correctIndex", String(data.correctIndex));
+      formData.set("correctYear", String(data.correctYear));
       formData.set("timeLimitSeconds", String(data.timeLimitSeconds));
       formData.set("pointsBase", String(data.pointsBase));
-      const result = await createMultipleChoiceQuestionAction(
+      const result = await createDecadeQuestionAction(
         quizId,
         roundId,
         formData
@@ -96,39 +105,38 @@ export function MultipleChoiceForm({
         )}
       </div>
 
-      <fieldset className="space-y-3">
-        <legend className="mb-2 text-sm font-medium">
-          {t("optionsLegend")}
-        </legend>
-        <p className="text-xs text-muted-foreground">{t("optionsHint")}</p>
-        {MULTIPLE_CHOICE_CORRECT_INDEXES.map((i) => (
-          <div key={i} className="flex items-start gap-3">
-            <div className="flex items-center pt-2">
-              <input
-                type="radio"
-                id={`correct-${i}`}
-                value={i}
-                {...register("correctIndex")}
-                className="size-4 cursor-pointer"
-              />
-            </div>
-            <div className="flex-1 space-y-1">
-              <Label
-                htmlFor={`option-${i}`}
-                className="text-xs text-muted-foreground"
-              >
-                {t("optionLabel", { letter: String.fromCharCode(65 + i) })}
-              </Label>
-              <Input id={`option-${i}`} {...register(`options.${i}` as const)} />
-              {errors.options?.[i]?.message && (
-                <p className="text-xs text-destructive">
-                  {tValidation(errors.options[i]!.message as ValidationKey)}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </fieldset>
+      <div className="space-y-1.5">
+        <Label htmlFor="correctYear">{t("correctYearLabel")}</Label>
+        <Input
+          id="correctYear"
+          type="number"
+          min={DECADE_MIN_YEAR}
+          max={DECADE_MAX_YEAR}
+          {...register("correctYear")}
+        />
+        {derivedDecade !== null && (
+          <p className="text-xs text-muted-foreground">
+            {t("derivedDecade", { decade: derivedDecade })}
+          </p>
+        )}
+        {errors.correctYear?.message && (
+          <p className="text-xs text-destructive">
+            {tValidation(errors.correctYear.message as ValidationKey)}
+          </p>
+        )}
+      </div>
+
+      <div className="rounded-md border border-border bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
+        <p className="mb-1 font-medium text-foreground">{t("scoringTitle")}</p>
+        <p>
+          {t("scoringDecade", { points: watchedPoints })}
+          {" · "}
+          {t("scoringYear", { points: watchedPoints * 2 })}
+        </p>
+        <p className="mt-1">
+          {t("scoringMax", { points: watchedPoints * 3 })}
+        </p>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
@@ -148,7 +156,7 @@ export function MultipleChoiceForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="pointsBase">{t("pointsLabel")}</Label>
+          <Label htmlFor="pointsBase">{t("pointsBaseLabel")}</Label>
           <Input
             id="pointsBase"
             type="number"

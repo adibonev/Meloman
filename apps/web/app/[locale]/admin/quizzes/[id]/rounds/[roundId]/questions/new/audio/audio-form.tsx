@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import {
-  createOpenTextQuestionSchema,
-  type CreateOpenTextQuestionInput,
+  AUDIO_ACCEPTED_MIME_TYPES,
+  AUDIO_MAX_DURATION_SECONDS,
+  AUDIO_MAX_SIZE_BYTES,
+  createAudioQuestionMetadataSchema,
 } from "@/lib/schemas/question";
-import { createOpenTextQuestionAction } from "./actions";
+import { createAudioQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,8 +29,6 @@ type ValidationKey =
 const fieldClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
-// The form binds `acceptableAnswersText` (a multiline textarea) and converts
-// it to `string[]` on submit. Zod still validates against the array schema.
 type FormShape = {
   questionText: string;
   acceptableAnswersText: string;
@@ -37,7 +36,7 @@ type FormShape = {
   pointsBase: number;
 };
 
-export function OpenTextForm({
+export function AudioForm({
   quizId,
   roundId,
 }: {
@@ -51,30 +50,39 @@ export function OpenTextForm({
     | "forbidden"
     | "invalidData"
     | "roundNotFound"
+    | "audioMissing"
+    | "audioTooLarge"
+    | "audioWrongType"
+    | "uploadFailed"
     | "generic"
     | null
   >(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioDuration, setAudioDuration] = useState<number | null>(null);
+  const [audioFileError, setAudioFileError] = useState<
+    "audioMissing" | "audioTooLarge" | "audioWrongType" | null
+  >(null);
   const [isPending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormShape>({
-    // Validate the resolved array via zodResolver: split textarea -> string[]
     resolver: async (values) => {
       const acceptableAnswers = values.acceptableAnswersText
         .split("\n")
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
-      const result = createOpenTextQuestionSchema.safeParse({
+      const result = createAudioQuestionMetadataSchema.safeParse({
         questionText: values.questionText,
         acceptableAnswers,
         timeLimitSeconds: values.timeLimitSeconds,
         pointsBase: values.pointsBase,
       });
       if (result.success) return { values, errors: {} };
-      // Map Zod error paths back onto the form shape so RHF can show messages.
       const fieldErrors: Record<string, { type: string; message: string }> = {};
       for (const issue of result.error.issues) {
         const path = issue.path.join(".");
@@ -90,20 +98,60 @@ export function OpenTextForm({
     defaultValues: {
       questionText: "",
       acceptableAnswersText: "",
-      timeLimitSeconds: 20,
+      timeLimitSeconds: 15,
       pointsBase: 1,
     },
   });
 
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setAudioFileError(null);
+    setAudioDuration(null);
+    const file = e.target.files?.[0] ?? null;
+    if (!file) {
+      setAudioFile(null);
+      return;
+    }
+    if (file.size > AUDIO_MAX_SIZE_BYTES) {
+      setAudioFileError("audioTooLarge");
+      setAudioFile(null);
+      e.target.value = "";
+      return;
+    }
+    if (
+      !AUDIO_ACCEPTED_MIME_TYPES.includes(
+        file.type as (typeof AUDIO_ACCEPTED_MIME_TYPES)[number]
+      )
+    ) {
+      setAudioFileError("audioWrongType");
+      setAudioFile(null);
+      e.target.value = "";
+      return;
+    }
+    setAudioFile(file);
+
+    // Best-effort duration probe via HTMLAudioElement. This is informational —
+    // the server doesn't trust it; it just shows the admin a soft warning.
+    const audio = new Audio(URL.createObjectURL(file));
+    audio.addEventListener("loadedmetadata", () => {
+      setAudioDuration(audio.duration);
+      URL.revokeObjectURL(audio.src);
+    });
+  }
+
   function onSubmit(values: FormShape) {
     setServerErrorKey(null);
+    if (!audioFile) {
+      setAudioFileError("audioMissing");
+      return;
+    }
     startTransition(async () => {
       const formData = new FormData();
       formData.set("questionText", values.questionText);
       formData.set("acceptableAnswers", values.acceptableAnswersText);
       formData.set("timeLimitSeconds", String(values.timeLimitSeconds));
       formData.set("pointsBase", String(values.pointsBase));
-      const result = await createOpenTextQuestionAction(
+      formData.set("audioFile", audioFile);
+      const result = await createAudioQuestionAction(
         quizId,
         roundId,
         formData
@@ -111,6 +159,27 @@ export function OpenTextForm({
       if (result?.errorKey) setServerErrorKey(result.errorKey);
     });
   }
+
+  const watchedTimeLimit = watch("timeLimitSeconds");
+  // RHF stores number-typed inputs as either number or string depending on
+  // whether the user has typed in the field; coerce to a finite number.
+  const timeLimit = Number(watchedTimeLimit);
+  const validTimeLimit = Number.isFinite(timeLimit) && timeLimit > 0;
+
+  const overRecommended =
+    audioDuration !== null && audioDuration > AUDIO_MAX_DURATION_SECONDS;
+  // Round to 1 decimal so the warning reads naturally ("3.4 сек тишина" not
+  // "3.4129... сек").
+  const fileDurationLabel =
+    audioDuration !== null ? audioDuration.toFixed(1) : null;
+  const silenceSeconds =
+    audioDuration !== null && validTimeLimit && audioDuration < timeLimit
+      ? +(timeLimit - audioDuration).toFixed(1)
+      : null;
+  const cutSeconds =
+    audioDuration !== null && validTimeLimit && audioDuration > timeLimit
+      ? +(audioDuration - timeLimit).toFixed(1)
+      : null;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
@@ -125,6 +194,60 @@ export function OpenTextForm({
         {errors.questionText?.message && (
           <p className="text-xs text-destructive">
             {tValidation(errors.questionText.message as ValidationKey)}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="audioFile">{t("audioFileLabel")}</Label>
+        <input
+          ref={fileInputRef}
+          id="audioFile"
+          type="file"
+          accept={AUDIO_ACCEPTED_MIME_TYPES.join(",")}
+          onChange={onFileChange}
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80"
+        />
+        <p className="text-xs text-muted-foreground">{t("audioFileHint")}</p>
+
+        {audioFile && fileDurationLabel !== null && (
+          <p className="text-xs text-muted-foreground">
+            {t("audioDuration", {
+              seconds: fileDurationLabel,
+              max: AUDIO_MAX_DURATION_SECONDS,
+            })}
+          </p>
+        )}
+
+        {overRecommended && (
+          <p className="text-xs text-amber-500">
+            {t("audioOverRecommended")}
+          </p>
+        )}
+
+        {silenceSeconds !== null && silenceSeconds > 0 && (
+          <p className="text-xs text-amber-500">
+            {t("audioSilenceWarning", {
+              fileDuration: fileDurationLabel ?? "",
+              timeLimit,
+              silenceSeconds,
+            })}
+          </p>
+        )}
+
+        {cutSeconds !== null && cutSeconds > 0 && (
+          <p className="text-xs text-amber-500">
+            {t("audioCutWarning", {
+              fileDuration: fileDurationLabel ?? "",
+              timeLimit,
+              cutSeconds,
+            })}
+          </p>
+        )}
+
+        {audioFileError && (
+          <p className="text-xs text-destructive">
+            {t(`errors.${audioFileError}`)}
           </p>
         )}
       </div>
@@ -193,7 +316,7 @@ export function OpenTextForm({
       )}
 
       <Button type="submit" size="lg" disabled={isPending}>
-        {isPending ? t("submitting") : t("submit")}
+        {isPending ? t("uploading") : t("submit")}
       </Button>
     </form>
   );

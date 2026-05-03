@@ -43,6 +43,26 @@ export async function getDownloadUrl(
   return getSignedUrl(r2, command, { expiresIn });
 }
 
+/**
+ * Server-side upload — used while admin uploads stay small (audio clips ≤ a few MB).
+ * For larger files later, switch the caller to `getUploadUrl` and PUT from the
+ * browser directly to R2; this function can stay as the simple path.
+ */
+export async function uploadObject(
+  key: string,
+  body: Uint8Array,
+  contentType: string,
+): Promise<void> {
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    }),
+  );
+}
+
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {

@@ -1,0 +1,110 @@
+"use server";
+
+import { randomUUID } from "node:crypto";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
+import { db } from "@meloman/db";
+import { questions, quizzes, rounds } from "@meloman/db/schema";
+import { auth } from "@/auth";
+import { redirect } from "@/i18n/navigation";
+import { uploadObject } from "@/lib/r2";
+import {
+  AUDIO_ACCEPTED_MIME_TYPES,
+  AUDIO_MAX_SIZE_BYTES,
+  createAudioQuestionMetadataSchema,
+} from "@/lib/schemas/question";
+
+export async function createAudioQuestionAction(
+  quizId: string,
+  roundId: string,
+  formData: FormData
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { errorKey: "unauthorized" as const };
+  }
+  if (session.user.role !== "admin" && session.user.role !== "super_admin") {
+    return { errorKey: "forbidden" as const };
+  }
+
+  const audioFile = formData.get("audioFile");
+  if (!(audioFile instanceof File) || audioFile.size === 0) {
+    return { errorKey: "audioMissing" as const };
+  }
+  if (audioFile.size > AUDIO_MAX_SIZE_BYTES) {
+    return { errorKey: "audioTooLarge" as const };
+  }
+  if (
+    !AUDIO_ACCEPTED_MIME_TYPES.includes(
+      audioFile.type as (typeof AUDIO_ACCEPTED_MIME_TYPES)[number]
+    )
+  ) {
+    return { errorKey: "audioWrongType" as const };
+  }
+
+  const rawAnswers = (formData.get("acceptableAnswers") ?? "").toString();
+  const acceptableAnswers = rawAnswers
+    .split("\n")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
+  const parsed = createAudioQuestionMetadataSchema.safeParse({
+    questionText: formData.get("questionText"),
+    acceptableAnswers,
+    timeLimitSeconds: formData.get("timeLimitSeconds"),
+    pointsBase: formData.get("pointsBase"),
+  });
+  if (!parsed.success) {
+    return { errorKey: "invalidData" as const };
+  }
+
+  const [parent] = await db
+    .select({ roundId: rounds.id })
+    .from(rounds)
+    .innerJoin(quizzes, eq(quizzes.id, rounds.quizId))
+    .where(
+      and(
+        eq(rounds.id, roundId),
+        eq(rounds.quizId, quizId),
+        isNull(quizzes.deletedAt)
+      )
+    )
+    .limit(1);
+
+  if (!parent) {
+    return { errorKey: "roundNotFound" as const };
+  }
+
+  // Upload first; if it fails we never write a half-baked DB row.
+  const key = `quiz-audio/${randomUUID()}.mp3`;
+  try {
+    const buffer = new Uint8Array(await audioFile.arrayBuffer());
+    await uploadObject(key, buffer, "audio/mpeg");
+  } catch (err) {
+    console.error("R2 audio upload failed:", err);
+    return { errorKey: "uploadFailed" as const };
+  }
+
+  const [{ maxOrder }] = await db
+    .select({ maxOrder: sql<number | null>`max(${questions.orderIndex})` })
+    .from(questions)
+    .where(eq(questions.roundId, roundId));
+
+  const nextOrder = maxOrder === null ? 0 : maxOrder + 1;
+
+  await db.insert(questions).values({
+    roundId,
+    questionType: "audio",
+    questionText: parsed.data.questionText,
+    correctAnswer: parsed.data.acceptableAnswers[0],
+    acceptableAnswers: parsed.data.acceptableAnswers,
+    mediaUrl: key,
+    mediaSource: "Other",
+    orderIndex: nextOrder,
+    timeLimitSeconds: parsed.data.timeLimitSeconds,
+    pointsBase: parsed.data.pointsBase,
+  });
+
+  const locale = await getLocale();
+  redirect({ href: `/admin/quizzes/${quizId}/rounds/${roundId}`, locale });
+}

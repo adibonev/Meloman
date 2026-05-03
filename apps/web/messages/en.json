@@ -288,6 +288,9 @@
     "submit": "Create question",
     "submitting": "Creating...",
     "uploading": "Uploading...",
+    "spotifyHint": "Start from a Spotify search to autofill the text and metadata. You can edit anything afterwards.",
+    "spotifyQuestionTemplate": "Who performs the song \"{name}\"?",
+    "spotifyDecadeQuestionTemplate": "What year was \"{name}\" by {artist} released?",
     "errors": {
       "unauthorized": "You are not signed in.",
       "forbidden": "You do not have permission to add questions.",
@@ -302,5 +305,12 @@
       "uploadFailed": "Upload to R2 failed. Please try again.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "SpotifySearch": {
+    "label": "Search Spotify",
+    "placeholder": "Type a title or artist...",
+    "loading": "Searching...",
+    "error": "Spotify did not respond. Please try again.",
+    "noResults": "No results."
   }
 }

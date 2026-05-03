@@ -15,6 +15,8 @@ import { createDecadeQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SpotifySearch } from "@/components/admin/spotify-search";
+import type { SpotifyTrack } from "@/lib/spotify";
 
 type ValidationKey =
   | "questionTextMin"
@@ -51,6 +53,7 @@ export function DecadeForm({
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<CreateDecadeQuestionInput>({
@@ -71,6 +74,19 @@ export function DecadeForm({
     watchedYear <= DECADE_MAX_YEAR;
   const derivedDecade = validYear ? decadeFromYear(watchedYear) : null;
 
+  function handleSpotifyPick(track: SpotifyTrack) {
+    setValue(
+      "questionText",
+      t("spotifyDecadeQuestionTemplate", {
+        name: track.name,
+        artist: track.artistName,
+      })
+    );
+    if (track.year !== null) {
+      setValue("correctYear", track.year);
+    }
+  }
+
   function onSubmit(data: CreateDecadeQuestionInput) {
     setServerErrorKey(null);
     startTransition(async () => {
@@ -90,6 +106,13 @@ export function DecadeForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+      <div className="rounded-md border border-dashed border-border bg-muted/20 p-3">
+        <SpotifySearch onSelect={handleSpotifyPick} />
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("spotifyHint")}
+        </p>
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="questionText">{t("questionTextLabel")}</Label>
         <textarea

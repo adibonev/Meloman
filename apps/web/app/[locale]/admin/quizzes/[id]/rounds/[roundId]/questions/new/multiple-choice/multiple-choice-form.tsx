@@ -13,6 +13,8 @@ import { createMultipleChoiceQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SpotifySearch } from "@/components/admin/spotify-search";
+import type { SpotifyTrack } from "@/lib/spotify";
 
 type ValidationKey =
   | "questionTextMin"
@@ -50,6 +52,7 @@ export function MultipleChoiceForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CreateMultipleChoiceQuestionInput>({
     resolver: zodResolver(createMultipleChoiceQuestionSchema),
@@ -60,6 +63,14 @@ export function MultipleChoiceForm({
       pointsBase: 1,
     },
   });
+
+  function handleSpotifyPick(track: SpotifyTrack) {
+    // Prefill the question text and Option A with the artist (the most likely
+    // correct answer for "Who performs ...?"). The admin can edit anything.
+    setValue("questionText", t("spotifyQuestionTemplate", { name: track.name }));
+    setValue("options.0", track.artistName);
+    setValue("correctIndex", 0);
+  }
 
   function onSubmit(data: CreateMultipleChoiceQuestionInput) {
     setServerErrorKey(null);
@@ -81,6 +92,13 @@ export function MultipleChoiceForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+      <div className="rounded-md border border-dashed border-border bg-muted/20 p-3">
+        <SpotifySearch onSelect={handleSpotifyPick} />
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("spotifyHint")}
+        </p>
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="questionText">{t("questionTextLabel")}</Label>
         <textarea

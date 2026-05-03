@@ -12,6 +12,8 @@ import { createOpenTextQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SpotifySearch } from "@/components/admin/spotify-search";
+import type { SpotifyTrack } from "@/lib/spotify";
 
 type ValidationKey =
   | "questionTextMin"
@@ -59,6 +61,7 @@ export function OpenTextForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormShape>({
     // Validate the resolved array via zodResolver: split textarea -> string[]
@@ -95,6 +98,11 @@ export function OpenTextForm({
     },
   });
 
+  function handleSpotifyPick(track: SpotifyTrack) {
+    setValue("questionText", t("spotifyQuestionTemplate", { name: track.name }));
+    setValue("acceptableAnswersText", track.artistName);
+  }
+
   function onSubmit(values: FormShape) {
     setServerErrorKey(null);
     startTransition(async () => {
@@ -114,6 +122,13 @@ export function OpenTextForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+      <div className="rounded-md border border-dashed border-border bg-muted/20 p-3">
+        <SpotifySearch onSelect={handleSpotifyPick} />
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("spotifyHint")}
+        </p>
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="questionText">{t("questionTextLabel")}</Label>
         <textarea

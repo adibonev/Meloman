@@ -288,6 +288,9 @@
     "submit": "Създай въпрос",
     "submitting": "Създаване...",
     "uploading": "Качване...",
+    "spotifyHint": "Започни от Spotify търсене за да попълниш автоматично текста и метаданните. Можеш да редактираш всичко след това.",
+    "spotifyQuestionTemplate": "Кой изпълнява песента \"{name}\"?",
+    "spotifyDecadeQuestionTemplate": "През коя година излиза \"{name}\" на {artist}?",
     "errors": {
       "unauthorized": "Не си логнат.",
       "forbidden": "Нямаш права да добавяш въпроси.",
@@ -302,5 +305,12 @@
       "uploadFailed": "Качването в R2 не успя. Опитай отново.",
       "generic": "Нещо се обърка. Опитай отново."
     }
+  },
+  "SpotifySearch": {
+    "label": "Търси в Spotify",
+    "placeholder": "Напиши заглавие или изпълнител...",
+    "loading": "Търсене...",
+    "error": "Spotify не отговори. Опитай отново.",
+    "noResults": "Няма резултати."
   }
 }

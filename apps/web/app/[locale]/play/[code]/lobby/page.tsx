@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import {
@@ -79,6 +79,11 @@ export default async function PlayLobbyPage({
         status: gameSessions.status,
         quizTitle: quizzes.title,
         currentQuestionId: gameSessions.currentQuestionId,
+        questionEndsAt: gameSessions.questionEndsAt,
+        serverNowMs:
+          sql<number>`(extract(epoch from now()) * 1000)::double precision`.mapWith(
+            Number
+          ),
       })
       .from(gameSessions)
       .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
@@ -200,6 +205,7 @@ export default async function PlayLobbyPage({
         ),
       }
     : null;
+  const questionEndsAtMs = sessionRow.questionEndsAt?.valueOf() ?? null;
 
   return (
     <div className="mx-auto max-w-md space-y-6 px-4 py-12">
@@ -264,6 +270,8 @@ export default async function PlayLobbyPage({
         question={questionForPanel}
         isCaptain={isCaptain}
         hasSubmitted={existingAnswer !== undefined}
+        timerEndsAtMs={questionEndsAtMs}
+        serverNowMs={sessionRow.serverNowMs}
       />
 
       {/* Subscribes to the quiz channel and refreshes the page when the host

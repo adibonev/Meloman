@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { TimerCountdown } from "@/components/live/timer-countdown";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { submitAnswerAction } from "../actions";
@@ -57,12 +58,16 @@ export function QuestionPanel({
   question,
   isCaptain,
   hasSubmitted,
+  timerEndsAtMs,
+  serverNowMs,
 }: {
   code: string;
   status: "lobby" | "active" | "reveal" | "paused" | "finished";
   question: LobbyQuestion | null;
   isCaptain: boolean;
   hasSubmitted: boolean;
+  timerEndsAtMs: number | null;
+  serverNowMs: number;
 }) {
   const t = useTranslations("PlayLobby");
   const router = useRouter();
@@ -153,6 +158,14 @@ export function QuestionPanel({
           </span>
           <span>{t("points", { points: question.maxPoints })}</span>
         </div>
+        <TimerCountdown
+          key={timerEndsAtMs ?? "no-question-timer"}
+          active={status === "active"}
+          endedLabel={t("timerEnded")}
+          endsAtMs={timerEndsAtMs}
+          label={t("timerRemaining")}
+          serverNowMs={serverNowMs}
+        />
         <h2 className="font-heading text-2xl font-black uppercase tracking-wider">
           {question.questionText}
         </h2>

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { and, asc, count, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, inArray, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import {
@@ -12,6 +12,7 @@ import {
   users,
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
+import { TimerCountdown } from "@/components/live/timer-countdown";
 import { LiveHost } from "./live-host";
 import { HostControls } from "./host-controls";
 
@@ -77,6 +78,11 @@ export default async function HostLobbyPage({
       status: gameSessions.status,
       quizTitle: quizzes.title,
       currentQuestionId: gameSessions.currentQuestionId,
+      questionEndsAt: gameSessions.questionEndsAt,
+      serverNowMs:
+        sql<number>`(extract(epoch from now()) * 1000)::double precision`.mapWith(
+          Number
+        ),
     })
     .from(gameSessions)
     .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
@@ -171,6 +177,7 @@ export default async function HostLobbyPage({
         currentOptions
       )
     : null;
+  const questionEndsAtMs = row.questionEndsAt?.valueOf() ?? null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
@@ -251,6 +258,14 @@ export default async function HostLobbyPage({
                 seconds: currentQuestion.timeLimitSeconds,
               })}
             </p>
+            <TimerCountdown
+              key={questionEndsAtMs ?? "no-question-timer"}
+              active={row.status === "active"}
+              endedLabel={t("timerEnded")}
+              endsAtMs={questionEndsAtMs}
+              label={t("timerRemaining")}
+              serverNowMs={row.serverNowMs}
+            />
           </div>
 
           {currentOptions.length > 0 && (

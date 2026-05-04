@@ -395,6 +395,8 @@
     "activeQuestion": "Question live",
     "revealQuestion": "Answer reveal",
     "points": "{points, plural, =1 {1 point} other {# points}}",
+    "timerRemaining": "Time left",
+    "timerEnded": "Time is up",
     "captainOnly": "Only the team captain can submit an answer.",
     "answerSubmitted": "Answer submitted.",
     "submittingAnswer": "Submitting...",
@@ -451,6 +453,8 @@
     "currentQuestionTitle": "Current question",
     "answersValue": "{answers}/{teams} answered",
     "questionMeta": "{points, plural, =1 {1 point} other {# points}} - {seconds}s",
+    "timerRemaining": "Time left",
+    "timerEnded": "Time is up",
     "correctAnswer": "Correct answer: {answer}",
     "questionTypes": {
       "multiple_choice": "Multiple choice",

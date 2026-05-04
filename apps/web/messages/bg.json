@@ -395,6 +395,8 @@
     "activeQuestion": "Въпросът е активен",
     "revealQuestion": "Разкриване на отговора",
     "points": "{points, plural, =1 {1 точка} other {# точки}}",
+    "timerRemaining": "Остава",
+    "timerEnded": "Времето изтече",
     "captainOnly": "Само капитанът на отбора може да изпрати отговор.",
     "answerSubmitted": "Отговорът е изпратен.",
     "submittingAnswer": "Изпращане...",
@@ -451,6 +453,8 @@
     "currentQuestionTitle": "Текущ въпрос",
     "answersValue": "{answers}/{teams} отговорили",
     "questionMeta": "{points, plural, =1 {1 точка} other {# точки}} - {seconds}s",
+    "timerRemaining": "Остава",
+    "timerEnded": "Времето изтече",
     "correctAnswer": "Верен отговор: {answer}",
     "questionTypes": {
       "multiple_choice": "Избор от варианти",

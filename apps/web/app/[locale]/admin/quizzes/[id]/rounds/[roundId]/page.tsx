@@ -6,6 +6,7 @@ import { questions, quizzes, rounds } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { EditRoundForm } from "./edit-form";
+import { QuestionRowActions } from "./question-row-actions";
 
 export default async function AdminRoundDetailPage({
   params,
@@ -94,25 +95,30 @@ export default async function AdminRoundDetailPage({
             {roundQuestions.map((question, idx) => (
               <li
                 key={question.id}
-                className="rounded-md border border-border bg-card px-4 py-3"
+                className="flex items-center gap-3 rounded-md border border-border bg-card px-4 py-3"
               >
-                <div className="flex items-baseline gap-3">
-                  <span className="font-heading text-lg text-muted-foreground tabular-nums">
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 font-medium">
-                      {question.questionText}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t(`questionTypes.${question.questionType}`)} ·{" "}
-                      {t("questionMeta", {
-                        seconds: question.timeLimitSeconds,
-                        points: question.pointsBase,
-                      })}
-                    </p>
-                  </div>
+                <span className="font-heading text-lg text-muted-foreground tabular-nums">
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 font-medium">
+                    {question.questionText}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t(`questionTypes.${question.questionType}`)} ·{" "}
+                    {t("questionMeta", {
+                      seconds: question.timeLimitSeconds,
+                      points: question.pointsBase,
+                    })}
+                  </p>
                 </div>
+                <QuestionRowActions
+                  quizId={quiz.id}
+                  roundId={round.id}
+                  questionId={question.id}
+                  canMoveUp={idx > 0}
+                  canMoveDown={idx < roundQuestions.length - 1}
+                />
               </li>
             ))}
           </ol>

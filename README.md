@@ -1,159 +1,159 @@
 # Meloman
 
-A music quiz platform with two surfaces: a **live quiz system** for in-person trivia nights, and a **daily engagement app** with Song of the Day, Mystery Artist, streaks, and editorial stories.
+[![CI](https://github.com/adibonev/meloman/actions/workflows/ci.yml/badge.svg)](https://github.com/adibonev/meloman/actions/workflows/ci.yml)
 
-Built as the SoftUni "Full Stack Apps with AI" capstone project and as a real product launch for the Bulgarian music page [Meloman](https://www.facebook.com/meloman) (~1,000 followers).
+Meloman is a music quiz platform with two product surfaces:
 
-> Status: **Sprint 1 in progress** — foundation (auth, monorepo, i18n, deploy). See [`CLAUDE.md`](CLAUDE.md) §10 for the full sprint plan.
+- **Live quiz system** for in-person trivia nights: host screen, player phones, teams, real-time events, scoring, and leaderboard flow.
+- **Daily engagement app** for music fans: Song of the Day, Mystery Artist, streaks, badges, and editorial stories.
+
+The project is both Adi Bonev's SoftUni "Full Stack Apps with AI" capstone and a real product for the Bulgarian music page Meloman.
+
+> Status: **Sprint 3 in progress**. The quiz builder and live quiz foundation are implemented; fullscreen host presentation, leaderboard, override flow, and final polish are still in progress.
 
 ---
 
-## Tech stack
+## Tech Stack
 
 | Layer | Technology |
-|---|---|
-| Framework | Next.js 15 (App Router, Server Components) |
-| Language | TypeScript (strict) |
-| Database | Neon PostgreSQL (EU Frankfurt) + Drizzle ORM |
-| Auth | Auth.js v5 + JWT, three roles (`player` / `admin` / `super_admin`) |
-| Real-time | Pusher Channels (cluster: `eu`) — *Sprint 3* |
-| Object storage | Cloudflare R2 — *Sprint 2* |
-| Mobile | Expo SDK 52 + React Native + NativeWind — *Sprint 4* |
-| Styling | Tailwind v4 + shadcn/ui |
-| Validation | Zod (shared schemas across web + mobile) |
-| i18n | next-intl (BG default, EN at `/en/...`) |
-| Email | Resend |
+| --- | --- |
+| Web app | Next.js App Router, React, TypeScript |
+| Database | Neon PostgreSQL + Drizzle ORM |
+| Auth | Auth.js v5 + JWT roles |
+| Real-time | Pusher Channels |
+| Storage | Cloudflare R2 |
+| Styling | Tailwind CSS + shadcn/ui |
+| Validation | Zod |
+| i18n | next-intl, Bulgarian default |
+| Testing | Jest |
 | Monorepo | Turborepo + pnpm workspaces |
 | Hosting | Vercel |
 
-Locked by the SoftUni curriculum. See [`CLAUDE.md`](CLAUDE.md) §2 for the full list and the *forbidden alternatives* list.
+Technology choices are constrained by the SoftUni curriculum. See [CLAUDE.md](CLAUDE.md) for the full architecture notes and forbidden alternatives.
 
 ---
 
-## Monorepo layout
+## Repository Layout
 
-```
+```text
 meloman/
-├── apps/
-│   ├── web/                  # Next.js 15 — UI + REST API
-│   └── mobile/               # Expo React Native — added in Sprint 4
-├── packages/
-│   ├── db/                   # Drizzle schema, migrations, Neon client
-│   ├── shared/               # Cross-app Zod schemas, types, utilities
-│   └── ui/                   # Optional shared React components
-├── CLAUDE.md                 # Master AI context (read this first)
-├── AGENTS.md                 # AI agent usage policy (SoftUni requirement)
-└── turbo.json                # Turborepo pipeline config
+|-- apps/
+|   `-- web/                  # Next.js web app, API routes, server actions
+|-- packages/
+|   |-- db/                   # Drizzle schema, migrations, Neon client, seed script
+|   |-- shared/               # Reserved for cross-app schemas and utilities
+|   `-- ui/                   # Reserved for shared UI primitives
+|-- docs/                     # Handoff notes, test plans, architecture notes
+|-- .github/workflows/        # CI automation
+|-- AGENTS.md                 # AI agent transparency document
+|-- CLAUDE.md                 # Master project context for AI-assisted work
+|-- package.json              # Root workspace scripts
+|-- pnpm-workspace.yaml       # pnpm workspace definition
+`-- turbo.json                # Turborepo task pipeline
 ```
+
+For a deeper explanation of folder ownership and maintenance rules, see [docs/repository-structure.md](docs/repository-structure.md).
 
 ---
 
-## Local setup
+## Local Setup
 
 ### Prerequisites
 
-- Node.js **≥ 20**
-- pnpm **≥ 9** (this repo pins `pnpm@10.33.2` via `packageManager`)
-- A Neon Postgres database (free tier is fine)
-- Auth.js secret (`openssl rand -base64 32`)
+- Node.js 20 or newer
+- pnpm 10.33.2 or compatible
+- Neon PostgreSQL database
+- Auth.js secret
 
-### First-time install
+### Install
 
 ```bash
 pnpm install
-cp .env.example apps/web/.env.local
-# Fill in DATABASE_URL and AUTH_SECRET at minimum.
-# Pusher / R2 / Resend keys can be left blank until those features are wired up.
 ```
+
+Create local environment files:
+
+```bash
+cp .env.example .env.local
+cp .env.example apps/web/.env.local
+```
+
+Fill in at least:
+
+- `DATABASE_URL`
+- `AUTH_SECRET`
+
+Pusher, R2, Resend, Spotify, and Wikipedia-related variables are needed only for the features that use them.
+
+Never commit `.env.local`; it is gitignored.
 
 ### Database
 
 ```bash
-pnpm --filter @meloman/db db:generate   # generate SQL from schema changes
-pnpm --filter @meloman/db db:migrate    # apply migrations to Neon
-pnpm --filter @meloman/db db:studio     # open Drizzle Studio
+pnpm --filter @meloman/db db:generate
+pnpm --filter @meloman/db db:migrate
+pnpm --filter @meloman/db db:studio
 ```
 
-### Run the web app
+### Web App
 
 ```bash
-pnpm dev
+pnpm --filter @meloman/web dev
 ```
 
-Opens at [http://localhost:3000](http://localhost:3000). Bulgarian is default; English is at `/en`.
-
-### Other scripts
-
-```bash
-pnpm build   # production build (turbo)
-pnpm lint    # lint all packages
-```
+The web app runs at [http://localhost:3000](http://localhost:3000). Bulgarian routes use `/bg/...`; English routes use `/en/...`.
 
 ---
 
-## Environment variables
+## Quality Gates
 
-See [`.env.example`](.env.example) for the full list. Required for local dev:
+Run these before committing feature work:
 
-- `DATABASE_URL` — Neon Postgres connection string
-- `AUTH_SECRET` — Auth.js JWT signing secret
+```bash
+pnpm --filter @meloman/web lint
+pnpm --filter @meloman/web exec tsc --noEmit
+pnpm --filter @meloman/web test
+pnpm --filter @meloman/web build
+```
 
-Optional until those features land:
+Jest watch mode:
 
-- `PUSHER_*` and `NEXT_PUBLIC_PUSHER_*` — Sprint 3
-- `R2_*` — Sprint 2
-- `RESEND_API_KEY` — Sprint 1 (forgot-password) and beyond
+```bash
+pnpm test:watch
+```
 
-Never commit `.env.local`. It is gitignored.
+GitHub Actions runs lint, typecheck, tests, and build on pushes to `main` and pull requests.
 
 ---
 
-## Cloudflare R2 setup
+## Current Live Quiz Docs
 
-Audio (≤6 MB) and image (≤6 MB) uploads from the admin panel land in an R2 bucket. The current Sprint 2 implementation uploads **server-side** through the Next.js Server Action — no CORS configuration is required for that path.
-
-CORS only matters once we switch large files to a **signed-URL pattern** (browser PUTs directly to R2). To prepare the bucket for that future, set the following CORS policy in the Cloudflare R2 dashboard (`Settings → CORS Policy`):
-
-```json
-[
-  {
-    "AllowedOrigins": [
-      "http://localhost:3000",
-      "https://*.vercel.app"
-    ],
-    "AllowedMethods": ["GET", "PUT", "POST"],
-    "AllowedHeaders": ["*"],
-    "MaxAgeSeconds": 3600
-  }
-]
-```
-
-Tighten the allowed origins to a specific Vercel deployment or custom domain (e.g. `https://meloman.bg`) before going to production.
-
-The server-side upload path uses [`uploadObject()`](apps/web/lib/r2.ts) directly. The browser-direct path will swap to [`getUploadUrl()`](apps/web/lib/r2.ts), which already exists and returns a 5-minute signed PUT URL — UI changes only, no R2 helper changes.
+- [docs/stage-3-handoff.md](docs/stage-3-handoff.md) - current Stage 3 status and remaining work.
+- [docs/live-quiz-test-plan.md](docs/live-quiz-test-plan.md) - manual QA checklist for host/player flows.
 
 ---
 
 ## Roles
 
-Three roles are defined in the database (see [`packages/db/schema/users.ts`](packages/db/schema/users.ts)):
+- `player` - default user role; can play quizzes and read content.
+- `admin` - can manage quizzes, stories, and daily content.
+- `super_admin` - full access, including user management.
 
-- `player` — default for new sign-ups. Can play quizzes and read stories.
-- `admin` — manages quizzes, stories, daily content.
-- `super_admin` — full access, including user management. Adi and his project co-owner are super admins.
-
-Role-based protection lives in [`apps/web/proxy.ts`](apps/web/proxy.ts) (Next.js 16 renamed `middleware.ts` to `proxy.ts`).
+Role-based route protection lives in [apps/web/proxy.ts](apps/web/proxy.ts).
 
 ---
 
-## Documentation
+## AI Usage
 
-- [`CLAUDE.md`](CLAUDE.md) — master context (product spec, architecture, conventions, sprint plan)
-- [`AGENTS.md`](AGENTS.md) — how AI agents are used in this project (SoftUni deliverable)
-- API docs and architecture diagrams will land in `docs/` during Sprint 6.
+AI assistance is documented for transparency:
+
+- [AGENTS.md](AGENTS.md) describes which AI tools are used and what they are allowed to do.
+- [CLAUDE.md](CLAUDE.md) is the master project context and must be read before AI-assisted coding.
+
+Humans review all architecture decisions and commits.
 
 ---
 
 ## License
 
-See [`LICENSE`](LICENSE).
+See [LICENSE](LICENSE).

@@ -869,7 +869,7 @@ All endpoints prefixed with `/api`. JWT auth via `Authorization: Bearer <token>`
 - Rate limiting on hot endpoints (login, register, submit answer)
 
 ### 8.7 Pusher
-- Channel naming: `quiz:{CODE}`, `quiz:{CODE}:host`, `team:{TEAM_ID}`
+- Channel naming must be Pusher-safe: `quiz-{CODE}`, `quiz-{CODE}-host`, `presence-team-{TEAM_ID}`
 - Server triggers events; clients only subscribe
 - Always include `serverNow` timestamp for client clock offset calculation
 
@@ -885,7 +885,15 @@ All endpoints prefixed with `/api`. JWT auth via `Authorization: Bearer <token>`
 - **Never** hardcode user-facing strings in components
 - Bulgarian is default language
 
-### 8.10 Branding constants
+### 8.10 Repository professionalism
+- Keep the repository structure clear, documented, and honest. If a folder is documented, it should exist or be explicitly marked as planned.
+- Before adding a new top-level folder or broad shared package, check `docs/repository-structure.md` and update it if the structure changes.
+- Prefer small, focused commits. Do not mix unrelated cleanup, docs, and feature work unless the user explicitly asks for a batch.
+- Keep docs current when changing a documented flow, especially Stage 3 live quiz behavior.
+- Do not leave stale TODOs, placeholder copy, dead imports, or lint warnings when the task can reasonably clean them up.
+- Before handing back substantial work, run the appropriate quality gates: lint, typecheck, tests, and build.
+
+### 8.11 Branding constants
 
 ```typescript
 // Brand colors (pure monochrome, no accent)

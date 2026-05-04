@@ -122,3 +122,7 @@ pnpm test:watch
 ## Suggested Next Step
 
 Implement the fullscreen host presentation route first. It is the biggest missing "wow moment" for Stage 3 and can reuse the current session state, question loading, timer, and Pusher refresh wiring.
+
+## Repository Maintenance Note
+
+Before continuing Stage 3, read `docs/repository-structure.md`. Keep new files in the existing route/module ownership boundaries, update docs when a documented flow changes, and avoid mixing unrelated cleanup into feature commits.

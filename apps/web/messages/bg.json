@@ -172,6 +172,10 @@
       "decade": "Decade/Year"
     },
     "questionMeta": "{seconds} сек · {points} т.",
+    "moveQuestionUp": "Премести въпроса нагоре",
+    "moveQuestionDown": "Премести въпроса надолу",
+    "deleteQuestion": "Изтрий въпроса",
+    "deleteQuestionConfirm": "Сигурен ли си, че искаш да изтриеш този въпрос? Действието е необратимо.",
     "errors": {
       "unauthorized": "Не си логнат.",
       "forbidden": "Нямаш права да редактираш рундове.",
@@ -291,6 +295,8 @@
     "spotifyHint": "Започни от Spotify търсене за да попълниш автоматично текста и метаданните. Можеш да редактираш всичко след това.",
     "spotifyQuestionTemplate": "Кой изпълнява песента \"{name}\"?",
     "spotifyDecadeQuestionTemplate": "През коя година излиза \"{name}\" на {artist}?",
+    "wikipediaHint": "Започни от Wikipedia търсене за да изтеглиш автоматично снимка + attribution. Можеш да я заместиш с своя файл след това.",
+    "wikipediaDownloading": "Изтегляне на снимка от Wikipedia...",
     "errors": {
       "unauthorized": "Не си логнат.",
       "forbidden": "Нямаш права да добавяш въпроси.",
@@ -302,6 +308,7 @@
       "imageMissing": "Прикачи снимка.",
       "imageTooLarge": "Снимката е твърде голяма. Лимит: 6 MB.",
       "imageWrongType": "Само JPG, PNG или WebP са разрешени.",
+      "wikipediaImageFailed": "Изтеглянето на снимка от Wikipedia не успя. Опитай друга или качи ръчно.",
       "uploadFailed": "Качването в R2 не успя. Опитай отново.",
       "generic": "Нещо се обърка. Опитай отново."
     }
@@ -311,6 +318,13 @@
     "placeholder": "Напиши заглавие или изпълнител...",
     "loading": "Търсене...",
     "error": "Spotify не отговори. Опитай отново.",
+    "noResults": "Няма резултати."
+  },
+  "WikipediaSearch": {
+    "label": "Търси в Wikipedia",
+    "placeholder": "Напиши име на artist или тема...",
+    "loading": "Търсене...",
+    "error": "Wikipedia не отговори. Опитай отново.",
     "noResults": "Няма резултати."
   }
 }

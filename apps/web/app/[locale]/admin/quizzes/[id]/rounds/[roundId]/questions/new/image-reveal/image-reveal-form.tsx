@@ -15,6 +15,8 @@ import { createImageRevealQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WikipediaSearch } from "@/components/admin/wikipedia-search";
+import type { WikipediaResult } from "@/lib/wikipedia";
 
 type ValidationKey =
   | "questionTextMin"
@@ -78,9 +80,15 @@ export function ImageRevealForm({
     };
   }, [previewUrl]);
 
+  const [wikipediaLoading, setWikipediaLoading] = useState(false);
+  const [wikipediaError, setWikipediaError] = useState<
+    "wikipediaImageFailed" | null
+  >(null);
+
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<FormShape>({
@@ -154,6 +162,56 @@ export function ImageRevealForm({
     setPreviewUrl(URL.createObjectURL(file));
   }
 
+  async function handleWikipediaPick(result: WikipediaResult) {
+    if (!result.thumbnailUrl) {
+      setWikipediaError("wikipediaImageFailed");
+      return;
+    }
+    setWikipediaError(null);
+    setWikipediaLoading(true);
+    setImageFileError(null);
+
+    try {
+      // Wikimedia thumbnails support cross-origin GET; this works without
+      // a server proxy. If CORS ever blocks us, route through our API.
+      const response = await fetch(result.thumbnailUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const mimeType = blob.type || "image/jpeg";
+      if (
+        !IMAGE_ACCEPTED_MIME_TYPES.includes(
+          mimeType as (typeof IMAGE_ACCEPTED_MIME_TYPES)[number]
+        )
+      ) {
+        setWikipediaError("wikipediaImageFailed");
+        return;
+      }
+      const ext = mimeType.split("/")[1] ?? "jpg";
+      const safeTitle = result.title
+        .replace(/[^a-z0-9]+/gi, "-")
+        .toLowerCase()
+        .slice(0, 40);
+      const file = new File([blob], `wikipedia-${safeTitle}.${ext}`, {
+        type: mimeType,
+      });
+
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setImageFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+
+      // Reset the file input so it visually reflects "no file chosen" — the
+      // selected file lives in React state regardless.
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      setValue("imageSource", "Wikipedia");
+      setValue("imageAttribution", result.attribution);
+    } catch (_err) {
+      setWikipediaError("wikipediaImageFailed");
+    } finally {
+      setWikipediaLoading(false);
+    }
+  }
+
   function onSubmit(values: FormShape) {
     setServerErrorKey(null);
     if (!imageFile) {
@@ -182,6 +240,23 @@ export function ImageRevealForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+      <div className="rounded-md border border-dashed border-border bg-muted/20 p-3">
+        <WikipediaSearch onSelect={handleWikipediaPick} />
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t("wikipediaHint")}
+        </p>
+        {wikipediaLoading && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("wikipediaDownloading")}
+          </p>
+        )}
+        {wikipediaError && (
+          <p className="mt-1 text-xs text-destructive">
+            {t(`errors.${wikipediaError}`)}
+          </p>
+        )}
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="questionText">{t("questionTextLabel")}</Label>
         <textarea

@@ -172,6 +172,10 @@
       "decade": "Decade/Year"
     },
     "questionMeta": "{seconds}s · {points} pt",
+    "moveQuestionUp": "Move question up",
+    "moveQuestionDown": "Move question down",
+    "deleteQuestion": "Delete question",
+    "deleteQuestionConfirm": "Are you sure you want to delete this question? This action cannot be undone.",
     "errors": {
       "unauthorized": "You are not signed in.",
       "forbidden": "You do not have permission to edit rounds.",
@@ -291,6 +295,8 @@
     "spotifyHint": "Start from a Spotify search to autofill the text and metadata. You can edit anything afterwards.",
     "spotifyQuestionTemplate": "Who performs the song \"{name}\"?",
     "spotifyDecadeQuestionTemplate": "What year was \"{name}\" by {artist} released?",
+    "wikipediaHint": "Start from a Wikipedia search to pull a thumbnail + attribution automatically. You can swap it for your own file afterwards.",
+    "wikipediaDownloading": "Downloading image from Wikipedia...",
     "errors": {
       "unauthorized": "You are not signed in.",
       "forbidden": "You do not have permission to add questions.",
@@ -302,6 +308,7 @@
       "imageMissing": "Attach an image.",
       "imageTooLarge": "Image too large. Limit: 6 MB.",
       "imageWrongType": "Only JPG, PNG or WebP are allowed.",
+      "wikipediaImageFailed": "Could not download image from Wikipedia. Try a different result or upload manually.",
       "uploadFailed": "Upload to R2 failed. Please try again.",
       "generic": "Something went wrong. Please try again."
     }
@@ -311,6 +318,13 @@
     "placeholder": "Type a title or artist...",
     "loading": "Searching...",
     "error": "Spotify did not respond. Please try again.",
+    "noResults": "No results."
+  },
+  "WikipediaSearch": {
+    "label": "Search Wikipedia",
+    "placeholder": "Type an artist name or topic...",
+    "loading": "Searching...",
+    "error": "Wikipedia did not respond. Please try again.",
     "noResults": "No results."
   }
 }

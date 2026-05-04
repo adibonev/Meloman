@@ -1,5 +1,10 @@
 import "server-only";
 import Pusher from "pusher";
+import {
+  quizChannelName,
+  quizHostChannelName,
+  teamPresenceChannelName,
+} from "@/lib/pusher-channels";
 
 // Server-side Pusher client. Used by Server Actions to broadcast game
 // events to all subscribed clients. CLAUDE.md §5.2 spells out the channel
@@ -33,13 +38,13 @@ function getClient(): Pusher {
 
 // Channel name builders — single source of truth.
 export function quizChannel(joinCode: string): string {
-  return `quiz:${joinCode}`;
+  return quizChannelName(joinCode);
 }
 export function quizHostChannel(joinCode: string): string {
-  return `quiz:${joinCode}:host`;
+  return quizHostChannelName(joinCode);
 }
 export function teamPresenceChannel(teamId: string): string {
-  return `presence-team:${teamId}`;
+  return teamPresenceChannelName(teamId);
 }
 
 /**
@@ -65,5 +70,11 @@ export async function broadcast(
   event: PusherEventName,
   data: unknown
 ): Promise<void> {
-  await getClient().trigger(channel, event, data);
+  try {
+    await getClient().trigger(channel, event, data);
+  } catch (err) {
+    // DB writes are the source of truth. A failed websocket broadcast should
+    // not turn a successful button click into a Next.js runtime overlay.
+    console.error("Pusher broadcast failed:", { channel, event, err });
+  }
 }

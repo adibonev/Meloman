@@ -1,6 +1,11 @@
 "use client";
 
 import Pusher from "pusher-js";
+export {
+  quizChannelName,
+  quizHostChannelName,
+  teamPresenceChannelName,
+} from "@/lib/pusher-channels";
 
 // Client-side Pusher singleton. Lazy-initialized so SSR doesn't try to
 // instantiate the WebSocket. Channel name builders mirror pusher-server.ts
@@ -25,16 +30,6 @@ export function getPusherClient(): Pusher {
     forceTLS: true,
   });
   return cached;
-}
-
-export function quizChannelName(joinCode: string): string {
-  return `quiz:${joinCode}`;
-}
-export function quizHostChannelName(joinCode: string): string {
-  return `quiz:${joinCode}:host`;
-}
-export function teamPresenceChannelName(teamId: string): string {
-  return `presence-team:${teamId}`;
 }
 
 // Re-export event names from a separate constants module — but to avoid a

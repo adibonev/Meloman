@@ -20,6 +20,10 @@
     "test:ci": {
       "dependsOn": ["^test:ci"],
       "outputs": []
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

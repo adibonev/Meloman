@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "jest --runInBand",
     "test:ci": "jest --ci --runInBand",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watchAll --runInBand"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1041.0",

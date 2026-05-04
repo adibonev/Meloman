@@ -1,6 +1,7 @@
 import {
   gradeAnswer,
   isCloseTextAnswer,
+  levenshteinDistance,
   normalizeAnswer,
   type QuestionForGrading,
 } from "./grading";
@@ -20,12 +21,24 @@ function question(
 
 describe("live quiz grading", () => {
   it("normalizes punctuation, casing, whitespace, and diacritics", () => {
-    expect(normalizeAnswer("  FrédDie,  MERCURY!!! ")).toBe("freddie mercury");
+    expect(normalizeAnswer("  Fr\u00e9dDie,  MERCURY!!! ")).toBe(
+      "freddie mercury"
+    );
+    expect(normalizeAnswer("AC/DC - Thunderstruck (Live)")).toBe(
+      "ac dc thunderstruck live"
+    );
   });
 
   it("accepts close text answers within a small typo distance", () => {
     expect(isCloseTextAnswer("Fredie Mercury", ["Freddie Mercury"])).toBe(true);
     expect(isCloseTextAnswer("David Bowie", ["Freddie Mercury"])).toBe(false);
+    expect(isCloseTextAnswer("   ", ["Freddie Mercury"])).toBe(false);
+  });
+
+  it("calculates edit distance for typo-sensitive text grading", () => {
+    expect(levenshteinDistance("queen", "queen")).toBe(0);
+    expect(levenshteinDistance("fredie", "freddie")).toBe(1);
+    expect(levenshteinDistance("bowie", "queen")).toBeGreaterThan(2);
   });
 
   it("grades multiple choice answers exactly", () => {
@@ -38,6 +51,17 @@ describe("live quiz grading", () => {
       submittedAnswer: 2,
       isCorrect: true,
       pointsAwarded: 3,
+    });
+
+    expect(
+      gradeAnswer(
+        question({ correctAnswer: 2, pointsBase: 3 }),
+        { questionType: "multiple_choice", optionIndex: 1 }
+      )
+    ).toMatchObject({
+      submittedAnswer: 1,
+      isCorrect: false,
+      pointsAwarded: 0,
     });
   });
 
@@ -56,6 +80,22 @@ describe("live quiz grading", () => {
       submittedAnswer: "mercury",
       isCorrect: true,
       pointsAwarded: 2,
+    });
+
+    expect(
+      gradeAnswer(
+        question({
+          questionType: "audio",
+          correctAnswer: "Bohemian Rhapsody",
+          acceptableAnswers: null,
+          pointsBase: 4,
+        }),
+        { questionType: "audio", textAnswer: "bohemian rhapsody" }
+      )
+    ).toMatchObject({
+      submittedAnswer: "bohemian rhapsody",
+      isCorrect: true,
+      pointsAwarded: 4,
     });
   });
 
@@ -77,6 +117,39 @@ describe("live quiz grading", () => {
       isCorrect: false,
       pointsAwarded: 2,
     });
+
+    expect(
+      gradeAnswer(
+        question({
+          questionType: "lyric_blank",
+          correctAnswer: ["love", "you"],
+          pointsBase: 2,
+        }),
+        {
+          questionType: "lyric_blank",
+          lyricAnswers: ["love", "you", "extra"],
+        }
+      )
+    ).toMatchObject({
+      submittedAnswer: ["love", "you", "extra"],
+      isCorrect: false,
+      pointsAwarded: 4,
+    });
+  });
+
+  it("returns null when lyric blanks have no stored correct answers", () => {
+    expect(
+      gradeAnswer(
+        question({
+          questionType: "lyric_blank",
+          correctAnswer: [],
+        }),
+        {
+          questionType: "lyric_blank",
+          lyricAnswers: ["anything"],
+        }
+      )
+    ).toBeNull();
   });
 
   it("awards decade partial credit and exact year bonus", () => {
@@ -106,6 +179,20 @@ describe("live quiz grading", () => {
     ).toMatchObject({
       isCorrect: true,
       pointsAwarded: 6,
+    });
+
+    expect(
+      gradeAnswer(
+        question({
+          questionType: "decade",
+          correctAnswer: 1975,
+          pointsBase: 2,
+        }),
+        { questionType: "decade", decade: 1980, year: 1981 }
+      )
+    ).toMatchObject({
+      isCorrect: false,
+      pointsAwarded: 0,
     });
   });
 

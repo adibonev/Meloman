@@ -130,6 +130,8 @@ GitHub Actions runs lint, typecheck, tests, and build on pushes to `main` and pu
 
 - [docs/stage-3-handoff.md](docs/stage-3-handoff.md) - current Stage 3 status and remaining work.
 - [docs/live-quiz-test-plan.md](docs/live-quiz-test-plan.md) - manual QA checklist for host/player flows.
+- [docs/testing-strategy.md](docs/testing-strategy.md) - what Jest covers now and where Playwright fits later.
+- [docs/claude-stage-3-prompt.md](docs/claude-stage-3-prompt.md) - ready-to-use handoff prompt for Claude Code.
 
 ---
 

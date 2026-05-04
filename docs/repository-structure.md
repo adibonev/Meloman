@@ -86,6 +86,8 @@ Current docs:
 
 - `stage-3-handoff.md` - current live quiz state and next work for Claude or another AI agent.
 - `live-quiz-test-plan.md` - manual QA checklist for Stage 3.
+- `testing-strategy.md` - automated/manual testing strategy and future Playwright scope.
+- `claude-stage-3-prompt.md` - ready-to-use prompt for the next Claude Code Stage 3 session.
 - `repository-structure.md` - this document.
 
 Rules:

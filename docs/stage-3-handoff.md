@@ -49,6 +49,8 @@ Recent Stage 3 commits:
 - Grading logic: `apps/web/lib/live-quiz/grading.ts`
 - Timer UI: `apps/web/components/live/timer-countdown.tsx`
 - Pusher channel helpers: `apps/web/lib/pusher-channels.ts`
+- Testing strategy: `docs/testing-strategy.md`
+- Ready-to-use Claude prompt: `docs/claude-stage-3-prompt.md`
 
 ## Current Intended Flow
 

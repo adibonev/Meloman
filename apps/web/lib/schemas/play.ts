@@ -44,20 +44,55 @@ export const joinTeamSchema = z.object({
   deviceFingerprint: deviceFingerprintField,
 });
 
-export const submitMultipleChoiceAnswerSchema = z.object({
-  optionIndex: z.coerce
-    .number()
-    .int()
-    .min(0, "optionIndexInvalid")
-    .max(3, "optionIndexInvalid"),
-});
+const textAnswerField = z
+  .string()
+  .trim()
+  .min(1, "answerMin")
+  .max(200, "answerMax");
+
+export const submitAnswerSchema = z.discriminatedUnion("questionType", [
+  z.object({
+    questionType: z.literal("multiple_choice"),
+    optionIndex: z.coerce
+      .number()
+      .int()
+      .min(0, "optionIndexInvalid")
+      .max(3, "optionIndexInvalid"),
+  }),
+  z.object({
+    questionType: z.literal("open_text"),
+    textAnswer: textAnswerField,
+  }),
+  z.object({
+    questionType: z.literal("audio"),
+    textAnswer: textAnswerField,
+  }),
+  z.object({
+    questionType: z.literal("image_reveal"),
+    textAnswer: textAnswerField,
+  }),
+  z.object({
+    questionType: z.literal("lyric_blank"),
+    lyricAnswers: z
+      .array(textAnswerField)
+      .min(1, "answersMinBlank")
+      .max(10, "answersMaxBlank"),
+  }),
+  z.object({
+    questionType: z.literal("decade"),
+    decade: z.coerce
+      .number()
+      .int()
+      .min(1900, "yearMin")
+      .max(2030, "yearMax"),
+    year: z.coerce.number().int().min(1900, "yearMin").max(2030, "yearMax"),
+  }),
+]);
 
 export type CreateTeamFormInput = z.infer<typeof createTeamFormSchema>;
 export type CreateTeamInput = z.infer<typeof createTeamSchema>;
 export type JoinTeamInput = z.infer<typeof joinTeamSchema>;
-export type SubmitMultipleChoiceAnswerInput = z.infer<
-  typeof submitMultipleChoiceAnswerSchema
->;
+export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
 
 // A small palette of distinguishable hex colours for teams; the action picks
 // the first colour that isn't already used in the session.

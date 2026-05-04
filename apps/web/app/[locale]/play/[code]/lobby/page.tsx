@@ -44,6 +44,23 @@ function getCorrectAnswerLabel(
   return null;
 }
 
+function getBlankCount(questionType: string, correctAnswer: unknown): number {
+  if (questionType !== "lyric_blank") return 0;
+  return Math.max(1, getStringArray(correctAnswer).length);
+}
+
+function getMaxPoints(
+  questionType: string,
+  pointsBase: number,
+  correctAnswer: unknown
+): number {
+  if (questionType === "lyric_blank") {
+    return getBlankCount(questionType, correctAnswer) * pointsBase;
+  }
+  if (questionType === "decade") return pointsBase * 3;
+  return pointsBase;
+}
+
 export default async function PlayLobbyPage({
   params,
 }: {
@@ -166,12 +183,20 @@ export default async function PlayLobbyPage({
         questionType: currentQuestion.questionType,
         questionText: currentQuestion.questionText,
         options,
-        pointsBase: currentQuestion.pointsBase,
+        maxPoints: getMaxPoints(
+          currentQuestion.questionType,
+          currentQuestion.pointsBase,
+          currentQuestion.correctAnswer
+        ),
         timeLimitSeconds: currentQuestion.timeLimitSeconds,
         correctAnswerLabel: getCorrectAnswerLabel(
           currentQuestion.questionType,
           currentQuestion.correctAnswer,
           options
+        ),
+        blankCount: getBlankCount(
+          currentQuestion.questionType,
+          currentQuestion.correctAnswer
         ),
       }
     : null;
@@ -233,6 +258,7 @@ export default async function PlayLobbyPage({
       </section>
 
       <QuestionPanel
+        key={questionForPanel?.id ?? sessionRow.status}
         code={upperCode}
         status={sessionRow.status}
         question={questionForPanel}

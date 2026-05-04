@@ -19,10 +19,11 @@ import { broadcast, PUSHER_EVENTS, quizChannel } from "@/lib/pusher-server";
 import {
   TEAM_COLORS,
   TEAM_EMOJIS,
+  type SubmitAnswerInput,
   createTeamSchema,
   joinAsAnonymousSchema,
   joinTeamSchema,
-  submitMultipleChoiceAnswerSchema,
+  submitAnswerSchema,
 } from "@/lib/schemas/play";
 
 // Player flow: anonymous user joins a live session. We mint a throwaway
@@ -252,18 +253,205 @@ export async function joinTeamAction(code: string, formData: FormData) {
   redirect({ href: `/play/${loaded.upperCode}/lobby`, locale });
 }
 
-export async function submitMultipleChoiceAnswerAction(
+type SubmitAnswerErrorKey =
+  | "unauthorized"
+  | "invalidData"
+  | "sessionNotFound"
+  | "sessionNotJoinable"
+  | "teamNotFound"
+  | "notCaptain"
+  | "questionClosed"
+  | "alreadySubmitted"
+  | "unsupportedQuestionType"
+  | "generic";
+
+type SubmitAnswerResult = { errorKey: SubmitAnswerErrorKey } | { ok: true };
+
+type SubmittedAnswer =
+  | number
+  | string
+  | string[]
+  | { decade: number; year: number };
+
+type GradeResult = {
+  submittedAnswer: SubmittedAnswer;
+  isCorrect: boolean;
+  pointsAwarded: number;
+};
+
+type QuestionForGrading = {
+  id: string;
+  questionType:
+    | "multiple_choice"
+    | "open_text"
+    | "audio"
+    | "image_reveal"
+    | "lyric_blank"
+    | "decade";
+  correctAnswer: unknown;
+  acceptableAnswers: unknown;
+  pointsBase: number;
+};
+
+function normalizeAnswer(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function levenshteinDistance(a: string, b: string): number {
+  const previous = Array.from({ length: b.length + 1 }, (_, i) => i);
+  const current = Array.from({ length: b.length + 1 }, () => 0);
+
+  for (let i = 1; i <= a.length; i++) {
+    current[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      current[j] = Math.min(
+        current[j - 1] + 1,
+        previous[j] + 1,
+        previous[j - 1] + cost
+      );
+    }
+    for (let j = 0; j <= b.length; j++) {
+      previous[j] = current[j];
+    }
+  }
+
+  return previous[b.length];
+}
+
+function isCloseTextAnswer(submitted: string, accepted: string[]): boolean {
+  const normalizedSubmitted = normalizeAnswer(submitted);
+  if (!normalizedSubmitted) return false;
+
+  return accepted.some((candidate) => {
+    const normalizedCandidate = normalizeAnswer(candidate);
+    return (
+      normalizedCandidate.length > 0 &&
+      (normalizedSubmitted === normalizedCandidate ||
+        levenshteinDistance(normalizedSubmitted, normalizedCandidate) <= 2)
+    );
+  });
+}
+
+function getStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function getAcceptedTextAnswers(question: QuestionForGrading): string[] {
+  const accepted = new Set<string>();
+  if (typeof question.correctAnswer === "string") {
+    accepted.add(question.correctAnswer);
+  }
+  for (const answer of getStringArray(question.acceptableAnswers)) {
+    accepted.add(answer);
+  }
+  return [...accepted];
+}
+
+function decadeFromYear(year: number): number {
+  return Math.floor(year / 10) * 10;
+}
+
+function gradeAnswer(
+  question: QuestionForGrading,
+  submitted: SubmitAnswerInput
+): GradeResult | null {
+  if (question.questionType !== submitted.questionType) {
+    return null;
+  }
+
+  if (submitted.questionType === "multiple_choice") {
+    if (typeof question.correctAnswer !== "number") return null;
+    const isCorrect = question.correctAnswer === submitted.optionIndex;
+    return {
+      submittedAnswer: submitted.optionIndex,
+      isCorrect,
+      pointsAwarded: isCorrect ? question.pointsBase : 0,
+    };
+  }
+
+  if (
+    submitted.questionType === "open_text" ||
+    submitted.questionType === "audio" ||
+    submitted.questionType === "image_reveal"
+  ) {
+    const isCorrect = isCloseTextAnswer(
+      submitted.textAnswer,
+      getAcceptedTextAnswers(question)
+    );
+    return {
+      submittedAnswer: submitted.textAnswer,
+      isCorrect,
+      pointsAwarded: isCorrect ? question.pointsBase : 0,
+    };
+  }
+
+  if (submitted.questionType === "lyric_blank") {
+    const correctAnswers = getStringArray(question.correctAnswer);
+    if (correctAnswers.length === 0) return null;
+
+    const correctCount = submitted.lyricAnswers.reduce(
+      (count, answer, index) => {
+        const expected = correctAnswers[index];
+        if (!expected) return count;
+        return isCloseTextAnswer(answer, [expected]) ? count + 1 : count;
+      },
+      0
+    );
+
+    return {
+      submittedAnswer: submitted.lyricAnswers,
+      isCorrect:
+        correctCount === correctAnswers.length &&
+        submitted.lyricAnswers.length === correctAnswers.length,
+      pointsAwarded: correctCount * question.pointsBase,
+    };
+  }
+
+  if (submitted.questionType === "decade") {
+    if (typeof question.correctAnswer !== "number") return null;
+    const correctDecade = decadeFromYear(question.correctAnswer);
+    const yearCorrect = submitted.year === question.correctAnswer;
+    const decadeCorrect = yearCorrect || submitted.decade === correctDecade;
+    return {
+      submittedAnswer: {
+        decade: submitted.decade,
+        year: submitted.year,
+      },
+      isCorrect: yearCorrect,
+      pointsAwarded:
+        (decadeCorrect ? question.pointsBase : 0) +
+        (yearCorrect ? question.pointsBase * 2 : 0),
+    };
+  }
+
+  return null;
+}
+
+export async function submitAnswerAction(
   code: string,
   formData: FormData
-) {
+): Promise<SubmitAnswerResult> {
   const userSession = await auth();
   if (!userSession?.user?.id) {
     return { errorKey: "unauthorized" as const };
   }
   const userId = userSession.user.id;
 
-  const parsed = submitMultipleChoiceAnswerSchema.safeParse({
+  const parsed = submitAnswerSchema.safeParse({
+    questionType: formData.get("questionType"),
     optionIndex: formData.get("optionIndex"),
+    textAnswer: formData.get("textAnswer"),
+    lyricAnswers: formData.getAll("lyricAnswers"),
+    decade: formData.get("decade"),
+    year: formData.get("year"),
   });
   if (!parsed.success) {
     return { errorKey: "invalidData" as const };
@@ -321,18 +509,22 @@ export async function submitMultipleChoiceAnswerAction(
       id: questions.id,
       questionType: questions.questionType,
       correctAnswer: questions.correctAnswer,
+      acceptableAnswers: questions.acceptableAnswers,
       pointsBase: questions.pointsBase,
     })
     .from(questions)
     .where(eq(questions.id, session.currentQuestionId))
     .limit(1);
 
-  if (!question || question.questionType !== "multiple_choice") {
+  if (!question) {
     return { errorKey: "unsupportedQuestionType" as const };
   }
 
-  const isCorrect = question.correctAnswer === parsed.data.optionIndex;
-  const pointsAwarded = isCorrect ? question.pointsBase : 0;
+  const grade = gradeAnswer(question, parsed.data);
+  if (!grade) {
+    return { errorKey: "unsupportedQuestionType" as const };
+  }
+
   const timeToAnswerMs = Math.max(
     0,
     nowMs - session.questionStartedAt.valueOf()
@@ -343,10 +535,10 @@ export async function submitMultipleChoiceAnswerAction(
     .values({
       teamId: membership.teamId,
       questionId: question.id,
-      submittedAnswer: parsed.data.optionIndex,
-      isCorrect,
+      submittedAnswer: grade.submittedAnswer,
+      isCorrect: grade.isCorrect,
       timeToAnswerMs,
-      pointsAwarded,
+      pointsAwarded: grade.pointsAwarded,
     })
     .onConflictDoNothing()
     .returning({ id: answers.id });
@@ -355,10 +547,10 @@ export async function submitMultipleChoiceAnswerAction(
     return { errorKey: "alreadySubmitted" as const };
   }
 
-  if (pointsAwarded > 0) {
+  if (grade.pointsAwarded > 0) {
     await db
       .update(teams)
-      .set({ totalScore: sql`${teams.totalScore} + ${pointsAwarded}` })
+      .set({ totalScore: sql`${teams.totalScore} + ${grade.pointsAwarded}` })
       .where(eq(teams.id, membership.teamId));
   }
 

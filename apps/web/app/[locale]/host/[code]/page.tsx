@@ -44,6 +44,18 @@ function getCorrectAnswerLabel(
   return null;
 }
 
+function getMaxPoints(
+  questionType: string,
+  pointsBase: number,
+  correctAnswer: unknown
+): number {
+  if (questionType === "lyric_blank") {
+    return Math.max(1, getStringArray(correctAnswer).length) * pointsBase;
+  }
+  if (questionType === "decade") return pointsBase * 3;
+  return pointsBase;
+}
+
 export default async function HostLobbyPage({
   params,
 }: {
@@ -231,7 +243,11 @@ export default async function HostLobbyPage({
             </h2>
             <p className="text-xs text-muted-foreground">
               {t("questionMeta", {
-                points: currentQuestion.pointsBase,
+                points: getMaxPoints(
+                  currentQuestion.questionType,
+                  currentQuestion.pointsBase,
+                  currentQuestion.correctAnswer
+                ),
                 seconds: currentQuestion.timeLimitSeconds,
               })}
             </p>

@@ -108,6 +108,32 @@ Never commit `.env.local`. It is gitignored.
 
 ---
 
+## Cloudflare R2 setup
+
+Audio (≤6 MB) and image (≤6 MB) uploads from the admin panel land in an R2 bucket. The current Sprint 2 implementation uploads **server-side** through the Next.js Server Action — no CORS configuration is required for that path.
+
+CORS only matters once we switch large files to a **signed-URL pattern** (browser PUTs directly to R2). To prepare the bucket for that future, set the following CORS policy in the Cloudflare R2 dashboard (`Settings → CORS Policy`):
+
+```json
+[
+  {
+    "AllowedOrigins": [
+      "http://localhost:3000",
+      "https://*.vercel.app"
+    ],
+    "AllowedMethods": ["GET", "PUT", "POST"],
+    "AllowedHeaders": ["*"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+Tighten the allowed origins to a specific Vercel deployment or custom domain (e.g. `https://meloman.bg`) before going to production.
+
+The server-side upload path uses [`uploadObject()`](apps/web/lib/r2.ts) directly. The browser-direct path will swap to [`getUploadUrl()`](apps/web/lib/r2.ts), which already exists and returns a 5-minute signed PUT URL — UI changes only, no R2 helper changes.
+
+---
+
 ## Roles
 
 Three roles are defined in the database (see [`packages/db/schema/users.ts`](packages/db/schema/users.ts)):
@@ -116,7 +142,7 @@ Three roles are defined in the database (see [`packages/db/schema/users.ts`](pac
 - `admin` — manages quizzes, stories, daily content.
 - `super_admin` — full access, including user management. Adi and his project co-owner are super admins.
 
-Role-based protection lives in [`apps/web/middleware.ts`](apps/web/middleware.ts).
+Role-based protection lives in [`apps/web/proxy.ts`](apps/web/proxy.ts) (Next.js 16 renamed `middleware.ts` to `proxy.ts`).
 
 ---
 

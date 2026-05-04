@@ -246,6 +246,7 @@
       }
     },
     "questionTextLabel": "Текст на въпроса",
+    "questionTextEmojiHint": "Можеш да използваш emoji-та като визуални подсказки (напр. 🎸🌹 = Guns N' Roses).",
     "optionsLegend": "Опции (избери радио бутона до правилния отговор)",
     "optionsHint": "Точно 4 опции. Празни не са разрешени.",
     "optionLabel": "Опция {letter}",

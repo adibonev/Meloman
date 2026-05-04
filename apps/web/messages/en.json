@@ -246,6 +246,7 @@
       }
     },
     "questionTextLabel": "Question text",
+    "questionTextEmojiHint": "You can use emojis as visual clues (e.g. 🎸🌹 = Guns N' Roses).",
     "optionsLegend": "Options (select the radio next to the correct answer)",
     "optionsHint": "Exactly 4 options are required. Empty options are not allowed.",
     "optionLabel": "Option {letter}",

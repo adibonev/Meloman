@@ -137,6 +137,9 @@ export function OpenTextForm({
           className={fieldClass}
           {...register("questionText")}
         />
+        <p className="text-xs text-muted-foreground">
+          {t("questionTextEmojiHint")}
+        </p>
         {errors.questionText?.message && (
           <p className="text-xs text-destructive">
             {tValidation(errors.questionText.message as ValidationKey)}

@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { EditQuizForm } from "./edit-form";
 import { MoveRoundButtons } from "./move-round-buttons";
+import { StartSessionButton } from "./start-session-button";
 
 export default async function AdminQuizDetailPage({
   params,
@@ -61,6 +62,19 @@ export default async function AdminQuizDetailPage({
           status: quiz.status,
         }}
       />
+
+      <section className="space-y-3 border-t border-border pt-8">
+        <h2 className="font-heading text-xl uppercase tracking-wider">
+          {t("liveSessionTitle")}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t("liveSessionDescription")}
+        </p>
+        <StartSessionButton
+          quizId={quiz.id}
+          canStart={quiz.status === "published"}
+        />
+      </section>
 
       <section className="space-y-4 border-t border-border pt-8">
         <div className="flex items-center justify-between">

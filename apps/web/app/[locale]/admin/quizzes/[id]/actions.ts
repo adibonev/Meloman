@@ -1,11 +1,12 @@
 "use server";
 
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 import { db } from "@meloman/db";
-import { quizzes, rounds } from "@meloman/db/schema";
+import { gameSessions, quizzes, rounds } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
+import { generateJoinCode } from "@/lib/join-code";
 import { updateQuizSchema } from "@/lib/schemas/quiz";
 
 export async function updateQuizAction(id: string, formData: FormData) {
@@ -106,4 +107,57 @@ export async function moveRoundAction(
   // Re-render the quiz detail page with fresh round order.
   const locale = await getLocale();
   redirect({ href: `/admin/quizzes/${quizId}`, locale });
+}
+
+export async function startSessionAction(quizId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { errorKey: "unauthorized" as const };
+  }
+  if (session.user.role !== "admin" && session.user.role !== "super_admin") {
+    return { errorKey: "forbidden" as const };
+  }
+
+  const [quiz] = await db
+    .select({ id: quizzes.id, status: quizzes.status })
+    .from(quizzes)
+    .where(and(eq(quizzes.id, quizId), isNull(quizzes.deletedAt)))
+    .limit(1);
+
+  if (!quiz) {
+    return { errorKey: "notFound" as const };
+  }
+  if (quiz.status !== "published") {
+    return { errorKey: "notPublished" as const };
+  }
+
+  // Find a free join code. The space is ~887M codes, so collisions are rare;
+  // 5 attempts is generous. If it fails consistently, something else is
+  // wrong (RNG source, table corruption) — bubble up as a generic error.
+  let joinCode: string | null = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const candidate = generateJoinCode();
+    const [clash] = await db
+      .select({ id: gameSessions.id })
+      .from(gameSessions)
+      .where(eq(gameSessions.joinCode, candidate))
+      .limit(1);
+    if (!clash) {
+      joinCode = candidate;
+      break;
+    }
+  }
+  if (!joinCode) {
+    return { errorKey: "joinCodeCollision" as const };
+  }
+
+  await db.insert(gameSessions).values({
+    quizId: quiz.id,
+    hostId: session.user.id,
+    joinCode,
+    status: "lobby",
+  });
+
+  const locale = await getLocale();
+  redirect({ href: `/host/${joinCode}`, locale });
 }

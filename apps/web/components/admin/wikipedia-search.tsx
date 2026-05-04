@@ -29,9 +29,6 @@ export function WikipediaSearch({
     latestQueryRef.current = query;
 
     if (query.trim().length < MIN_QUERY_LENGTH) {
-      setResults([]);
-      setError(null);
-      setLoading(false);
       return;
     }
 
@@ -47,7 +44,7 @@ export function WikipediaSearch({
         if (latestQueryRef.current === query) {
           setResults(data.pages);
         }
-      } catch (_err) {
+      } catch {
         if (latestQueryRef.current === query) {
           setError(t("error"));
           setResults([]);
@@ -96,7 +93,13 @@ export function WikipediaSearch({
         placeholder={t("placeholder")}
         value={query}
         onChange={(e) => {
-          setQuery(e.target.value);
+          const nextQuery = e.target.value;
+          setQuery(nextQuery);
+          if (nextQuery.trim().length < MIN_QUERY_LENGTH) {
+            setResults([]);
+            setError(null);
+            setLoading(false);
+          }
           setIsOpen(true);
         }}
         onFocus={() => {

@@ -31,9 +31,6 @@ export function SpotifySearch({
     latestQueryRef.current = query;
 
     if (query.trim().length < MIN_QUERY_LENGTH) {
-      setResults([]);
-      setError(null);
-      setLoading(false);
       return;
     }
 
@@ -51,7 +48,7 @@ export function SpotifySearch({
         if (latestQueryRef.current === query) {
           setResults(data.tracks);
         }
-      } catch (_err) {
+      } catch {
         if (latestQueryRef.current === query) {
           setError(t("error"));
           setResults([]);
@@ -101,7 +98,13 @@ export function SpotifySearch({
         placeholder={t("placeholder")}
         value={query}
         onChange={(e) => {
-          setQuery(e.target.value);
+          const nextQuery = e.target.value;
+          setQuery(nextQuery);
+          if (nextQuery.trim().length < MIN_QUERY_LENGTH) {
+            setResults([]);
+            setError(null);
+            setLoading(false);
+          }
           setIsOpen(true);
         }}
         onFocus={() => {

@@ -1,0 +1,85 @@
+import { z } from "zod";
+
+export const joinAsAnonymousSchema = z.object({
+  // Player display name shown on the leaderboard. Loose bounds — the BG side
+  // expects mostly Cyrillic short names ("Иван", "Мими"), but we allow a bit
+  // of Latin and emoji play.
+  displayName: z
+    .string()
+    .min(2, "displayNameMin")
+    .max(50, "displayNameMax"),
+});
+
+export type JoinAsAnonymousInput = z.infer<typeof joinAsAnonymousSchema>;
+
+// 64-char hex / uuid fingerprint produced by lib/device.ts. We accept up to
+// 128 chars to leave room for a real fingerprint library swap later.
+const deviceFingerprintField = z
+  .string()
+  .min(8, "deviceFingerprintInvalid")
+  .max(128, "deviceFingerprintInvalid");
+
+const teamNameField = z
+  .string()
+  .min(2, "teamNameMin")
+  .max(40, "teamNameMax");
+
+// Form-side schema for the player's "create team" form. Only the team name
+// is bound to a visible input; the device fingerprint is read from
+// localStorage at submit time and added to the FormData before the server
+// action is called. Keeping it out of the form schema avoids a hidden
+// validation failure when RHF runs on first paint (fingerprint is "" until
+// useEffect swaps it in).
+export const createTeamFormSchema = z.object({
+  name: teamNameField,
+});
+
+export const createTeamSchema = z.object({
+  name: teamNameField,
+  deviceFingerprint: deviceFingerprintField,
+});
+
+export const joinTeamSchema = z.object({
+  teamId: z.string().uuid("teamIdInvalid"),
+  deviceFingerprint: deviceFingerprintField,
+});
+
+export const submitMultipleChoiceAnswerSchema = z.object({
+  optionIndex: z.coerce
+    .number()
+    .int()
+    .min(0, "optionIndexInvalid")
+    .max(3, "optionIndexInvalid"),
+});
+
+export type CreateTeamFormInput = z.infer<typeof createTeamFormSchema>;
+export type CreateTeamInput = z.infer<typeof createTeamSchema>;
+export type JoinTeamInput = z.infer<typeof joinTeamSchema>;
+export type SubmitMultipleChoiceAnswerInput = z.infer<
+  typeof submitMultipleChoiceAnswerSchema
+>;
+
+// A small palette of distinguishable hex colours for teams; the action picks
+// the first colour that isn't already used in the session.
+export const TEAM_COLORS = [
+  "#ef4444", // red-500
+  "#3b82f6", // blue-500
+  "#eab308", // yellow-500
+  "#22c55e", // green-500
+  "#a855f7", // purple-500
+  "#f97316", // orange-500
+  "#06b6d4", // cyan-500
+  "#ec4899", // pink-500
+] as const;
+
+// Emojis are food/sound themed — friendly, recognisable on a TV screen.
+export const TEAM_EMOJIS = [
+  "🎸",
+  "🥁",
+  "🎷",
+  "🎺",
+  "🎹",
+  "🎻",
+  "🎤",
+  "🎧",
+] as const;

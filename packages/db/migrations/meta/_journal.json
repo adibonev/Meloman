@@ -15,6 +15,13 @@
       "when": 1777668897198,
       "tag": "0001_lonely_puck",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777867502990,
+      "tag": "0002_stormy_marvel_zombies",
+      "breakpoints": true
     }
   ]
 }

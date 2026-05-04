@@ -3,3 +3,7 @@ export * from "./sponsors";
 export * from "./quizzes";
 export * from "./rounds";
 export * from "./questions";
+export * from "./game-sessions";
+export * from "./teams";
+export * from "./team-members";
+export * from "./answers";

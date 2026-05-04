@@ -13,6 +13,7 @@ import {
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { TimerCountdown } from "@/components/live/timer-countdown";
+import { AutoRevealOnTimeout } from "./auto-reveal-on-timeout";
 import { LiveHost } from "./live-host";
 import { HostControls } from "./host-controls";
 
@@ -266,6 +267,15 @@ export default async function HostLobbyPage({
               label={t("timerRemaining")}
               serverNowMs={row.serverNowMs}
             />
+            {isHost && row.status === "active" && (
+              <AutoRevealOnTimeout
+                key={`${currentQuestion.id}-${questionEndsAtMs ?? "no-timer"}`}
+                code={upper}
+                endsAtMs={questionEndsAtMs}
+                questionId={currentQuestion.id}
+                serverNowMs={row.serverNowMs}
+              />
+            )}
           </div>
 
           {currentOptions.length > 0 && (

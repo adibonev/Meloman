@@ -2,12 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import {
-  createOpenTextQuestionSchema,
-  type CreateOpenTextQuestionInput,
-} from "@/lib/schemas/question";
+import { createOpenTextQuestionSchema } from "@/lib/schemas/question";
 import { createOpenTextQuestionAction } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,7 +60,7 @@ export function OpenTextForm({
     setValue,
     formState: { errors },
   } = useForm<FormShape>({
-    // Validate the resolved array via zodResolver: split textarea -> string[]
+    // Validate the resolved array through Zod: split textarea -> string[]
     resolver: async (values) => {
       const acceptableAnswers = values.acceptableAnswersText
         .split("\n")

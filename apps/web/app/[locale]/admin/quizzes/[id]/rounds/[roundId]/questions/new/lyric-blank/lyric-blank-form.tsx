@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import {
   LYRIC_BLANK_MAX_BLANKS,
@@ -60,9 +60,9 @@ export function LyricBlankForm({
   const [isPending, startTransition] = useTransition();
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormShape>({
     resolver: async (values) => {
@@ -134,7 +134,8 @@ export function LyricBlankForm({
     },
   });
 
-  const lyricText = watch("lyricText") ?? "";
+  const lyricText = useWatch({ control, name: "lyricText" }) ?? "";
+  const pointsBase = Number(useWatch({ control, name: "pointsBase" })) || 1;
   const blankCount = countLyricBlanks(lyricText);
   const blankIndexes = Array.from({ length: blankCount });
   const tooManyBlanks = blankCount > LYRIC_BLANK_MAX_BLANKS;
@@ -240,7 +241,7 @@ export function LyricBlankForm({
           />
           <p className="text-xs text-muted-foreground">
             {t("pointsPerBlankHint", {
-              total: blankCount * (Number(watch("pointsBase")) || 1),
+              total: blankCount * pointsBase,
             })}
           </p>
           {errors.pointsBase?.message && (

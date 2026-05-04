@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import {
   AUDIO_ACCEPTED_MIME_TYPES,
@@ -66,9 +66,9 @@ export function AudioForm({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormShape>({
     resolver: async (values) => {
@@ -160,7 +160,7 @@ export function AudioForm({
     });
   }
 
-  const watchedTimeLimit = watch("timeLimitSeconds");
+  const watchedTimeLimit = useWatch({ control, name: "timeLimitSeconds" });
   // RHF stores number-typed inputs as either number or string depending on
   // whether the user has typed in the field; coerce to a finite number.
   const timeLimit = Number(watchedTimeLimit);

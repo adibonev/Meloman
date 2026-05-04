@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import {
@@ -51,10 +51,10 @@ export function DecadeForm({
   const [isPending, startTransition] = useTransition();
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<CreateDecadeQuestionInput>({
     resolver: zodResolver(createDecadeQuestionSchema),
@@ -66,8 +66,11 @@ export function DecadeForm({
     },
   });
 
-  const watchedYear = Number(watch("correctYear"));
-  const watchedPoints = Number(watch("pointsBase")) || 1;
+  const watchedYear = Number(
+    useWatch({ control, name: "correctYear" })
+  );
+  const watchedPoints =
+    Number(useWatch({ control, name: "pointsBase" })) || 1;
   const validYear =
     Number.isInteger(watchedYear) &&
     watchedYear >= DECADE_MIN_YEAR &&

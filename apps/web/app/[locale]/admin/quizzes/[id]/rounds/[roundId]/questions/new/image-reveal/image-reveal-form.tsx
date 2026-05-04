@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import {
   IMAGE_ACCEPTED_MIME_TYPES,
@@ -86,10 +86,10 @@ export function ImageRevealForm({
   >(null);
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<FormShape>({
     resolver: async (values) => {
@@ -128,7 +128,7 @@ export function ImageRevealForm({
     },
   });
 
-  const selectedSource = watch("imageSource");
+  const selectedSource = useWatch({ control, name: "imageSource" });
   const attributionRequired =
     IMAGE_SOURCES_REQUIRING_ATTRIBUTION.includes(selectedSource);
 
@@ -205,7 +205,7 @@ export function ImageRevealForm({
 
       setValue("imageSource", "Wikipedia");
       setValue("imageAttribution", result.attribution);
-    } catch (_err) {
+    } catch {
       setWikipediaError("wikipediaImageFailed");
     } finally {
       setWikipediaLoading(false);

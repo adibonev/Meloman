@@ -14,7 +14,9 @@ meloman/
 |-- .github/
 |-- AGENTS.md
 |-- CLAUDE.md
+|-- CONTRIBUTING.md
 |-- README.md
+|-- .env.example
 |-- package.json
 |-- pnpm-workspace.yaml
 `-- turbo.json
@@ -103,6 +105,7 @@ GitHub automation lives here.
 Current workflow:
 
 - `.github/workflows/ci.yml` - runs web lint, typecheck, tests, and build.
+- `.github/pull_request_template.md` - keeps PRs consistent and reviewable.
 
 Rules:
 
@@ -113,8 +116,10 @@ Rules:
 ## Root Files
 
 - `README.md` - public project overview and setup instructions.
+- `CONTRIBUTING.md` - contribution rules, quality gates, and review expectations.
 - `CLAUDE.md` - master AI/project context.
 - `AGENTS.md` - AI transparency deliverable.
+- `.env.example` - safe environment variable template with placeholders only.
 - `package.json` - root scripts.
 - `turbo.json` - task pipeline.
 - `pnpm-workspace.yaml` - workspace package map.

@@ -7,6 +7,7 @@ Read these files first:
 
 - CLAUDE.md
 - AGENTS.md
+- CONTRIBUTING.md
 - docs/repository-structure.md
 - docs/stage-3-handoff.md
 - docs/live-quiz-test-plan.md

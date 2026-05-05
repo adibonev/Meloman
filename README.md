@@ -87,6 +87,8 @@ Pusher, R2, Resend, Spotify, and Wikipedia-related variables are needed only for
 
 Never commit `.env.local`; it is gitignored.
 
+Use `.env.example` as the safe source of truth for variable names. Real secrets belong only in local `.env.local` files, Vercel environment variables, or GitHub Secrets.
+
 ### Database
 
 ```bash
@@ -132,6 +134,12 @@ GitHub Actions runs lint, typecheck, tests, and build on pushes to `main` and pu
 - [docs/live-quiz-test-plan.md](docs/live-quiz-test-plan.md) - manual QA checklist for host/player flows.
 - [docs/testing-strategy.md](docs/testing-strategy.md) - what Jest covers now and where Playwright fits later.
 - [docs/claude-stage-3-prompt.md](docs/claude-stage-3-prompt.md) - ready-to-use handoff prompt for Claude Code.
+
+---
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before making substantial changes. It covers commit style, quality gates, i18n expectations, documentation updates, and secret handling.
 
 ---
 

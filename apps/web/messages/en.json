@@ -407,7 +407,6 @@
     "decadeLabel": "Decade",
     "yearLabel": "Year",
     "correctAnswer": "Correct answer: {answer}",
-    "unsupportedQuestionType": "This question type is visible here, but answer controls are still handled by the host.",
     "finished": "Quiz finished. Watch the host screen for the leaderboard.",
     "answerErrors": {
       "unauthorized": "You are not signed in. Please refresh.",
@@ -418,7 +417,7 @@
       "notCaptain": "Only the captain can submit for this team.",
       "questionClosed": "Time is up for this question.",
       "alreadySubmitted": "Your team already submitted an answer.",
-      "unsupportedQuestionType": "This question type is not wired for phone answers yet.",
+      "unsupportedQuestionType": "This answer cannot be processed for the current question. Refresh and ask the host if it continues.",
       "generic": "Something went wrong. Please try again."
     }
   },
@@ -442,7 +441,6 @@
     "teamScore": "{score, plural, =1 {1 point} other {# points}}",
     "memberFallback": "Player",
     "readOnlyNotice": "This session was created by another admin. You can watch but write actions are locked to its host.",
-    "placeholderNote": "Host controls (start quiz, next question) land in the next Sprint 3 step.",
     "controlsTitle": "Host controls",
     "controlsHint": "Only the host can start questions and reveal answers.",
     "startQuiz": "Start",

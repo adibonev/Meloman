@@ -407,7 +407,6 @@
     "decadeLabel": "Десетилетие",
     "yearLabel": "Година",
     "correctAnswer": "Верен отговор: {answer}",
-    "unsupportedQuestionType": "Този тип въпрос се вижда тук, но отговорите още се водят от host екрана.",
     "finished": "Quiz-ът приключи. Гледай host екрана за класирането.",
     "answerErrors": {
       "unauthorized": "Не си логнат. Опресни страницата.",
@@ -418,7 +417,7 @@
       "notCaptain": "Само капитанът може да изпраща отговор за отбора.",
       "questionClosed": "Времето за този въпрос изтече.",
       "alreadySubmitted": "Отборът ти вече изпрати отговор.",
-      "unsupportedQuestionType": "Този тип въпрос още не е свързан с отговори от телефона.",
+      "unsupportedQuestionType": "Този отговор не може да бъде обработен за текущия въпрос. Опресни страницата и кажи на домакина, ако продължи.",
       "generic": "Нещо се обърка. Опитай отново."
     }
   },
@@ -442,7 +441,6 @@
     "teamScore": "{score, plural, =1 {1 точка} other {# точки}}",
     "memberFallback": "Игроч",
     "readOnlyNotice": "Тази сесия е създадена от друг admin. Можеш само да наблюдаваш — write действията са заключени за нейния host.",
-    "placeholderNote": "Host controls (start quiz, next question) идват в следващата стъпка на Sprint 3.",
     "controlsTitle": "Host controls",
     "controlsHint": "Само домакинът може да стартира въпросите и да разкрива отговорите.",
     "startQuiz": "Старт",

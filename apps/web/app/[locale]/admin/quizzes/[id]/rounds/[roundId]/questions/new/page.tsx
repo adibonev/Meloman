@@ -6,15 +6,6 @@ import { quizzes, rounds } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { QUESTION_TYPES, type QuestionType } from "@/lib/schemas/question";
 
-const IMPLEMENTED_TYPES: QuestionType[] = [
-  "multiple_choice",
-  "open_text",
-  "audio",
-  "image_reveal",
-  "lyric_blank",
-  "decade",
-];
-
 const SLUG_BY_TYPE: Record<QuestionType, string> = {
   multiple_choice: "multiple-choice",
   open_text: "open-text",
@@ -77,48 +68,23 @@ export default async function ChooseQuestionTypePage({
 
       <div className="grid gap-3 sm:grid-cols-2">
         {QUESTION_TYPES.map((type) => {
-          const enabled = IMPLEMENTED_TYPES.includes(type);
           const baseClasses =
             "flex flex-col gap-1 rounded-md border border-border bg-card px-4 py-4 text-left";
-          const enabledClasses =
+          const interactiveClasses =
             "transition-colors hover:border-foreground/30 hover:bg-muted/50";
-          const disabledClasses = "cursor-not-allowed opacity-50";
 
-          const inner = (
-            <>
+          return (
+            <Link
+              key={type}
+              href={`/admin/quizzes/${parent.quizId}/rounds/${parent.roundId}/questions/new/${SLUG_BY_TYPE[type]}`}
+              className={`${baseClasses} ${interactiveClasses}`}
+            >
               <span className="font-heading uppercase tracking-wider">
                 {t(`types.${type}.name`)}
               </span>
               <span className="text-xs text-muted-foreground">
                 {t(`types.${type}.description`)}
               </span>
-              {!enabled && (
-                <span className="mt-2 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {t("comingSoon")}
-                </span>
-              )}
-            </>
-          );
-
-          if (!enabled) {
-            return (
-              <div
-                key={type}
-                aria-disabled="true"
-                className={`${baseClasses} ${disabledClasses}`}
-              >
-                {inner}
-              </div>
-            );
-          }
-
-          return (
-            <Link
-              key={type}
-              href={`/admin/quizzes/${parent.quizId}/rounds/${parent.roundId}/questions/new/${SLUG_BY_TYPE[type]}`}
-              className={`${baseClasses} ${enabledClasses}`}
-            >
-              {inner}
             </Link>
           );
         })}

@@ -236,7 +236,6 @@
     "forRound": "Към {quiz} → {round}",
     "backToRound": "← Назад към рунда",
     "backToChooser": "← Избери друг тип",
-    "comingSoon": "Скоро",
     "types": {
       "multiple_choice": {
         "name": "Multiple Choice",

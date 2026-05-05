@@ -68,10 +68,9 @@ export type CreateOpenTextQuestionInput = z.infer<
   typeof createOpenTextQuestionSchema
 >;
 
-// Audio limits. Adi raised the live-quiz cap from CLAUDE.md §4.6 (15 sec) to
-// 30 sec on 2026-05-03. Size cap is generous to leave headroom for short
-// future clips (~30 sec MP3 ≈ 1 MB; the 6 MB cap matches our Server Action
-// body-size limit and gives buffer for variable bitrates).
+// Audio upload limits. The question timer is separate: a shorter timer cuts
+// playback early, while a longer timer leaves silence after the clip ends.
+// The 6 MB cap gives buffer for variable bitrates.
 export const AUDIO_MAX_DURATION_SECONDS = 30;
 export const AUDIO_MAX_SIZE_BYTES = 6 * 1024 * 1024;
 export const AUDIO_ACCEPTED_MIME_TYPES = ["audio/mpeg", "audio/mp3"] as const;

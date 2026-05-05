@@ -23,7 +23,7 @@ These are product/architecture tasks that should be implemented in a focused Cla
 
 - Fullscreen host presentation route.
 - Keyboard controls for the host presentation.
-- Audio playback from R2 signed URLs inside the live quiz flow.
+- Audio playback from R2 signed URLs inside the live quiz flow, respecting the separate clip-duration vs answer-timer behavior.
 - Image reveal blur sync.
 - Live answer count updates.
 - Leaderboard broadcast and display.

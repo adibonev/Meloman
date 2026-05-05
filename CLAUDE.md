@@ -207,13 +207,17 @@ docs and deprecation notices before changing framework-specific code.
 - **Host override:** host sees all submitted answers in real-time, can manually accept rejected answers via override panel
 - Multi-part variant: 2 input fields (e.g., "Song name" + "Artist"), each scored separately
 
-**Type 3: Audio Question (5-15 sec MP3 clip)**
+**Type 3: Audio Question (5-30 sec MP3 clip)**
 - Host: vinyl animation + countdown ring; audio auto-plays from R2 signed URL
 - Player: "Listen carefully..." message + input/options
-- **Audio source:** Admin uploads 5-15 second MP3 clip to R2
+- **Audio source:** Admin uploads 5-30 second MP3 clip to R2
 - Storage path: `/quiz-audio/[uuid].mp3`
 - Signed URL valid 5 minutes
 - Default time: 10-15 seconds (short to discourage Shazam usage)
+- Audio clip duration and answer timer are separate:
+  - If the timer is shorter than the clip, playback stops when the timer ends.
+  - If the timer is longer than the clip, the clip ends naturally and the remaining time is silence.
+  - Do not reduce the admin audio cap back to 15 seconds; 30-second clips are intentional.
 
 **Type 4: Image Reveal (Mystery Artist or similar)**
 - Host: large image with `filter: blur(40px)` → `blur(0px)` over question duration
@@ -449,8 +453,9 @@ Host override is planned for Stage 3 and is not implemented yet in the current w
 ### 4.6 Audio clips legal compliance
 
 **STRICT RULES:**
-- Recommended **5-15 seconds** per clip in live quiz; current admin cap is **30 seconds**
+- Recommended **5-30 seconds** per uploaded live quiz clip; current admin cap is **30 seconds**
 - Maximum **30 seconds** for daily preview
+- Audio playback is bounded by the question timer: shorter timer cuts playback early; longer timer leaves silence after the clip ends.
 - Stored in Cloudflare R2, served via signed URLs (5-minute expiry)
 - DMCA email `dmca@meloman.bg` required (24-48h response procedure)
 - Footer disclaimer on all pages with audio:

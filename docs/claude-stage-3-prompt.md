@@ -27,6 +27,7 @@ Important constraints:
 - DB writes are the source of truth; failed Pusher broadcasts must not create runtime overlays.
 - Captain-only submit must remain enforced server-side.
 - Timer authority is questionEndsAt from the DB, not the local browser clock.
+- Audio clip length and answer timer are separate: shorter timer cuts playback early; longer timer leaves silence after the clip ends.
 - User-facing strings must use next-intl.
 - Do not use forbidden libraries from CLAUDE.md.
 - Run lint, typecheck, tests, and build before handing back substantial work.

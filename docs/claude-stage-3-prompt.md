@@ -12,6 +12,7 @@ Read these files first:
 - docs/stage-3-handoff.md
 - docs/live-quiz-test-plan.md
 - docs/testing-strategy.md
+- docs/pre-friday-backlog.md
 
 Continue Sprint/Stage 3 for Meloman.
 

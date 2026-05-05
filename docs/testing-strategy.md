@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Last updated: 2026-05-04
+Last updated: 2026-05-05
 
 Meloman uses layered testing. The goal is not to test every implementation detail, but to protect the flows that would hurt a live quiz night if they broke.
 

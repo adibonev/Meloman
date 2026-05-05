@@ -107,7 +107,7 @@ These choices are **mandated by the SoftUni course curriculum** and committed. D
 
 | Layer | Technology | Reason |
 |---|---|---|
-| **Frontend framework** | Next.js 15 (App Router) | Course requirement |
+| **Frontend framework** | Next.js App Router | Course requirement; installed version lives in `apps/web/package.json` |
 | **Backend** | Next.js API routes | Course requirement (no separate backend) |
 | **Language** | TypeScript (strict mode) | Course requirement |
 | **Database** | Neon PostgreSQL (EU Frankfurt) | Course requirement, GDPR compliance |
@@ -118,6 +118,10 @@ These choices are **mandated by the SoftUni course curriculum** and committed. D
 | **Deployment** | Vercel | Course allows Netlify/Vercel/similar |
 | **Email** | Resend | Adi has prior experience |
 | **Architecture** | Monorepo (Turborepo + pnpm) | Course requires monorepo |
+
+Implementation note: the current web app uses the installed Next.js version in
+`apps/web/package.json` (currently Next.js 16.2.4). Follow the local Next.js
+docs and deprecation notices before changing framework-specific code.
 
 ### 2.2 Added for our specific needs
 
@@ -440,12 +444,12 @@ Open text answers matched against `acceptable_answers: string[]`:
 
 Example acceptable answers for "Queen": `["Queen", "Queens", "Куин", "Queen band"]`
 
-Host override available via `POST /api/sessions/[code]/override` for disputed cases.
+Host override is planned for Stage 3 and is not implemented yet in the current web flow.
 
 ### 4.6 Audio clips legal compliance
 
 **STRICT RULES:**
-- Maximum **15 seconds** per clip in live quiz
+- Recommended **5-15 seconds** per clip in live quiz; current admin cap is **30 seconds**
 - Maximum **30 seconds** for daily preview
 - Stored in Cloudflare R2, served via signed URLs (5-minute expiry)
 - DMCA email `dmca@meloman.bg` required (24-48h response procedure)
@@ -501,7 +505,7 @@ Treat Spotify API as a **dev-mode internal helper only**. If access is revoked, 
 ```
 meloman/
 ├── apps/
-│   ├── web/                          # Next.js 15 (UI + REST API)
+│   ├── web/                          # Next.js App Router (UI + REST API)
 │   │   ├── app/
 │   │   │   ├── (public)/             # Landing, About
 │   │   │   ├── (auth)/               # Login, Register
@@ -564,24 +568,24 @@ meloman/
 ### 5.2 Real-time architecture (Pusher Channels)
 
 #### Channel naming convention
-- `quiz:{CODE}` — broadcast channel for all quiz events (host + players subscribe)
-- `quiz:{CODE}:host` — host-only channel for answer counts, override actions
-- `team:{TEAM_ID}` — presence channel for team lobby (shows who's online)
+- `quiz-{CODE}` — broadcast channel for quiz events (host + players subscribe)
+- `quiz-{CODE}-host` — host-only channel for future answer counts and override actions
+- `presence-team-{TEAM_ID}` — presence channel for future team lobby presence
 
 #### Event flow (live quiz)
-1. Host clicks SPACE → `POST /api/sessions/[code]/next`
-2. Backend updates DB (current_question_id, question_started_at, question_ends_at)
-3. Backend extracts signed R2 URL for audio (if audio question)
-4. Backend triggers `pusher.trigger('quiz:MELO42', 'question-started', payload)`
-5. All subscribers receive event simultaneously (~50-200ms)
-6. Host shows question + plays audio. Players see input UI.
-7. Captain taps submit → `POST /api/sessions/[code]/answer`
-8. Backend writes to DB + triggers `pusher.trigger('quiz:MELO42:host', 'answer-count', { answered: 4, total: 8 })`
-9. Host clicks SPACE again → reveal flow
-10. Backend computes scores → triggers `pusher.trigger('quiz:MELO42', 'question-revealed', { correctAnswer, scores, storyExcerpt })`
+Current Sprint 3 web implementation uses Server Actions for the lobby flow:
+1. Host clicks Start → `startQuizAction(code)`
+2. Backend updates DB (`current_question_id`, `question_started_at`, `question_ends_at`)
+3. Backend broadcasts `question-started` on `quiz-{CODE}`
+4. Host and player lobbies refresh through Pusher subscriptions
+5. Captain submits → `submitAnswerAction(code, formData)`
+6. Backend validates captain-only submit, timer window, duplicate answer, then writes to DB
+7. Timer expiry or host click calls `revealAnswerAction(code)`
+8. Backend broadcasts `question-revealed` on `quiz-{CODE}`
+9. Host clicks Next question → `nextQuestionAction(code)`
 
 #### Fallback polling
-If Pusher disconnects, clients poll `GET /api/sessions/[code]/state` every 3 seconds. Slower but functional.
+Fallback polling is planned but not implemented yet. Current resilience comes from DB as source of truth plus page refresh/reconnect.
 
 ### 5.3 State machine
 
@@ -593,7 +597,7 @@ See section 4.2 above.
 |---|---|
 | Host loses internet | Session state in DB. On reconnect → re-fetch state → resume from current question. UI shows "Reconnecting..." overlay. |
 | Player loses internet | Same as host. Missed questions = 0 points. Auto re-join when reconnected. |
-| Pusher service down | Fallback polling: clients poll `GET /api/sessions/[code]/state` every 3 seconds. |
+| Pusher service down | Planned fallback polling. Current DB state remains authoritative, but clients may need refresh/reconnect. |
 | Host closes laptop | Session stays in current state. When host returns → resumes. Players see "Host disconnected, waiting..." |
 | Two hosts on same quiz | First to open `/host/[id]/present` gets write permissions. Others see read-only with notice. |
 | Player cheats with second device | Device fingerprint + UNIQUE(team_id, device_fp). Captain-only submit. |
@@ -790,6 +794,10 @@ All endpoints prefixed with `/api`. JWT auth via `Authorization: Bearer <token>`
 - `DELETE /api/questions/[id]` — delete
 
 ### 7.3 Game Sessions
+Current Sprint 3 web flow uses Server Actions for host/player lobby behavior.
+The REST-style endpoints below are the planned public API surface unless a
+future architecture decision replaces them.
+
 - `POST /api/sessions` — host starts session [admin]
 - `GET /api/sessions/[code]` — session state (poll fallback)
 - `POST /api/sessions/[code]/join` — player joins (creates team OR joins existing)
@@ -983,7 +991,7 @@ Total estimated work: **130-160 hours**. Adi has variable schedule (some days 6h
 **Goal:** Monorepo + Auth + DB schema + Vercel deploy. Can register, login, logout. Placeholder pages visible.
 
 Tasks:
-1. Init Turborepo + pnpm workspaces + Next.js 15 scaffold
+1. Init Turborepo + pnpm workspaces + Next.js App Router scaffold
 2. Tailwind v4 + shadcn/ui + dark mode + Anton/Inter fonts
 3. Drizzle config + Neon connection + first migration (users table)
 4. Auth.js v5 + JWT strategy + 3 roles
@@ -1198,23 +1206,22 @@ Friend is providing seed content. Status:
 
 ## 16. Current project status
 
-**As of latest session:**
-- ✅ All cloud accounts set up (GitHub, Neon, Vercel, Pusher, Cloudflare R2)
-- ✅ SSH keys configured, repo cloned to `~/projects/meloman` on Windows
-- ✅ Git identity configured: adibonev / adibonev@students.softuni.bg
-- ✅ Empty repo with main branch, README + LICENSE only
-- ⏳ Adi continuing course (currently around topic 12-13)
-- ⏳ Friend gathering seed content
-- ⏳ Sprint 1 not yet started
+**As of 2026-05-05:**
+- ✅ Sprint 1 foundation is implemented: monorepo, web app, Auth.js, i18n, protected routes, README/AGENTS docs.
+- ✅ Sprint 2 quiz builder foundation is implemented: quizzes, rounds, six question types, R2 upload helpers, Spotify/Wikipedia helpers.
+- ✅ Sprint 3 live quiz foundation is in progress: sessions, teams, team members, answer submission, grading, Pusher helpers, host/player lobby, timer, auto reveal, Jest coverage.
+- ✅ CI is configured for web lint, typecheck, Jest, and build.
+- ✅ Repository structure, testing strategy, live quiz test plan, and Claude handoff docs are in `docs/`.
+- ⏳ Sprint 3 still needs fullscreen host presentation, leaderboard, answer override panel, pause/resume, podium, and final round logic.
+- ⏳ Sprint 4 mobile app and daily engagement features are not started.
 
-**Next milestone:** Sprint 1 kickoff after course topic 14.
+**Next milestone:** Continue Sprint 3 with fullscreen host presentation while preserving the existing playable host/player lobby flow.
 
-When Adi says "I'm ready for Sprint 1" or "готов съм за Sprint 1":
-1. Verify cloud accounts are accessible (not paused, not expired)
-2. Verify friend has provided minimum seed content
-3. Begin Sprint 1 task #1: Init Turborepo + pnpm workspaces + Next.js 15 scaffold
-4. Walk Adi through each command, explaining what it does
-5. Commit after each completed task with conventional commit messages
+Before continuing Stage 3:
+1. Read `docs/stage-3-handoff.md`.
+2. Read `docs/repository-structure.md`.
+3. Read `docs/testing-strategy.md`.
+4. Run the quality gates after substantial changes.
 
 ---
 

@@ -1,6 +1,6 @@
 # Repository Structure
 
-Last updated: 2026-05-04
+Last updated: 2026-05-05
 
 This document explains how the Meloman repository is organized and how future work should keep it professional, readable, and easy to review.
 
@@ -90,6 +90,7 @@ Current docs:
 - `live-quiz-test-plan.md` - manual QA checklist for Stage 3.
 - `testing-strategy.md` - automated/manual testing strategy and future Playwright scope.
 - `claude-stage-3-prompt.md` - ready-to-use prompt for the next Claude Code Stage 3 session.
+- `pre-friday-backlog.md` - short safe-work vs Claude-owned-work list before Friday, 2026-05-08.
 - `repository-structure.md` - this document.
 
 Rules:

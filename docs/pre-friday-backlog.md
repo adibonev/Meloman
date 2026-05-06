@@ -48,4 +48,4 @@ pnpm --filter @meloman/web build
 1. Keep Codex on safe hardening and review work.
 2. Let Claude Code handle fullscreen host presentation first.
 3. Re-run the manual live quiz checklist after each Stage 3 feature.
-4. Only add Playwright after the host/player flow stabilizes.
+4. Grow Playwright coverage as the host/player flow stabilizes.

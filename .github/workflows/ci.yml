@@ -48,5 +48,11 @@ jobs:
       - name: Test
         run: pnpm --filter @meloman/web test:ci
 
+      - name: Install Playwright browsers
+        run: pnpm --filter @meloman/web exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: pnpm --filter @meloman/web test:e2e
+
       - name: Build
         run: pnpm --filter @meloman/web build

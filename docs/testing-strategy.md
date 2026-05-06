@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Last updated: 2026-05-05
+Last updated: 2026-05-06
 
 Meloman uses layered testing. The goal is not to test every implementation detail, but to protect the flows that would hurt a live quiz night if they broke.
 
@@ -37,11 +37,23 @@ Manual QA is still required for Stage 3 because live quiz behavior crosses brows
 
 Use `docs/live-quiz-test-plan.md` for the current manual checklist.
 
-## Future Playwright Coverage
+## Playwright Coverage
 
-Add Playwright when the live quiz flow stabilizes enough to justify browser-level tests.
+Playwright covers browser-level regression tests that click through the UI like a user. The current suite starts with public/auth smoke coverage and should grow as Stage 3 stabilizes.
 
-First Playwright targets:
+Run it with:
+
+```bash
+pnpm --filter @meloman/web test:e2e
+```
+
+Current Playwright coverage:
+
+- Home page CTAs navigate to login/register.
+- Login and register forms show client-side validation.
+- Anonymous users are redirected away from protected admin routes.
+
+Next Playwright targets:
 
 - Host creates/opens a session.
 - Player joins a team.
@@ -61,6 +73,7 @@ Before handing back substantial work:
 pnpm --filter @meloman/web lint
 pnpm --filter @meloman/web exec tsc --noEmit
 pnpm --filter @meloman/web test
+pnpm --filter @meloman/web test:e2e
 pnpm --filter @meloman/web build
 ```
 

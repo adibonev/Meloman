@@ -1,6 +1,6 @@
 # Stage 3 Handoff: Live Quiz Engine
 
-Last updated: 2026-05-05
+Last updated: 2026-05-06
 
 ## Current Status
 
@@ -17,10 +17,13 @@ Completed core pieces:
 - State flow: `lobby -> active -> reveal -> finished`.
 - Player answer submission for all six question types.
 - Server-side grading helpers with Jest coverage.
+- API route guard coverage with Jest for Spotify/Wikipedia metadata routes.
+- Playwright smoke coverage for public/auth navigation, form validation, and anonymous admin redirect.
 - Server-authoritative countdown UI using `questionEndsAt` and DB `now()`.
 - Auto reveal when the active question timer expires.
 - Player lobby refresh on Pusher `question-started`, `question-revealed`, and `session-finished`.
 - Root Jest scripts, including watch mode.
+- Root and web Playwright scripts for browser-level regression checks.
 - Current web lint is clean.
 
 Recent Stage 3 commits:
@@ -112,6 +115,7 @@ Run before handing work back:
 pnpm --filter @meloman/web lint
 pnpm --filter @meloman/web exec tsc --noEmit
 pnpm --filter @meloman/web test
+pnpm --filter @meloman/web test:e2e
 pnpm --filter @meloman/web build
 ```
 

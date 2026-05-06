@@ -10,6 +10,8 @@
     "test": "jest --runInBand",
     "test:ci": "jest --ci --runInBand",
     "test:coverage": "jest --coverage --runInBand",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:watch": "jest --watchAll --runInBand"
   },
   "dependencies": {
@@ -40,6 +42,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

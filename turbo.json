@@ -25,6 +25,9 @@
       "dependsOn": ["^test:coverage"],
       "outputs": ["coverage/**"]
     },
+    "test:e2e": {
+      "cache": false
+    },
     "test:watch": {
       "cache": false,
       "persistent": true

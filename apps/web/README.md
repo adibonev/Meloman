@@ -34,6 +34,7 @@ pnpm --filter @meloman/web lint
 pnpm --filter @meloman/web exec tsc --noEmit
 pnpm --filter @meloman/web test
 pnpm --filter @meloman/web test:coverage
+pnpm --filter @meloman/web test:e2e
 pnpm --filter @meloman/web build
 ```
 

@@ -88,7 +88,7 @@ Current docs:
 
 - `stage-3-handoff.md` - current live quiz state and next work for Claude or another AI agent.
 - `live-quiz-test-plan.md` - manual QA checklist for Stage 3.
-- `testing-strategy.md` - automated/manual testing strategy and future Playwright scope.
+- `testing-strategy.md` - automated/manual testing strategy, including Jest and Playwright scope.
 - `claude-stage-3-prompt.md` - ready-to-use prompt for the next Claude Code Stage 3 session.
 - `pre-friday-backlog.md` - short safe-work vs Claude-owned-work list before Friday, 2026-05-08.
 - `repository-structure.md` - this document.

@@ -7,6 +7,8 @@ const createJestConfig = nextJest({
 
 const config: Config = {
   clearMocks: true,
+  coverageDirectory: "coverage",
+  coverageReporters: ["text", "lcov"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
   },

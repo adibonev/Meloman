@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "jest --runInBand",
     "test:ci": "jest --ci --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
     "test:watch": "jest --watchAll --runInBand"
   },
   "dependencies": {

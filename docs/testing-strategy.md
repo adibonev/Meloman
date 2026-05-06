@@ -8,6 +8,7 @@ Meloman uses layered testing. The goal is not to test every implementation detai
 
 Jest currently covers:
 
+- Admin metadata API route guards with mocked auth and mocked external providers.
 - Live quiz grading logic.
 - Pusher channel naming helpers.
 - Countdown timer helpers and component behavior.
@@ -62,3 +63,11 @@ pnpm --filter @meloman/web exec tsc --noEmit
 pnpm --filter @meloman/web test
 pnpm --filter @meloman/web build
 ```
+
+Coverage report:
+
+```bash
+pnpm --filter @meloman/web test:coverage
+```
+
+This prints a terminal coverage table and writes an ignored HTML/LCOV report to `apps/web/coverage/`.

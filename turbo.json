@@ -21,6 +21,10 @@
       "dependsOn": ["^test:ci"],
       "outputs": []
     },
+    "test:coverage": {
+      "dependsOn": ["^test:coverage"],
+      "outputs": ["coverage/**"]
+    },
     "test:watch": {
       "cache": false,
       "persistent": true

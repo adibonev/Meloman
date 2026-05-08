@@ -58,6 +58,10 @@ test.describe("public and auth smoke flow", () => {
 
     await expect(page).toHaveURL(/\/en\/login$/);
     await expect(page.getByText("Sign in to your account")).toBeVisible();
+
+    await page.goto("/en/admin/sponsors");
+    await expect(page).toHaveURL(/\/en\/login$/);
+    await expect(page.getByText("Sign in to your account")).toBeVisible();
   });
 
   test("protected host routes redirect anonymous users to locale-aware login", async ({

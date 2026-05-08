@@ -137,6 +137,48 @@ describe("live quiz grading", () => {
     });
   });
 
+  it("requires exact (case-insensitive) lyric blanks; no fuzzy match", () => {
+    // Regression: the original implementation used Levenshtein <= 2 here,
+    // which incorrectly awarded a point for "run" against "gun" (distance
+    // 1) during a real test session. CLAUDE.md §3.1 Type 5 says lyric
+    // scoring is case-insensitive only.
+    expect(
+      gradeAnswer(
+        question({
+          questionType: "lyric_blank",
+          correctAnswer: ["killed", "gun", "head"],
+          pointsBase: 1,
+        }),
+        {
+          questionType: "lyric_blank",
+          lyricAnswers: ["get", "run", "asd"],
+        }
+      )
+    ).toMatchObject({
+      submittedAnswer: ["get", "run", "asd"],
+      isCorrect: false,
+      pointsAwarded: 0,
+    });
+
+    // Diacritics + case still normalize, just no Levenshtein.
+    expect(
+      gradeAnswer(
+        question({
+          questionType: "lyric_blank",
+          correctAnswer: ["Куин"],
+          pointsBase: 1,
+        }),
+        {
+          questionType: "lyric_blank",
+          lyricAnswers: ["куин"],
+        }
+      )
+    ).toMatchObject({
+      isCorrect: true,
+      pointsAwarded: 1,
+    });
+  });
+
   it("returns null when lyric blanks have no stored correct answers", () => {
     expect(
       gradeAnswer(

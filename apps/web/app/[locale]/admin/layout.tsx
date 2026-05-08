@@ -56,6 +56,12 @@ export default async function AdminLayout({
           >
             {t("nav.quizzes")}
           </Link>
+          <Link
+            href="/admin/sponsors"
+            className="text-foreground hover:underline"
+          >
+            {t("nav.sponsors")}
+          </Link>
         </nav>
       </header>
 

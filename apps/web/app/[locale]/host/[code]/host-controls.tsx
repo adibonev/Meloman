@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
+  continueFromBetweenRoundsAction,
   nextQuestionAction,
   pauseSessionAction,
   resumeSessionAction,
@@ -12,7 +13,13 @@ import {
   startQuizAction,
 } from "./actions";
 
-type SessionStatus = "lobby" | "active" | "reveal" | "paused" | "finished";
+type SessionStatus =
+  | "lobby"
+  | "active"
+  | "reveal"
+  | "between_rounds"
+  | "paused"
+  | "finished";
 
 type ServerErrorKey =
   | "unauthorized"
@@ -88,6 +95,17 @@ export function HostControls({
             disabled={isPending}
           >
             {isPending ? t("working") : t("nextQuestion")}
+          </Button>
+        )}
+        {status === "between_rounds" && (
+          <Button
+            type="button"
+            onClick={() =>
+              runAction(() => continueFromBetweenRoundsAction(code))
+            }
+            disabled={isPending}
+          >
+            {isPending ? t("working") : t("startNextRound")}
           </Button>
         )}
         {(status === "active" || status === "reveal") && (

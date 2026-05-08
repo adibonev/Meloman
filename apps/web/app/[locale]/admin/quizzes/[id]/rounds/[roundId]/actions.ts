@@ -25,6 +25,7 @@ export async function updateRoundAction(
     title: formData.get("title"),
     roundType: formData.get("roundType"),
     introSlideText: formData.get("introSlideText") ?? "",
+    advancementTopN: formData.get("advancementTopN") ?? 0,
   };
 
   const parsed = createRoundSchema.safeParse(raw);
@@ -42,12 +43,17 @@ export async function updateRoundAction(
     return { errorKey: "notFound" as const };
   }
 
+  // Schema enforces 0 as "no cutoff" but we store NULL in the DB so the
+  // type stays "missing" rather than "explicit zero". Aligns with the
+  // server logic in applyRoundCutoff which short-circuits on null.
   await db
     .update(rounds)
     .set({
       title: parsed.data.title,
       roundType: parsed.data.roundType,
       introSlideText: parsed.data.introSlideText ?? null,
+      advancementTopN:
+        parsed.data.advancementTopN > 0 ? parsed.data.advancementTopN : null,
     })
     .where(eq(rounds.id, roundId));
 

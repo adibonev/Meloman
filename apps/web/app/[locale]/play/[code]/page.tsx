@@ -29,6 +29,7 @@ export default async function PlayLandingPage({
         id: gameSessions.id,
         status: gameSessions.status,
         quizTitle: quizzes.title,
+        maxTeamSize: quizzes.maxTeamSize,
       })
       .from(gameSessions)
       .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
@@ -160,6 +161,7 @@ export default async function PlayLandingPage({
 
       <TeamSelection
         code={upperCode}
+        maxTeamSize={row.maxTeamSize ?? null}
         teams={existingTeams.map((tm) => ({
           ...tm,
           memberCount: memberCountByTeam[tm.id] ?? 0,

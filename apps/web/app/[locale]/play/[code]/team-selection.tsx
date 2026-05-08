@@ -28,14 +28,17 @@ type ServerErrorKey =
   | "sessionNotFound"
   | "sessionNotJoinable"
   | "teamNotFound"
+  | "teamFull"
   | "deviceAlreadyInSession"
   | "generic";
 
 export function TeamSelection({
   code,
+  maxTeamSize,
   teams,
 }: {
   code: string;
+  maxTeamSize: number | null;
   teams: TeamRow[];
 }) {
   const t = useTranslations("Play");
@@ -126,32 +129,46 @@ export function TeamSelection({
           </p>
         ) : (
           <ul className="space-y-2">
-            {teams.map((team) => (
-              <li key={team.id}>
-                <button
-                  type="button"
-                  onClick={() => onJoin(team.id)}
-                  disabled={isPending}
-                  className="flex w-full items-center gap-3 rounded-md border border-border bg-card px-4 py-3 text-left transition-colors hover:border-foreground/30 hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span
-                    aria-hidden
-                    className="flex size-10 items-center justify-center rounded-full text-xl"
-                    style={{ backgroundColor: team.color + "33" }}
+            {teams.map((team) => {
+              const isFull =
+                maxTeamSize !== null && team.memberCount >= maxTeamSize;
+              return (
+                <li key={team.id}>
+                  <button
+                    type="button"
+                    onClick={() => onJoin(team.id)}
+                    disabled={isPending || isFull}
+                    className="flex w-full items-center gap-3 rounded-md border border-border bg-card px-4 py-3 text-left transition-colors hover:border-foreground/30 hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {team.avatarEmoji}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">
-                      {team.name}
+                    <span
+                      aria-hidden
+                      className="flex size-10 items-center justify-center rounded-full text-xl"
+                      style={{ backgroundColor: team.color + "33" }}
+                    >
+                      {team.avatarEmoji}
                     </span>
-                    <span className="block text-xs text-muted-foreground">
-                      {t("memberCount", { count: team.memberCount })}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">
+                        {team.name}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {maxTeamSize !== null
+                          ? t("memberCountWithMax", {
+                              count: team.memberCount,
+                              max: maxTeamSize,
+                            })
+                          : t("memberCount", { count: team.memberCount })}
+                        {isFull && (
+                          <span className="ml-2 rounded-full bg-foreground/10 px-2 py-0.5 text-[10px] uppercase tracking-widest">
+                            {t("teamFullBadge")}
+                          </span>
+                        )}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              </li>
-            ))}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

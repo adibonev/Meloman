@@ -1,6 +1,6 @@
 "use server";
 
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@meloman/db";
 import {
   answers,
@@ -25,7 +25,13 @@ type HostActionErrorKey =
 
 type HostActionResult = { errorKey: HostActionErrorKey } | { ok: true };
 
-type SessionStatus = "lobby" | "active" | "reveal" | "paused" | "finished";
+type SessionStatus =
+  | "lobby"
+  | "active"
+  | "reveal"
+  | "between_rounds"
+  | "paused"
+  | "finished";
 
 type HostSessionRow = {
   id: string;
@@ -88,11 +94,45 @@ async function loadHostSession(code: string): Promise<
   };
 }
 
+// Per-round cutoff: takes the currently-active teams (is_active=true),
+// keeps the top N by total_score, marks the rest as is_active=false.
+// Returns the number of teams eliminated. No-op if topN is null or
+// covers the whole field. Idempotent on its own — calling it twice with
+// the same N would have no effect because the bottom teams are already
+// inactive after the first call.
+async function applyRoundCutoff(
+  sessionId: string,
+  topN: number | null
+): Promise<number> {
+  if (topN === null || topN <= 0) return 0;
+
+  const active = await db
+    .select({ id: teams.id })
+    .from(teams)
+    .where(and(eq(teams.sessionId, sessionId), eq(teams.isActive, true)))
+    .orderBy(desc(teams.totalScore), asc(teams.joinedAt));
+
+  if (active.length <= topN) return 0;
+
+  const eliminatedIds = active.slice(topN).map((t) => t.id);
+  if (eliminatedIds.length === 0) return 0;
+
+  await db
+    .update(teams)
+    .set({ isActive: false })
+    .where(inArray(teams.id, eliminatedIds));
+
+  return eliminatedIds.length;
+}
+
 async function loadOrderedQuestions(quizId: string) {
   return db
     .select({
       id: questions.id,
       timeLimitSeconds: questions.timeLimitSeconds,
+      roundId: questions.roundId,
+      roundType: rounds.roundType,
+      advancementTopN: rounds.advancementTopN,
     })
     .from(questions)
     .innerJoin(rounds, eq(rounds.id, questions.roundId))
@@ -116,6 +156,7 @@ export async function startQuizAction(code: string): Promise<HostActionResult> {
   }
 
   const first = ordered[0];
+
   const nowMs = Date.now();
   const startedAt = new Date(nowMs);
   const endsAt = new Date(
@@ -212,6 +253,101 @@ export async function nextQuestionAction(
 
     return { ok: true };
   }
+
+  // Round transition: if the next question lives in a different round, we
+  // pause for the inter-round leaderboard slide instead of starting the
+  // next question immediately. The host clicks "Continue" again to apply
+  // the cutoff and start round N+1. continueFromBetweenRoundsAction
+  // handles that second click.
+  const current = ordered[index];
+  if (next.roundId !== current.roundId) {
+    await db
+      .update(gameSessions)
+      .set({ status: "between_rounds" })
+      .where(eq(gameSessions.id, session.id));
+
+    await broadcast(quizChannel(upperCode), PUSHER_EVENTS.scoresUpdated, {
+      reason: "between-rounds",
+    });
+
+    return { ok: true };
+  }
+
+  const nowMs = Date.now();
+  const startedAt = new Date(nowMs);
+  const endsAt = new Date(nowMs + Math.max(1, next.timeLimitSeconds) * 1000);
+
+  await db
+    .update(gameSessions)
+    .set({
+      status: "active",
+      currentQuestionId: next.id,
+      questionStartedAt: startedAt,
+      questionEndsAt: endsAt,
+    })
+    .where(eq(gameSessions.id, session.id));
+
+  await broadcast(quizChannel(upperCode), PUSHER_EVENTS.questionStarted, {
+    questionId: next.id,
+    startedAt: startedAt.valueOf(),
+    endsAt: endsAt.valueOf(),
+    serverNow: nowMs,
+  });
+
+  return { ok: true };
+}
+
+export async function continueFromBetweenRoundsAction(
+  code: string
+): Promise<HostActionResult> {
+  const loaded = await loadHostSession(code);
+  if ("errorKey" in loaded) return loaded;
+
+  const { session, upperCode } = loaded;
+
+  if (session.status !== "between_rounds") {
+    return { errorKey: "invalidState" };
+  }
+  if (!session.currentQuestionId) {
+    return { errorKey: "noCurrentQuestion" };
+  }
+
+  const ordered = await loadOrderedQuestions(session.quizId);
+  if (ordered.length === 0) {
+    return { errorKey: "noQuestions" };
+  }
+
+  const index = ordered.findIndex(
+    (question) => question.id === session.currentQuestionId
+  );
+  if (index === -1) {
+    return { errorKey: "noCurrentQuestion" };
+  }
+
+  const current = ordered[index];
+  const next = ordered[index + 1];
+  if (!next) {
+    // No more questions after this round even though we're sitting in
+    // between_rounds — treat as "finish the quiz now". Shouldn't happen
+    // with normal data because the round transition only fires when a
+    // next question exists, but defensive.
+    const finishedAt = new Date();
+    await db
+      .update(gameSessions)
+      .set({ status: "finished", finishedAt })
+      .where(eq(gameSessions.id, session.id));
+
+    await broadcast(quizChannel(upperCode), PUSHER_EVENTS.sessionFinished, {
+      serverNow: finishedAt.valueOf(),
+    });
+
+    return { ok: true };
+  }
+
+  // Apply the cutoff for the round we just finished. The cutoff config
+  // lives on the previous round (current.advancementTopN means "after
+  // this round, top N continue").
+  await applyRoundCutoff(session.id, current.advancementTopN);
 
   const nowMs = Date.now();
   const startedAt = new Date(nowMs);

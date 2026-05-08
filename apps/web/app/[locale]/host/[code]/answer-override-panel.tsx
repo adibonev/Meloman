@@ -76,7 +76,6 @@ export function AnswerOverridePanel({
       <ul className="space-y-2">
         {rows.map((row) => {
           const isThisPending = isPending && pendingId === row.id;
-          const targetState = !row.isCorrect;
           return (
             <li
               key={row.id}
@@ -111,19 +110,36 @@ export function AnswerOverridePanel({
                   )}
                 </p>
               </div>
-              <Button
-                type="button"
-                variant={row.isCorrect ? "destructive" : "default"}
-                size="sm"
-                disabled={isPending}
-                onClick={() => runOverride(row.id, targetState)}
-              >
-                {isThisPending
-                  ? t("working")
-                  : targetState
-                    ? t("overrideMarkCorrect")
-                    : t("overrideMarkWrong")}
-              </Button>
+              {/* Show both options side-by-side. The currently selected */}
+              {/* state is the solid/highlighted button; the other is */}
+              {/* outlined and ready to toggle. This is clearer than a */}
+              {/* single button that flips label, especially on a TV. */}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant={row.isCorrect ? "default" : "outline"}
+                  size="sm"
+                  disabled={isPending || row.isCorrect}
+                  onClick={() => runOverride(row.id, true)}
+                  aria-label={t("overrideMarkCorrect")}
+                >
+                  {isThisPending && !row.isCorrect
+                    ? t("working")
+                    : `✓ ${t("overrideMarkCorrect")}`}
+                </Button>
+                <Button
+                  type="button"
+                  variant={!row.isCorrect ? "default" : "outline"}
+                  size="sm"
+                  disabled={isPending || !row.isCorrect}
+                  onClick={() => runOverride(row.id, false)}
+                  aria-label={t("overrideMarkWrong")}
+                >
+                  {isThisPending && row.isCorrect
+                    ? t("working")
+                    : `✗ ${t("overrideMarkWrong")}`}
+                </Button>
+              </div>
             </li>
           );
         })}

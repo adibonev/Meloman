@@ -6,6 +6,7 @@ import {
   gameSessions,
   questions,
   quizzes,
+  rounds,
   teamMembers,
   teams,
   users,
@@ -110,6 +111,8 @@ export default async function PlayLobbyPage({
       color: teams.color,
       avatarEmoji: teams.avatarEmoji,
       captainUserId: teams.captainUserId,
+      totalScore: teams.totalScore,
+      isActive: teams.isActive,
     })
     .from(teams)
     .where(eq(teams.sessionId, sessionRow.id));
@@ -165,8 +168,10 @@ export default async function PlayLobbyPage({
           mediaUrl: questions.mediaUrl,
           mediaAttribution: questions.mediaAttribution,
           mediaBlurPx: questions.mediaBlurPx,
+          roundType: rounds.roundType,
         })
         .from(questions)
+        .innerJoin(rounds, eq(rounds.id, questions.roundId))
         .where(eq(questions.id, sessionRow.currentQuestionId))
         .limit(1)
     : [];
@@ -174,7 +179,12 @@ export default async function PlayLobbyPage({
   const [existingAnswer] =
     sessionRow.currentQuestionId !== null
       ? await db
-          .select({ id: answers.id })
+          .select({
+            id: answers.id,
+            isCorrect: answers.isCorrect,
+            pointsAwarded: answers.pointsAwarded,
+            submittedAnswer: answers.submittedAnswer,
+          })
           .from(answers)
           .where(
             and(
@@ -202,6 +212,23 @@ export default async function PlayLobbyPage({
       console.error("R2 image signed URL failed (player):", err);
     }
   }
+
+  // Player is eliminated iff a per-round cutoff has flipped them to
+  // is_active=false. They still see the quiz, just can't submit.
+  const isEliminated = !myTeam.isActive;
+  // Cutoff has been applied at least once when at least one team is
+  // inactive. Used to surface badges only after the first elimination
+  // event, not in the default "everyone alive" state.
+  const cutoffApplied = sessionTeams.some((tm) => !tm.isActive);
+  // Per-round leaderboard for the inter-round slide.
+  const playerLeaderboard = sessionTeams.map((tm) => ({
+    id: tm.id,
+    name: tm.name,
+    color: tm.color,
+    avatarEmoji: tm.avatarEmoji,
+    totalScore: tm.totalScore,
+    isActive: tm.isActive,
+  }));
 
   const questionForPanel = currentQuestion
     ? {
@@ -294,6 +321,19 @@ export default async function PlayLobbyPage({
         question={questionForPanel}
         isCaptain={isCaptain}
         hasSubmitted={existingAnswer !== undefined}
+        teamResult={
+          existingAnswer
+            ? {
+                isCorrect: existingAnswer.isCorrect,
+                pointsAwarded: existingAnswer.pointsAwarded,
+                submittedAnswer: existingAnswer.submittedAnswer,
+              }
+            : null
+        }
+        isEliminated={isEliminated}
+        cutoffApplied={cutoffApplied}
+        leaderboard={playerLeaderboard}
+        myTeamId={myTeam.id}
         timerEndsAtMs={questionEndsAtMs}
         serverNowMs={sessionRow.serverNowMs}
       />

@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import {
+  ADVANCEMENT_TOP_N_MAX,
+  ADVANCEMENT_TOP_N_MIN,
   ROUND_TYPES,
   createRoundSchema,
   type CreateRoundInput,
@@ -14,7 +16,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type ValidationKey = "titleMin" | "titleMax" | "descriptionMax";
+type ValidationKey =
+  | "titleMin"
+  | "titleMax"
+  | "descriptionMax"
+  | "advancementTopNMin"
+  | "advancementTopNMax";
 
 const fieldClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
@@ -30,6 +37,7 @@ export function EditRoundForm({
     title: string;
     roundType: (typeof ROUND_TYPES)[number];
     introSlideText: string;
+    advancementTopN: number;
   };
 }) {
   const t = useTranslations("AdminEditRound");
@@ -64,6 +72,7 @@ export function EditRoundForm({
       if (data.introSlideText) {
         formData.set("introSlideText", data.introSlideText);
       }
+      formData.set("advancementTopN", String(data.advancementTopN));
       const result = await updateRoundAction(quizId, roundId, formData);
       if (result?.errorKey) setServerErrorKey(result.errorKey);
     });
@@ -122,6 +131,27 @@ export function EditRoundForm({
           {errors.introSlideText?.message && (
             <p className="text-xs text-destructive">
               {tValidation(errors.introSlideText.message as ValidationKey)}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="advancementTopN">
+            {tNew("advancementTopNLabel")}
+          </Label>
+          <Input
+            id="advancementTopN"
+            type="number"
+            min={ADVANCEMENT_TOP_N_MIN}
+            max={ADVANCEMENT_TOP_N_MAX}
+            {...register("advancementTopN")}
+          />
+          <p className="text-xs text-muted-foreground">
+            {tNew("advancementTopNHint")}
+          </p>
+          {errors.advancementTopN?.message && (
+            <p className="text-xs text-destructive">
+              {tValidation(errors.advancementTopN.message as ValidationKey)}
             </p>
           )}
         </div>

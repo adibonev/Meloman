@@ -1,6 +1,6 @@
 # Stage 3 Handoff: Live Quiz Engine
 
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 ## Current Status
 
@@ -19,10 +19,14 @@ Completed core pieces:
 - Pause/resume timer state, including DB-backed `pausedAt` / `pausedFromStatus` and timer shifting on resume.
 - Host override panel for disputed open-text, audio, and image-reveal answers during reveal.
 - Audio playback for audio questions, served from R2 signed URLs, bounded by the answer timer (clip stops when the timer ends).
-- Image reveal questions render a static heavy-blur image during `active`, un-blur on `reveal`, and show attribution after reveal.
+- Image reveal questions render a static heavy-blur image during `active`, un-blur on `reveal`, and show attribution after reveal. Blur radius is admin-configurable per question (`questions.media_blur_px`, 2-80px).
 - Live leaderboard overlay rendered from server-loaded team scores; refreshes via Pusher `scores-updated` so points stay current as answers come in.
 - End-of-quiz podium component and ranking helpers.
-- State flow: `lobby -> active -> reveal -> finished`, with optional `paused` state from `active` or `reveal`.
+- Per-round advancement criteria (`rounds.advancement_top_n`): admin sets how many teams continue after each round. The bottom teams flip to `teams.is_active = false` and are locked out of subsequent submits.
+- `between_rounds` session status: between two rounds the session pauses on a leaderboard slide. Host clicks "Start next round" (or `SPACE`) to apply the cutoff and start the next round. Both host TV (`BetweenRoundsLeaderboard`) and player phones show the standings; eliminated teams see a "not advancing" notice.
+- Host override panel for disputed open-text, audio, and image-reveal answers during reveal — accept / reject toggle, recomputes team total_score, marks `host_override`.
+- Decade question UX: player year input is constrained to the selected decade range; server schema rejects mismatched year/decade pairs.
+- State flow: `lobby -> active -> reveal -> (between_rounds ->) active -> ... -> finished`, with optional `paused` state from `active` or `reveal`.
 - Player answer submission for all six question types.
 - Server-side grading helpers with Jest coverage.
 - API route guard coverage with Jest for Spotify/Wikipedia metadata routes.
@@ -61,6 +65,7 @@ Recent Stage 3 commits:
 - Audio clip player: `apps/web/components/live/audio-clip-player.tsx`
 - Blurred image reveal: `apps/web/components/live/blurred-image.tsx`
 - Leaderboard overlay: `apps/web/components/live/leaderboard-overlay.tsx`
+- Between-rounds leaderboard slide: `apps/web/components/live/between-rounds-leaderboard.tsx`
 - Podium: `apps/web/components/live/podium.tsx`
 - Player lobby page: `apps/web/app/[locale]/play/[code]/lobby/page.tsx`
 - Player answer panel: `apps/web/app/[locale]/play/[code]/lobby/question-panel.tsx`
@@ -81,10 +86,10 @@ Recent Stage 3 commits:
 4. Session becomes `active`, first question is shown, timer starts.
 5. Captain submits the team answer.
 6. When time expires, host page auto-calls `revealAnswerAction`.
-7. Session becomes `reveal`, correct answer is shown.
+7. Session becomes `reveal`, correct answer is shown. The host override panel is available here for open-text / audio / image-reveal questions.
 8. Host manually clicks `Next question`.
-9. Next question becomes `active`.
-10. After the final reveal, `Next question` finishes the session.
+9. If the next question is in the SAME round, it becomes `active` immediately. If it lives in a DIFFERENT round, the session enters `between_rounds` and shows the leaderboard slide; the host clicks "Start next round" (or `SPACE`) to apply the previous round's `advancement_top_n` cutoff and start the new round.
+10. After the final reveal, `Next question` finishes the session and the podium renders.
 
 The next question is intentionally host-controlled after reveal. Do not auto-advance immediately unless the product decision changes, because real quiz nights need reveal/comment/override time.
 
@@ -96,15 +101,16 @@ High priority:
 
 Medium priority:
 
-- Final round logic.
-- Better player UI states after submit/reveal.
+- Max team size per quiz (`docs/backlog.md` #3).
+- Better player UI states after submit/reveal — confetti when correct, "next question coming up" indicator between active and reveal.
 
 Polish:
 
 - TV-friendly layout refinement.
 - Mobile viewport QA.
 - Sponsor logo placement on the presentation footer.
-- Animation polish (Framer Motion for reveal/podium). The podium component exists; the remaining work is motion/TV polish.
+- Animation polish (Framer Motion for reveal / podium / between-rounds slide).
+- Drop the legacy `teams.is_finalist` and `quizzes.final_round_top_n` columns once the per-round model has soaked.
 
 ## Known Product Decisions
 
@@ -136,7 +142,9 @@ pnpm test:watch
 
 ## Suggested Next Step
 
-Improve the presentation rendering for `lyric_blank` and `decade`, then continue with final-round logic and player post-submit/reveal polish. Pause/resume and host answer override are already in `5f2d5b6`; do not rebuild them unless a concrete bug is found.
+Pick one of the medium-priority items: max team size (small) or player post-submit/reveal polish (medium). After that, polish (sponsor logo, TV layout, lyric/decade presentation rendering) before the SoftUni defense.
+
+Pause/resume, host override, per-round cutoff, between-rounds leaderboard, and podium are all shipped — do not rebuild them unless a concrete bug is found.
 
 ## Repository Maintenance Note
 

@@ -60,6 +60,7 @@ export default async function AdminQuizDetailPage({
           theme: quiz.theme,
           language: quiz.language,
           status: quiz.status,
+          maxTeamSize: quiz.maxTeamSize ?? 0,
         }}
       />
 

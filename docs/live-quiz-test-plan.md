@@ -1,6 +1,6 @@
 # Live Quiz Manual Test Plan
 
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 Use this checklist when testing Stage 3 live quiz behavior locally.
 
@@ -107,11 +107,27 @@ Open a second tab from the host lobby via "Open fullscreen presentation" — the
 
 ### Host Answer Override
 
-- During reveal, the host lobby shows answer override controls for open-text, audio, and image-reveal answers.
-- Marking an answer correct updates the team's score by the question base points.
-- Marking an answer incorrect removes the previously awarded base points.
+- During reveal (or paused-from-reveal), the host lobby shows answer override controls for open-text, audio, and image-reveal answers.
+- Each row exposes both an "Accept" and a "Reject" button. The currently selected state is solid, the alternative is outlined.
+- Clicking the alternative flips the answer's `is_correct`, recomputes `points_awarded`, sets `host_override = true`, and adjusts the team's `total_score` by the delta.
 - The override action broadcasts `scores-updated`, and both host lobby and presentation leaderboard reflect the new total after refresh.
 - Override controls are not shown for multiple-choice, lyric-blank, or decade questions yet.
+
+### Per-round Advancement and Between-rounds Slide
+
+- Quiz with at least two rounds and at least one round whose `advancement_top_n > 0` is required to exercise this flow.
+- After the last question of a round reveals, clicking "Next question" puts the session into `between_rounds` instead of starting the next question immediately.
+- Host TV (`/host/{CODE}/present`) renders the leaderboard slide; player phones show the same standings with a row highlighting the player's team.
+- Pressing `SPACE` (or clicking "Start next round") on the host applies the previous round's cutoff: the bottom teams flip to `is_active = false` and the first question of the next round starts.
+- Eliminated players see "Not advancing" on their phone and the captain's submit is disabled. The server also rejects the submit with `eliminated` if the client is bypassed.
+- Refreshing the host or a player phone during `between_rounds` keeps showing the leaderboard slide; no question content leaks.
+- A round with `advancement_top_n = 0` (or empty admin form) leaves every active team continuing.
+
+### End-of-quiz Podium
+
+- After the last reveal, clicking "Next question" finishes the session.
+- Host TV shows the top 3 teams in podium layout (gold center, silver left, bronze right) with the rest listed below.
+- Player phones show "Quiz finished" copy.
 
 ## Pusher Behavior
 

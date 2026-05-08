@@ -31,7 +31,16 @@ export const teams = pgTable(
     // host-side reveal action recomputes from `answers` if the totals
     // ever drift out of sync.
     totalScore: integer("total_score").notNull().default(0),
+    // Legacy: was true only for teams that made the quiz-level final
+    // cutoff (`quizzes.final_round_top_n`). Superseded by `isActive`,
+    // which generalises the concept to per-round cutoffs. Kept on the
+    // table to avoid a destructive migration; will be dropped once we
+    // confirm no production data depends on it.
     isFinalist: boolean("is_finalist").notNull().default(false),
+    // "Still in the game" flag. Defaults to true; flips to false when a
+    // per-round cutoff eliminates the team. Eliminated teams keep their
+    // score visible but cannot submit on subsequent questions.
+    isActive: boolean("is_active").notNull().default(true),
     joinedAt: timestamp("joined_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

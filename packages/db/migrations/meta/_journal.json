@@ -36,6 +36,20 @@
       "when": 1778259007525,
       "tag": "0004_abnormal_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778271467234,
+      "tag": "0005_brown_random",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778272778600,
+      "tag": "0006_slimy_vector",
+      "breakpoints": true
     }
   ]
 }

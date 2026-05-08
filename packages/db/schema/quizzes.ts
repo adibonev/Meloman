@@ -33,6 +33,10 @@ export const quizzes = pgTable(
     language: quizLanguageEnum("language").notNull().default("bg"),
     status: quizStatusEnum("status").notNull().default("draft"),
     finalRoundTopN: integer("final_round_top_n").notNull().default(0),
+    // Cap on team membership. Null = no limit (default). Enforced at
+    // create-team / join-team time in the player flow. Range mirrors the
+    // schema in `lib/schemas/quiz.ts`.
+    maxTeamSize: integer("max_team_size"),
     sponsorId: uuid("sponsor_id").references(() => sponsors.id, {
       onDelete: "set null",
     }),

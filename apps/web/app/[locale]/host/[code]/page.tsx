@@ -111,10 +111,16 @@ export default async function HostLobbyPage({
       avatarEmoji: teams.avatarEmoji,
       captainUserId: teams.captainUserId,
       totalScore: teams.totalScore,
+      isActive: teams.isActive,
     })
     .from(teams)
     .where(eq(teams.sessionId, row.sessionId))
     .orderBy(asc(teams.joinedAt));
+
+  // Cutoff has run if at least one team has been deactivated. Lets the
+  // UI distinguish "no cutoff yet" (all teams equal) from "post-cutoff"
+  // (badges visible).
+  const cutoffApplied = sessionTeams.some((tm) => !tm.isActive);
 
   const allMembers =
     sessionTeams.length > 0
@@ -304,7 +310,23 @@ export default async function HostLobbyPage({
         {t("openPresentation")}
       </Link>
 
-      {currentQuestion && (
+      {row.status === "between_rounds" && (
+        <section className="space-y-3 rounded-md border border-amber-400/40 bg-amber-400/5 px-4 py-5">
+          <div className="space-y-1 text-center">
+            <p className="text-xs uppercase tracking-widest text-amber-300">
+              {t("betweenRoundsEyebrow")}
+            </p>
+            <p className="font-heading text-xl uppercase tracking-wider">
+              {t("betweenRoundsTitle")}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {t("betweenRoundsHint")}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {currentQuestion && row.status !== "between_rounds" && (
         <section className="space-y-4 rounded-md border border-border bg-card px-4 py-5">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs uppercase tracking-widest text-muted-foreground">
             <span>{t("currentQuestionTitle")}</span>
@@ -413,7 +435,19 @@ export default async function HostLobbyPage({
                       {team.avatarEmoji}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{team.name}</p>
+                      <p className="flex items-center gap-2 truncate font-medium">
+                        {team.name}
+                        {cutoffApplied && team.isActive && (
+                          <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] uppercase tracking-widest text-amber-300">
+                            {t("activeBadge")}
+                          </span>
+                        )}
+                        {cutoffApplied && !team.isActive && (
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+                            {t("eliminatedBadge")}
+                          </span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {t("teamMemberCount", { count: members.length })} -{" "}
                         {t("teamScore", { score: team.totalScore })}

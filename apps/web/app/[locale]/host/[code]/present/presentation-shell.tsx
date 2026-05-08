@@ -8,6 +8,7 @@ import {
   type LeaderboardTeam,
 } from "@/components/live/leaderboard-overlay";
 import {
+  continueFromBetweenRoundsAction,
   nextQuestionAction,
   pauseSessionAction,
   resumeSessionAction,
@@ -15,7 +16,13 @@ import {
   startQuizAction,
 } from "../actions";
 
-type SessionStatus = "lobby" | "active" | "reveal" | "paused" | "finished";
+type SessionStatus =
+  | "lobby"
+  | "active"
+  | "reveal"
+  | "between_rounds"
+  | "paused"
+  | "finished";
 
 type ServerErrorKey =
   | "unauthorized"
@@ -59,16 +66,21 @@ export function PresentationShell({
   const advance = useCallback(() => {
     if (!isHost) return;
 
-    // SPACE drives the whole flow: lobby → start, active → reveal, reveal →
-    // next question. Any other status is a no-op (paused/finished have their
-    // own UX paths).
+    // SPACE drives the whole flow:
+    //   lobby           → start quiz
+    //   active          → reveal answer
+    //   reveal          → next question (or open between-rounds slide)
+    //   between_rounds  → continue into next round (apply cutoff)
+    // paused / finished have their own UX paths.
     let action:
       | typeof startQuizAction
       | typeof revealAnswerAction
-      | typeof nextQuestionAction;
+      | typeof nextQuestionAction
+      | typeof continueFromBetweenRoundsAction;
     if (status === "lobby") action = startQuizAction;
     else if (status === "active") action = revealAnswerAction;
     else if (status === "reveal") action = nextQuestionAction;
+    else if (status === "between_rounds") action = continueFromBetweenRoundsAction;
     else return;
 
     setServerErrorKey(null);

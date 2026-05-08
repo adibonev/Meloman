@@ -1,6 +1,6 @@
 # Backlog
 
-Last updated: 2026-05-08
+Last updated: 2026-05-09
 
 This is the canonical place for user-driven feedback that is too big or out
 of scope for the current Stage 3 slice. Items here are NOT promised — they
@@ -64,7 +64,7 @@ Each item lists:
   browser? Different browsers? Are there console errors? See conversation
   notes 2026-05-08.
 
-### Captain election before the quiz
+### Captain election before the quiz (post-MVP, REMINDER)
 
 - **What**: Team members can collectively choose / change captain before
   the quiz starts. Once locked in, only the captain submits answers and
@@ -72,29 +72,33 @@ Each item lists:
 - **Why**: today the team creator is automatically the captain forever.
   In real life the loudest team member often makes the team, but a
   different member is the music expert.
-- **Sprint**: 4 (mobile flows). The team-formation UX is the biggest
-  candidate for mobile-friendly polish.
+- **Sprint**: post-release. NOT in MVP per Adi's call (2026-05-08).
 - **Effort**: medium.
-- **Notes**: must remain compatible with the captain-only-submit invariant
-  (CLAUDE.md §4.3). Consider whether captain can be changed mid-quiz
-  (current rule: no) and whether captaincy is "elected" (vote) or "passed"
-  (one-tap transfer by current captain).
+- **Notes**: REMINDER — pull this back up after MVP launch. Must
+  preserve the captain-only-submit invariant (CLAUDE.md §4.3). Decide
+  at implementation time whether captaincy is locked at quiz start or
+  stays mutable mid-quiz, and whether it's a vote vs. a one-tap
+  transfer by the current captain. Memory file:
+  `project_captain_election.md`.
 
-### Admin sets per-round advancement criteria
+### Admin sets per-round advancement criteria (LANDED 2026-05-08)
 
-- **What**: Admin can configure a rule for which teams advance past a
-  given round. E.g. "all teams with > 10 points after round 2 continue".
-  Configured before the quiz starts.
-- **Why**: the current spec only supports a fixed top-N cutoff for the
-  final round (CLAUDE.md §3.1). Adi wants more flexible per-round rules
-  for venue-specific formats.
-- **Sprint**: Stage 3 medium priority — extends the existing "final round"
-  schema. Could be partially implemented with the existing
-  `final_round_top_n` for now.
-- **Effort**: medium.
-- **Notes**: needs schema change on `rounds` (or `quizzes`); needs UI for
-  defining the rule type (top-N vs threshold vs manual). Eliminated
-  teams already enter spectator mode per CLAUDE.md §3.1.
+- **What**: Admin configures `rounds.advancement_top_n` per round. After
+  the round reveals its last question, the session enters
+  `between_rounds`; the host clicks "Start next round" (or `SPACE`) and
+  the cutoff is applied — bottom teams flip to `teams.is_active = false`
+  and are locked out of submits.
+- **Why**: SHIPPED as the user-facing answer to "I want to know how many
+  teams advance between rounds and have a leaderboard slide before the
+  next round starts."
+- **Sprint**: SHIPPED in Stage 3.
+- **Effort**: large (delivered).
+- **Notes**: Top-N only. Score-threshold rules (e.g. "everyone with > 10
+  pts continues") are not implemented; threshold-style criteria can be a
+  follow-up that adds another column on `rounds` (`advancement_min_score`)
+  and a UI toggle. Legacy `quizzes.final_round_top_n` and
+  `teams.is_finalist` remain in the DB but are dormant; drop them once
+  we've confirmed nothing in production reads them.
 
 ### Bilingual quiz authoring (post-release, REMINDER)
 

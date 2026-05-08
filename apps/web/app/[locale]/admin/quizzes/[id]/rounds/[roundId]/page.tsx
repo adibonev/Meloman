@@ -72,6 +72,7 @@ export default async function AdminRoundDetailPage({
           title: round.title,
           roundType: round.roundType,
           introSlideText: round.introSlideText ?? "",
+          advancementTopN: round.advancementTopN ?? 0,
         }}
       />
 

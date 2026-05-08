@@ -9,6 +9,7 @@ import {
   answers,
   gameSessions,
   questions,
+  quizzes,
   teamMembers,
   teams,
   users,
@@ -87,8 +88,13 @@ export async function joinAsAnonymousAction(code: string, formData: FormData) {
 async function loadJoinableSession(code: string) {
   const upperCode = code.toUpperCase();
   const [session] = await db
-    .select({ id: gameSessions.id, status: gameSessions.status })
+    .select({
+      id: gameSessions.id,
+      status: gameSessions.status,
+      maxTeamSize: quizzes.maxTeamSize,
+    })
     .from(gameSessions)
+    .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
     .where(eq(gameSessions.joinCode, upperCode))
     .limit(1);
   if (!session) return { error: "sessionNotFound" as const };
@@ -239,6 +245,19 @@ export async function joinTeamAction(code: string, formData: FormData) {
     return { errorKey: "deviceAlreadyInSession" as const };
   }
 
+  // Capacity guard: enforce per-quiz max team size if configured.
+  // Only applies to joining an existing team — `createTeamAction`
+  // implicitly seats one member, which is always within bounds.
+  if (loaded.session.maxTeamSize !== null) {
+    const [{ value: memberCount }] = await db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(teamMembers)
+      .where(eq(teamMembers.teamId, parsed.data.teamId));
+    if (memberCount >= loaded.session.maxTeamSize) {
+      return { errorKey: "teamFull" as const };
+    }
+  }
+
   await db.insert(teamMembers).values({
     teamId: team.id,
     userId,
@@ -260,6 +279,7 @@ type SubmitAnswerErrorKey =
   | "sessionNotJoinable"
   | "teamNotFound"
   | "notCaptain"
+  | "eliminated"
   | "questionClosed"
   | "alreadySubmitted"
   | "unsupportedQuestionType"
@@ -321,6 +341,7 @@ export async function submitAnswerAction(
     .select({
       teamId: teamMembers.teamId,
       captainUserId: teams.captainUserId,
+      isActive: teams.isActive,
     })
     .from(teamMembers)
     .innerJoin(teams, eq(teams.id, teamMembers.teamId))
@@ -334,6 +355,13 @@ export async function submitAnswerAction(
   }
   if (membership.captainUserId !== userId) {
     return { errorKey: "notCaptain" as const };
+  }
+  // Cutoff guard: a team eliminated by an earlier round's
+  // advancement_top_n cutoff is locked out of submitting on subsequent
+  // questions. UI also disables submit, but defense-in-depth on the
+  // server prevents a curl-level bypass.
+  if (!membership.isActive) {
+    return { errorKey: "eliminated" as const };
   }
 
   const [question] = await db

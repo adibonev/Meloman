@@ -18,12 +18,15 @@ export async function updateQuizAction(id: string, formData: FormData) {
     return { errorKey: "forbidden" as const };
   }
 
+  const hasSponsorId = formData.has("sponsorId");
   const raw = {
     title: formData.get("title"),
     description: formData.get("description") ?? "",
     theme: formData.get("theme"),
     language: formData.get("language"),
     status: formData.get("status"),
+    maxTeamSize: formData.get("maxTeamSize") ?? 0,
+    ...(hasSponsorId ? { sponsorId: formData.get("sponsorId") ?? "" } : {}),
   };
 
   const parsed = updateQuizSchema.safeParse(raw);
@@ -54,6 +57,9 @@ export async function updateQuizAction(id: string, formData: FormData) {
       theme: parsed.data.theme,
       language: parsed.data.language,
       status: parsed.data.status,
+      maxTeamSize:
+        parsed.data.maxTeamSize > 0 ? parsed.data.maxTeamSize : null,
+      ...(hasSponsorId ? { sponsorId: parsed.data.sponsorId ?? null } : {}),
       ...(shouldStampPublishedAt ? { publishedAt: new Date() } : {}),
     })
     .where(eq(quizzes.id, id));

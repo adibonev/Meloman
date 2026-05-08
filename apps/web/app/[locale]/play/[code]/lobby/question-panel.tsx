@@ -40,6 +40,7 @@ type AnswerErrorKey =
   | "sessionNotJoinable"
   | "teamNotFound"
   | "notCaptain"
+  | "eliminated"
   | "questionClosed"
   | "alreadySubmitted"
   | "unsupportedQuestionType"
@@ -56,20 +57,216 @@ const DECADE_OPTIONS = Array.from(
   (_, index) => 1900 + index * 10
 );
 
+type LeaderboardEntry = {
+  id: string;
+  name: string;
+  color: string;
+  avatarEmoji: string;
+  totalScore: number;
+  isActive: boolean;
+};
+
+export type TeamResult = {
+  isCorrect: boolean;
+  pointsAwarded: number;
+  // The answer the captain submitted, in the same shape the server stored
+  // it: number for multiple_choice, string for text-types, string[] for
+  // lyric_blank, {decade, year} for decade. Used to render per-type
+  // breakdown on reveal.
+  submittedAnswer: unknown;
+};
+
+function TeamResultBanner({
+  question,
+  result,
+}: {
+  question: LobbyQuestion;
+  result: TeamResult;
+}) {
+  const t = useTranslations("PlayLobby");
+
+  // Per-type breakdown of how the team scored. Each branch returns a
+  // short helper string the banner shows beneath the headline.
+  let breakdown: string | null = null;
+  if (question.questionType === "lyric_blank") {
+    const blanks = question.blankCount;
+    const earned = result.pointsAwarded; // 1 pt × pointsBase per correct blank
+    const perBlankPoints = blanks > 0 ? question.maxPoints / blanks : 0;
+    const correctBlanks =
+      perBlankPoints > 0 ? Math.round(earned / perBlankPoints) : 0;
+    breakdown = t("resultLyricBlankBreakdown", {
+      correct: correctBlanks,
+      total: blanks,
+    });
+  } else if (question.questionType === "decade") {
+    // Decade scoring (CLAUDE.md §3.1 Type 6 / grading.ts):
+    //   correctYear  → +pointsBase × 2 + pointsBase = pointsBase × 3
+    //   correctDecade only → +pointsBase
+    //   neither      → 0
+    const base = question.maxPoints / 3;
+    const yearCorrect = result.pointsAwarded >= base * 3;
+    const decadeCorrect = result.pointsAwarded >= base;
+    breakdown = t("resultDecadeBreakdown", {
+      decade: decadeCorrect ? "✓" : "✗",
+      year: yearCorrect ? "✓" : "✗",
+    });
+  }
+
+  if (result.isCorrect || result.pointsAwarded > 0) {
+    return (
+      <div className="space-y-1 rounded-md border border-emerald-400/50 bg-emerald-400/10 px-4 py-3 text-center">
+        <p className="font-heading text-lg uppercase tracking-wider text-emerald-300">
+          {result.isCorrect
+            ? t("resultCorrectHeading")
+            : t("resultPartialHeading")}
+        </p>
+        <p className="text-sm text-emerald-200">
+          {t("resultPointsEarned", { points: result.pointsAwarded })}
+        </p>
+        {breakdown && (
+          <p className="text-xs text-emerald-200/80">{breakdown}</p>
+        )}
+        {question.correctAnswerLabel && (
+          <p className="text-xs text-muted-foreground">
+            {t("correctAnswer", { answer: question.correctAnswerLabel })}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1 rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-center">
+      <p className="font-heading text-lg uppercase tracking-wider text-destructive">
+        {t("resultWrongHeading")}
+      </p>
+      {breakdown && (
+        <p className="text-xs text-muted-foreground">{breakdown}</p>
+      )}
+      {question.correctAnswerLabel && (
+        <p className="text-sm">
+          {t("correctAnswer", { answer: question.correctAnswerLabel })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function BetweenRoundsPanel({
+  cutoffApplied,
+  isEliminated,
+  leaderboard,
+  myTeamId,
+}: {
+  cutoffApplied: boolean;
+  isEliminated: boolean;
+  leaderboard: LeaderboardEntry[];
+  myTeamId: string;
+}) {
+  const t = useTranslations("PlayLobby");
+
+  const ranked = [...leaderboard].sort(
+    (a, b) => b.totalScore - a.totalScore
+  );
+
+  return (
+    <section className="space-y-4 rounded-md border border-border bg-card px-4 py-5">
+      <div className="space-y-1 text-center">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+          {t("betweenRoundsEyebrow")}
+        </p>
+        <p className="font-heading text-xl uppercase tracking-wider">
+          {t("betweenRoundsTitle")}
+        </p>
+      </div>
+
+      {cutoffApplied && (
+        <p
+          className={`rounded-md px-3 py-2 text-center text-sm font-medium ${
+            isEliminated
+              ? "border border-foreground/40 bg-foreground/10"
+              : "border border-amber-400/50 bg-amber-400/10 text-amber-300"
+          }`}
+        >
+          {isEliminated
+            ? t("betweenRoundsEliminated")
+            : t("betweenRoundsAdvancing")}
+        </p>
+      )}
+
+      <ol className="space-y-2">
+        {ranked.map((team, index) => {
+          const isMine = team.id === myTeamId;
+          return (
+            <li
+              key={team.id}
+              className="flex items-center gap-3 rounded-md border bg-background px-3 py-2"
+              style={{
+                borderColor: isMine ? team.color : undefined,
+                borderLeftColor: team.color,
+                borderLeftWidth: 4,
+                opacity: cutoffApplied && !team.isActive ? 0.45 : 1,
+              }}
+            >
+              <span className="font-heading w-6 text-sm font-black tabular-nums">
+                {index + 1}
+              </span>
+              <span aria-hidden className="text-xl">
+                {team.avatarEmoji}
+              </span>
+              <span className="flex-1 truncate text-sm font-medium">
+                {team.name}
+                {isMine && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    ({t("memberYou")})
+                  </span>
+                )}
+              </span>
+              <span className="font-heading text-sm font-black tabular-nums">
+                {team.totalScore}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="text-center text-xs text-muted-foreground">
+        {t("betweenRoundsHint")}
+      </p>
+    </section>
+  );
+}
+
 export function QuestionPanel({
   code,
   status,
   question,
   isCaptain,
   hasSubmitted,
+  teamResult,
+  isEliminated,
+  cutoffApplied,
+  leaderboard,
+  myTeamId,
   timerEndsAtMs,
   serverNowMs,
 }: {
   code: string;
-  status: "lobby" | "active" | "reveal" | "paused" | "finished";
+  status:
+    | "lobby"
+    | "active"
+    | "reveal"
+    | "between_rounds"
+    | "paused"
+    | "finished";
   question: LobbyQuestion | null;
   isCaptain: boolean;
   hasSubmitted: boolean;
+  teamResult: TeamResult | null;
+  isEliminated: boolean;
+  cutoffApplied: boolean;
+  leaderboard: LeaderboardEntry[];
+  myTeamId: string;
   timerEndsAtMs: number | null;
   serverNowMs: number;
 }) {
@@ -178,6 +375,17 @@ export function QuestionPanel({
     );
   }
 
+  if (status === "between_rounds") {
+    return (
+      <BetweenRoundsPanel
+        cutoffApplied={cutoffApplied}
+        isEliminated={isEliminated}
+        leaderboard={leaderboard}
+        myTeamId={myTeamId}
+      />
+    );
+  }
+
   if (!question || status === "lobby") {
     return (
       <p className="rounded-md bg-muted/30 px-4 py-3 text-center text-sm text-muted-foreground">
@@ -185,6 +393,29 @@ export function QuestionPanel({
       </p>
     );
   }
+
+  // Eliminated mode: the team didn't make a per-round cutoff. They still
+  // see the question shell so they can follow along, but submit is locked.
+  if (isEliminated) {
+    return (
+      <section className="space-y-3 rounded-md border border-foreground/40 bg-foreground/10 px-4 py-5 text-center">
+        <p className="font-heading text-xl uppercase tracking-wider">
+          {t("eliminatedTitle")}
+        </p>
+        <p className="text-sm text-muted-foreground">{t("eliminatedBody")}</p>
+        {status === "reveal" && question.correctAnswerLabel && (
+          <p className="rounded-md bg-foreground/10 px-3 py-2 text-sm">
+            {t("correctAnswer", { answer: question.correctAnswerLabel })}
+          </p>
+        )}
+      </section>
+    );
+  }
+
+  // Reveal-time team result banner — shows correct/wrong + points earned
+  // + per-type breakdown. Wraps the rest of the question UI so the
+  // result is the first thing the captain sees.
+  const showResult = status === "reveal" && teamResult !== null;
 
   const canSubmit = status === "active" && isCaptain && !hasSubmitted;
   const showTextInput = TEXT_QUESTION_TYPES.includes(question.questionType);
@@ -349,7 +580,10 @@ export function QuestionPanel({
       {status === "active" && hasSubmitted && (
         <p className="text-xs text-muted-foreground">{t("answerSubmitted")}</p>
       )}
-      {status === "reveal" && question.correctAnswerLabel && (
+      {showResult && teamResult && (
+        <TeamResultBanner question={question} result={teamResult} />
+      )}
+      {status === "reveal" && !teamResult && question.correctAnswerLabel && (
         <p className="rounded-md bg-foreground/10 px-3 py-2 text-sm">
           {t("correctAnswer", { answer: question.correctAnswerLabel })}
         </p>

@@ -18,6 +18,7 @@ export const gameSessionStatusEnum = pgEnum("game_session_status", [
   "lobby",
   "active",
   "reveal",
+  "between_rounds",
   "paused",
   "finished",
 ]);

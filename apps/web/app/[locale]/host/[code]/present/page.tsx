@@ -15,8 +15,10 @@ import { auth } from "@/auth";
 import { Link } from "@/i18n/navigation";
 import { TimerCountdown } from "@/components/live/timer-countdown";
 import { AudioClipPlayer } from "@/components/live/audio-clip-player";
+import { BetweenRoundsLeaderboard } from "@/components/live/between-rounds-leaderboard";
 import { BlurredImage } from "@/components/live/blurred-image";
 import type { LeaderboardTeam } from "@/components/live/leaderboard-overlay";
+import { LyricBlankDisplay } from "@/components/live/lyric-blank-display";
 import { Podium } from "@/components/live/podium";
 import { getDownloadUrl } from "@/lib/r2";
 import { AutoRevealOnTimeout } from "../auto-reveal-on-timeout";
@@ -115,6 +117,7 @@ export default async function HostPresentPage({
       avatarEmoji: teams.avatarEmoji,
       captainUserId: teams.captainUserId,
       totalScore: teams.totalScore,
+      isActive: teams.isActive,
     })
     .from(teams)
     .where(eq(teams.sessionId, row.sessionId))
@@ -351,6 +354,23 @@ export default async function HostPresentPage({
 
         {row.status === "finished" && <Podium teams={leaderboardTeams} />}
 
+        {row.status === "between_rounds" && (
+          <div className="flex w-full max-w-4xl flex-col items-center gap-8">
+            <div className="space-y-2 text-center">
+              <p className="text-sm uppercase tracking-widest text-muted-foreground">
+                {t("betweenRoundsEyebrow")}
+              </p>
+              <p className="font-heading text-6xl font-black uppercase tracking-widest md:text-7xl">
+                {t("betweenRoundsTitle")}
+              </p>
+              <p className="text-lg text-muted-foreground">
+                {t("betweenRoundsHint")}
+              </p>
+            </div>
+            <BetweenRoundsLeaderboard teams={leaderboardTeams} />
+          </div>
+        )}
+
         {row.status === "paused" && (
           <div className="flex flex-col items-center gap-6 text-center">
             <span aria-hidden className="text-8xl leading-none">
@@ -378,9 +398,17 @@ export default async function HostPresentPage({
                 </span>
               </div>
 
-              <h2 className="font-heading text-5xl font-black uppercase tracking-wider md:text-6xl">
-                {currentQuestion.questionText}
-              </h2>
+              {currentQuestion.questionType === "lyric_blank" ? (
+                <LyricBlankDisplay
+                  reveal={row.status === "reveal"}
+                  correctWords={getStringArray(currentQuestion.correctAnswer)}
+                  text={currentQuestion.questionText}
+                />
+              ) : (
+                <h2 className="font-heading text-5xl font-black uppercase tracking-wider md:text-6xl">
+                  {currentQuestion.questionText}
+                </h2>
+              )}
 
               <p className="text-sm uppercase tracking-widest text-muted-foreground">
                 {t("questionMeta", {
@@ -458,11 +486,13 @@ export default async function HostPresentPage({
                   </ol>
                 )}
 
-              {row.status === "reveal" && correctAnswerLabel && (
-                <p className="rounded-md bg-foreground/10 px-6 py-3 font-heading text-3xl uppercase tracking-wider">
-                  {t("correctAnswer", { answer: correctAnswerLabel })}
-                </p>
-              )}
+              {row.status === "reveal" &&
+                correctAnswerLabel &&
+                currentQuestion.questionType !== "lyric_blank" && (
+                  <p className="rounded-md bg-foreground/10 px-6 py-3 font-heading text-3xl uppercase tracking-wider">
+                    {t("correctAnswer", { answer: correctAnswerLabel })}
+                  </p>
+                )}
 
               {isHost && row.status === "active" && (
                 <AutoRevealOnTimeout

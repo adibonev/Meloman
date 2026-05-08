@@ -133,11 +133,19 @@ export function gradeAnswer(
     const correctAnswers = getStringArray(question.correctAnswer);
     if (correctAnswers.length === 0) return null;
 
+    // Lyric blanks compare per-word and MUST be strict (CLAUDE.md §3.1
+    // Type 5: "case-insensitive"). Fuzzy matching here would award a
+    // point for "run" against "gun" (Levenshtein 1) which is a real
+    // bug we hit in testing. We still normalize for diacritics +
+    // whitespace so e.g. "Куин" matches "куин".
     const correctCount = submitted.lyricAnswers.reduce(
       (count, answer, index) => {
         const expected = correctAnswers[index];
         if (!expected) return count;
-        return isCloseTextAnswer(answer, [expected]) ? count + 1 : count;
+        const normalizedSubmitted = normalizeAnswer(answer);
+        if (!normalizedSubmitted) return count;
+        const normalizedExpected = normalizeAnswer(expected);
+        return normalizedSubmitted === normalizedExpected ? count + 1 : count;
       },
       0
     );

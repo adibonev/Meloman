@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import {
+  MAX_TEAM_SIZE_MAX,
+  MAX_TEAM_SIZE_MIN,
   QUIZ_LANGUAGES,
   QUIZ_STATUSES,
   QUIZ_THEMES,
@@ -16,7 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type ValidationKey = "titleMin" | "titleMax" | "descriptionMax";
+type ValidationKey =
+  | "titleMin"
+  | "titleMax"
+  | "descriptionMax"
+  | "maxTeamSizeMin"
+  | "maxTeamSizeMax";
 
 const fieldClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
@@ -32,6 +39,7 @@ export function EditQuizForm({
     theme: (typeof QUIZ_THEMES)[number];
     language: (typeof QUIZ_LANGUAGES)[number];
     status: (typeof QUIZ_STATUSES)[number];
+    maxTeamSize: number;
   };
 }) {
   const t = useTranslations("AdminQuizDetail");
@@ -60,6 +68,7 @@ export function EditQuizForm({
       formData.set("theme", data.theme);
       formData.set("language", data.language);
       formData.set("status", data.status);
+      formData.set("maxTeamSize", String(data.maxTeamSize));
       const result = await updateQuizAction(quizId, formData);
       if (result?.errorKey) setServerErrorKey(result.errorKey);
     });
@@ -129,6 +138,25 @@ export function EditQuizForm({
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="maxTeamSize">{t("maxTeamSizeLabel")}</Label>
+        <Input
+          id="maxTeamSize"
+          type="number"
+          min={MAX_TEAM_SIZE_MIN}
+          max={MAX_TEAM_SIZE_MAX}
+          {...register("maxTeamSize")}
+        />
+        <p className="text-xs text-muted-foreground">
+          {t("maxTeamSizeHint")}
+        </p>
+        {errors.maxTeamSize?.message && (
+          <p className="text-xs text-destructive">
+            {tValidation(errors.maxTeamSize.message as ValidationKey)}
+          </p>
+        )}
       </div>
 
       {serverErrorKey && (

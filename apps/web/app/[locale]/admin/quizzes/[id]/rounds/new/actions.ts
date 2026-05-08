@@ -21,6 +21,7 @@ export async function createRoundAction(quizId: string, formData: FormData) {
     title: formData.get("title"),
     roundType: formData.get("roundType"),
     introSlideText: formData.get("introSlideText") ?? "",
+    advancementTopN: formData.get("advancementTopN") ?? 0,
   };
 
   const parsed = createRoundSchema.safeParse(raw);
@@ -52,6 +53,8 @@ export async function createRoundAction(quizId: string, formData: FormData) {
     title: parsed.data.title,
     roundType: parsed.data.roundType,
     introSlideText: parsed.data.introSlideText ?? null,
+    advancementTopN:
+      parsed.data.advancementTopN > 0 ? parsed.data.advancementTopN : null,
     orderIndex: nextOrder,
   });
 

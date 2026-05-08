@@ -59,4 +59,30 @@ test.describe("public and auth smoke flow", () => {
     await expect(page).toHaveURL(/\/en\/login$/);
     await expect(page.getByText("Sign in to your account")).toBeVisible();
   });
+
+  test("protected host routes redirect anonymous users to locale-aware login", async ({
+    page,
+  }) => {
+    await page.goto("/host/ZZZ999");
+    await expect(page).toHaveURL(/\/login$/);
+
+    await page.goto("/en/host/ZZZ999/present");
+    await expect(page).toHaveURL(/\/en\/login$/);
+    await expect(page.getByText("Sign in to your account")).toBeVisible();
+  });
+
+  test("invalid public join code shows a helpful player-facing message", async ({
+    page,
+  }) => {
+    await page.goto("/en/play/ZZZ999999");
+
+    await expect(
+      page.getByRole("heading", {
+        name: "We can't find a quiz with code ZZZ999999",
+      })
+    ).toBeVisible();
+    await expect(
+      page.getByText("Double-check the code with your host and try again.")
+    ).toBeVisible();
+  });
 });

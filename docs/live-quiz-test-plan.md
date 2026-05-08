@@ -77,6 +77,8 @@ Open a second tab from the host lobby via "Open fullscreen presentation" — the
 - During `lobby`, the join code dominates the screen so players can read it from across the venue.
 - Pressing `SPACE` while the question is active reveals the answer.
 - Pressing `SPACE` while the answer is revealed advances to the next question.
+- Pressing `P` while active pauses the session and freezes the remaining timer.
+- Pressing `P` while paused resumes the session with the same remaining time.
 - Pressing `L` toggles the leaderboard overlay.
 - Pressing `ESC` closes the leaderboard overlay if it is open.
 - The footer shows the keyboard hints, "Working..." while a server action runs, and the most recent error key (if any).
@@ -103,6 +105,14 @@ Open a second tab from the host lobby via "Open fullscreen presentation" — the
 - The "Close" button and `ESC` also close the overlay.
 - Submitting an answer broadcasts `scores-updated` over Pusher; the host page refreshes and the overlay reflects the new score the next time it is opened (or stays current if it was already open during the refresh).
 
+### Host Answer Override
+
+- During reveal, the host lobby shows answer override controls for open-text, audio, and image-reveal answers.
+- Marking an answer correct updates the team's score by the question base points.
+- Marking an answer incorrect removes the previously awarded base points.
+- The override action broadcasts `scores-updated`, and both host lobby and presentation leaderboard reflect the new total after refresh.
+- Override controls are not shown for multiple-choice, lyric-blank, or decade questions yet.
+
 ## Pusher Behavior
 
 - Joining teams should update host roster without reload.
@@ -128,6 +138,7 @@ Run these before considering a live quiz change done:
 pnpm --filter @meloman/web lint
 pnpm --filter @meloman/web exec tsc --noEmit
 pnpm --filter @meloman/web test
+pnpm --filter @meloman/web test:e2e
 pnpm --filter @meloman/web build
 ```
 

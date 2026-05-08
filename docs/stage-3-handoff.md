@@ -15,11 +15,14 @@ Completed core pieces:
 - Player join/lobby route at `apps/web/app/[locale]/play/[code]/lobby`.
 - Team roster loading and player membership checks.
 - Host controls for `Start`, `Reveal answer`, and `Next question`.
-- Keyboard controls on the presentation route: `SPACE` advances the flow, `L` toggles the leaderboard overlay, `ESC` closes the overlay.
+- Keyboard controls on the presentation route: `SPACE` advances the flow, `P` pauses/resumes, `L` toggles the leaderboard overlay, `ESC` closes the overlay.
+- Pause/resume timer state, including DB-backed `pausedAt` / `pausedFromStatus` and timer shifting on resume.
+- Host override panel for disputed open-text, audio, and image-reveal answers during reveal.
 - Audio playback for audio questions, served from R2 signed URLs, bounded by the answer timer (clip stops when the timer ends).
 - Image reveal questions render a static heavy-blur image during `active`, un-blur on `reveal`, and show attribution after reveal.
 - Live leaderboard overlay rendered from server-loaded team scores; refreshes via Pusher `scores-updated` so points stay current as answers come in.
-- State flow: `lobby -> active -> reveal -> finished`.
+- End-of-quiz podium component and ranking helpers.
+- State flow: `lobby -> active -> reveal -> finished`, with optional `paused` state from `active` or `reveal`.
 - Player answer submission for all six question types.
 - Server-side grading helpers with Jest coverage.
 - API route guard coverage with Jest for Spotify/Wikipedia metadata routes.
@@ -43,12 +46,14 @@ Recent Stage 3 commits:
 - `f6a29c4 feat(web): add live quiz countdown timer`
 - `051fe52 fix(web): reveal live questions when timer expires`
 - `9b4eace chore(web): clean admin form lint warnings`
+- `5f2d5b6 feat(db, web): add live quiz presentation flow`
 
 ## Important Files
 
 - Host actions: `apps/web/app/[locale]/host/[code]/actions.ts`
 - Host page: `apps/web/app/[locale]/host/[code]/page.tsx`
 - Host controls: `apps/web/app/[locale]/host/[code]/host-controls.tsx`
+- Host override panel: `apps/web/app/[locale]/host/[code]/answer-override-panel.tsx`
 - Auto reveal effect: `apps/web/app/[locale]/host/[code]/auto-reveal-on-timeout.tsx`
 - Host Pusher subscription: `apps/web/app/[locale]/host/[code]/live-host.tsx`
 - Fullscreen presentation page: `apps/web/app/[locale]/host/[code]/present/page.tsx`
@@ -56,6 +61,7 @@ Recent Stage 3 commits:
 - Audio clip player: `apps/web/components/live/audio-clip-player.tsx`
 - Blurred image reveal: `apps/web/components/live/blurred-image.tsx`
 - Leaderboard overlay: `apps/web/components/live/leaderboard-overlay.tsx`
+- Podium: `apps/web/components/live/podium.tsx`
 - Player lobby page: `apps/web/app/[locale]/play/[code]/lobby/page.tsx`
 - Player answer panel: `apps/web/app/[locale]/play/[code]/lobby/question-panel.tsx`
 - Player Pusher subscription: `apps/web/app/[locale]/play/[code]/lobby/live-lobby.tsx`
@@ -86,13 +92,10 @@ The next question is intentionally host-controlled after reveal. Do not auto-adv
 
 High priority:
 
-- End-of-quiz podium animation.
 - Better host-side question rendering for lyric_blank and decade types on the presentation route (currently the question text shows but per-blank/per-year hints are minimal).
 
 Medium priority:
 
-- Host override panel for disputed open-text answers.
-- Pause/resume timer state (CLAUDE.md `P` keyboard shortcut depends on this).
 - Final round logic.
 - Better player UI states after submit/reveal.
 
@@ -101,7 +104,7 @@ Polish:
 - TV-friendly layout refinement.
 - Mobile viewport QA.
 - Sponsor logo placement on the presentation footer.
-- Animation polish (Framer Motion for reveal/podium).
+- Animation polish (Framer Motion for reveal/podium). The podium component exists; the remaining work is motion/TV polish.
 
 ## Known Product Decisions
 
@@ -133,7 +136,7 @@ pnpm test:watch
 
 ## Suggested Next Step
 
-Add the end-of-quiz podium animation, then layer pause/resume timer state on top so the `P` keyboard shortcut from CLAUDE.md §3.1 can be wired into the presentation shell.
+Improve the presentation rendering for `lyric_blank` and `decade`, then continue with final-round logic and player post-submit/reveal polish. Pause/resume and host answer override are already in `5f2d5b6`; do not rebuild them unless a concrete bug is found.
 
 ## Repository Maintenance Note
 

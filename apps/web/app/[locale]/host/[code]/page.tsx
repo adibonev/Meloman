@@ -12,7 +12,12 @@ import {
   users,
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
+import { Link } from "@/i18n/navigation";
 import { TimerCountdown } from "@/components/live/timer-countdown";
+import {
+  AnswerOverridePanel,
+  type SubmittedAnswerRow,
+} from "./answer-override-panel";
 import { AutoRevealOnTimeout } from "./auto-reveal-on-timeout";
 import { LiveHost } from "./live-host";
 import { HostControls } from "./host-controls";
@@ -77,6 +82,8 @@ export default async function HostLobbyPage({
       sessionId: gameSessions.id,
       hostId: gameSessions.hostId,
       status: gameSessions.status,
+      pausedFromStatus: gameSessions.pausedFromStatus,
+      quizId: quizzes.id,
       quizTitle: quizzes.title,
       currentQuestionId: gameSessions.currentQuestionId,
       questionEndsAt: gameSessions.questionEndsAt,
@@ -180,9 +187,68 @@ export default async function HostLobbyPage({
     : null;
   const questionEndsAtMs = row.questionEndsAt?.valueOf() ?? null;
 
+  // Host override panel: only loaded during reveal (or paused-from-reveal)
+  // and only for text-answer question types where fuzzy matching can be
+  // wrong. Multiple choice / decade are auto-graded definitively.
+  const isOverridable =
+    currentQuestion?.questionType === "open_text" ||
+    currentQuestion?.questionType === "audio" ||
+    currentQuestion?.questionType === "image_reveal";
+  const overrideOpen =
+    isHost &&
+    isOverridable &&
+    row.currentQuestionId &&
+    (row.status === "reveal" ||
+      (row.status === "paused" && row.pausedFromStatus === "reveal"));
+  const overrideRows: SubmittedAnswerRow[] = overrideOpen
+    ? (
+        await db
+          .select({
+            id: answers.id,
+            teamId: answers.teamId,
+            teamName: teams.name,
+            teamColor: teams.color,
+            teamAvatar: teams.avatarEmoji,
+            submittedAnswer: answers.submittedAnswer,
+            isCorrect: answers.isCorrect,
+            hostOverride: answers.hostOverride,
+            pointsAwarded: answers.pointsAwarded,
+            timeToAnswerMs: answers.timeToAnswerMs,
+          })
+          .from(answers)
+          .innerJoin(teams, eq(teams.id, answers.teamId))
+          .where(
+            and(
+              eq(answers.questionId, row.currentQuestionId!),
+              eq(teams.sessionId, row.sessionId)
+            )
+          )
+          .orderBy(asc(answers.submittedAt))
+      ).map((entry) => ({
+        id: entry.id,
+        teamId: entry.teamId,
+        teamName: entry.teamName,
+        teamColor: entry.teamColor,
+        teamAvatar: entry.teamAvatar,
+        submittedText:
+          typeof entry.submittedAnswer === "string"
+            ? entry.submittedAnswer
+            : "--",
+        isCorrect: entry.isCorrect,
+        hostOverride: entry.hostOverride,
+        pointsAwarded: entry.pointsAwarded,
+      }))
+    : [];
+
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
       <header className="space-y-2">
+        <Link
+          href={`/admin/quizzes/${row.quizId}`}
+          className="inline-block text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
+          {t("backToAdmin")}
+        </Link>
         <p className="text-sm uppercase tracking-widest text-muted-foreground">
           {t("eyebrow")}
         </p>
@@ -230,6 +296,13 @@ export default async function HostLobbyPage({
           {t("readOnlyNotice")}
         </p>
       )}
+
+      <Link
+        href={`/host/${upper}/present`}
+        className="block rounded-md border border-border bg-card px-4 py-3 text-center font-heading text-lg uppercase tracking-wider transition-colors hover:bg-muted/30"
+      >
+        {t("openPresentation")}
+      </Link>
 
       {currentQuestion && (
         <section className="space-y-4 rounded-md border border-border bg-card px-4 py-5">
@@ -296,6 +369,20 @@ export default async function HostLobbyPage({
               {t("correctAnswer", { answer: correctAnswerLabel })}
             </p>
           )}
+        </section>
+      )}
+
+      {overrideOpen && (
+        <section className="space-y-3 rounded-md border border-border bg-card px-4 py-5">
+          <div className="space-y-1">
+            <h2 className="font-heading text-lg uppercase tracking-wider">
+              {t("overrideTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("overrideHint")}
+            </p>
+          </div>
+          <AnswerOverridePanel code={upper} rows={overrideRows} />
         </section>
       )}
 

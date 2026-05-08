@@ -1,8 +1,14 @@
 "use server";
 
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "@meloman/db";
-import { gameSessions, questions, rounds } from "@meloman/db/schema";
+import {
+  answers,
+  gameSessions,
+  questions,
+  rounds,
+  teams,
+} from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { broadcast, PUSHER_EVENTS, quizChannel } from "@/lib/pusher-server";
 
@@ -13,16 +19,24 @@ type HostActionErrorKey =
   | "invalidState"
   | "noQuestions"
   | "noCurrentQuestion"
+  | "answerNotFound"
+  | "wrongQuestionType"
   | "generic";
 
 type HostActionResult = { errorKey: HostActionErrorKey } | { ok: true };
 
+type SessionStatus = "lobby" | "active" | "reveal" | "paused" | "finished";
+
 type HostSessionRow = {
   id: string;
   hostId: string;
-  status: "lobby" | "active" | "reveal" | "paused" | "finished";
+  status: SessionStatus;
   quizId: string;
   currentQuestionId: string | null;
+  questionStartedAt: Date | null;
+  questionEndsAt: Date | null;
+  pausedAt: Date | null;
+  pausedFromStatus: SessionStatus | null;
 };
 
 async function loadHostSession(code: string): Promise<
@@ -42,6 +56,10 @@ async function loadHostSession(code: string): Promise<
       status: gameSessions.status,
       quizId: gameSessions.quizId,
       currentQuestionId: gameSessions.currentQuestionId,
+      questionStartedAt: gameSessions.questionStartedAt,
+      questionEndsAt: gameSessions.questionEndsAt,
+      pausedAt: gameSessions.pausedAt,
+      pausedFromStatus: gameSessions.pausedFromStatus,
     })
     .from(gameSessions)
     .where(eq(gameSessions.joinCode, upperCode))
@@ -61,6 +79,10 @@ async function loadHostSession(code: string): Promise<
       status: row.status,
       quizId: row.quizId,
       currentQuestionId: row.currentQuestionId ?? null,
+      questionStartedAt: row.questionStartedAt ?? null,
+      questionEndsAt: row.questionEndsAt ?? null,
+      pausedAt: row.pausedAt ?? null,
+      pausedFromStatus: row.pausedFromStatus ?? null,
     },
     upperCode,
   };
@@ -210,6 +232,184 @@ export async function nextQuestionAction(
     startedAt: startedAt.valueOf(),
     endsAt: endsAt.valueOf(),
     serverNow: nowMs,
+  });
+
+  return { ok: true };
+}
+
+export async function pauseSessionAction(
+  code: string
+): Promise<HostActionResult> {
+  const loaded = await loadHostSession(code);
+  if ("errorKey" in loaded) return loaded;
+
+  const { session, upperCode } = loaded;
+
+  // Pause is only valid from `active` or `reveal`. Lobby has no timer to
+  // freeze; paused→paused is a no-op; finished sessions stay finished.
+  if (session.status !== "active" && session.status !== "reveal") {
+    return { errorKey: "invalidState" };
+  }
+
+  const pausedAt = new Date();
+
+  await db
+    .update(gameSessions)
+    .set({
+      status: "paused",
+      pausedAt,
+      pausedFromStatus: session.status,
+    })
+    .where(eq(gameSessions.id, session.id));
+
+  await broadcast(quizChannel(upperCode), PUSHER_EVENTS.sessionPaused, {
+    pausedAt: pausedAt.valueOf(),
+    serverNow: pausedAt.valueOf(),
+  });
+
+  return { ok: true };
+}
+
+export async function resumeSessionAction(
+  code: string
+): Promise<HostActionResult> {
+  const loaded = await loadHostSession(code);
+  if ("errorKey" in loaded) return loaded;
+
+  const { session, upperCode } = loaded;
+
+  if (session.status !== "paused") {
+    return { errorKey: "invalidState" };
+  }
+  // Defensive: pausedFromStatus must be one of active/reveal. If it ever
+  // got into an unexpected state (e.g. manual DB edit), bail rather than
+  // silently corrupt the session.
+  const target = session.pausedFromStatus;
+  if (target !== "active" && target !== "reveal") {
+    return { errorKey: "invalidState" };
+  }
+
+  const nowMs = Date.now();
+  const pauseDurationMs = session.pausedAt
+    ? Math.max(0, nowMs - session.pausedAt.valueOf())
+    : 0;
+
+  // Only `active` carries a live timer; for reveal, we just flip status back.
+  // Shifting both timestamps preserves the player's remaining time and keeps
+  // time-to-answer math accurate (CLAUDE.md §4.4 server-authoritative timing).
+  const shouldShiftTimer =
+    target === "active" &&
+    session.questionStartedAt !== null &&
+    session.questionEndsAt !== null;
+  const nextStartedAt = shouldShiftTimer
+    ? new Date(session.questionStartedAt!.valueOf() + pauseDurationMs)
+    : session.questionStartedAt;
+  const nextEndsAt = shouldShiftTimer
+    ? new Date(session.questionEndsAt!.valueOf() + pauseDurationMs)
+    : session.questionEndsAt;
+
+  await db
+    .update(gameSessions)
+    .set({
+      status: target,
+      pausedAt: null,
+      pausedFromStatus: null,
+      questionStartedAt: nextStartedAt,
+      questionEndsAt: nextEndsAt,
+    })
+    .where(eq(gameSessions.id, session.id));
+
+  await broadcast(quizChannel(upperCode), PUSHER_EVENTS.sessionResumed, {
+    status: target,
+    questionStartedAt: nextStartedAt?.valueOf() ?? null,
+    questionEndsAt: nextEndsAt?.valueOf() ?? null,
+    serverNow: nowMs,
+  });
+
+  return { ok: true };
+}
+
+// Question types where override makes sense. Multiple choice / decade are
+// auto-graded against unambiguous values; lyric_blank scoring is per-blank
+// and we don't yet expose per-blank override in the UI.
+const OVERRIDABLE_QUESTION_TYPES = ["open_text", "audio", "image_reveal"] as const;
+type OverridableType = (typeof OVERRIDABLE_QUESTION_TYPES)[number];
+
+function isOverridable(value: string): value is OverridableType {
+  return (OVERRIDABLE_QUESTION_TYPES as readonly string[]).includes(value);
+}
+
+export async function overrideAnswerAction(
+  code: string,
+  answerId: string,
+  markCorrect: boolean
+): Promise<HostActionResult> {
+  const loaded = await loadHostSession(code);
+  if ("errorKey" in loaded) return loaded;
+
+  const { session, upperCode } = loaded;
+
+  // Override is only meaningful while we're showing the answer. Earlier
+  // states would let the host pre-decide; later states (finished) should
+  // not move the leaderboard. Allow paused so a host who paused mid-reveal
+  // can still adjudicate.
+  if (
+    session.status !== "reveal" &&
+    !(session.status === "paused" && session.pausedFromStatus === "reveal")
+  ) {
+    return { errorKey: "invalidState" };
+  }
+
+  // Pull the answer joined to its team and question. The team must belong
+  // to this session — otherwise a host could mutate scores in someone
+  // else's quiz by guessing answer ids.
+  const [row] = await db
+    .select({
+      answerId: answers.id,
+      teamId: answers.teamId,
+      teamSessionId: teams.sessionId,
+      pointsAwarded: answers.pointsAwarded,
+      isCorrect: answers.isCorrect,
+      questionType: questions.questionType,
+      pointsBase: questions.pointsBase,
+    })
+    .from(answers)
+    .innerJoin(teams, eq(teams.id, answers.teamId))
+    .innerJoin(questions, eq(questions.id, answers.questionId))
+    .where(and(eq(answers.id, answerId), eq(teams.sessionId, session.id)))
+    .limit(1);
+
+  if (!row) {
+    return { errorKey: "answerNotFound" };
+  }
+  if (!isOverridable(row.questionType)) {
+    return { errorKey: "wrongQuestionType" };
+  }
+
+  const newPoints = markCorrect ? row.pointsBase : 0;
+  const delta = newPoints - row.pointsAwarded;
+
+  // No-op short-circuit: nothing to update if the requested state matches
+  // current state. Still set host_override flag so the audit trail shows
+  // a human reviewed it.
+  await db
+    .update(answers)
+    .set({
+      isCorrect: markCorrect,
+      pointsAwarded: newPoints,
+      hostOverride: true,
+    })
+    .where(eq(answers.id, row.answerId));
+
+  if (delta !== 0) {
+    await db
+      .update(teams)
+      .set({ totalScore: sql`${teams.totalScore} + ${delta}` })
+      .where(eq(teams.id, row.teamId));
+  }
+
+  await broadcast(quizChannel(upperCode), PUSHER_EVENTS.scoresUpdated, {
+    reason: "host-override",
   });
 
   return { ok: true };

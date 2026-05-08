@@ -50,44 +50,60 @@ const textAnswerField = z
   .min(1, "answerMin")
   .max(200, "answerMax");
 
-export const submitAnswerSchema = z.discriminatedUnion("questionType", [
-  z.object({
-    questionType: z.literal("multiple_choice"),
-    optionIndex: z.coerce
-      .number()
-      .int()
-      .min(0, "optionIndexInvalid")
-      .max(3, "optionIndexInvalid"),
-  }),
-  z.object({
-    questionType: z.literal("open_text"),
-    textAnswer: textAnswerField,
-  }),
-  z.object({
-    questionType: z.literal("audio"),
-    textAnswer: textAnswerField,
-  }),
-  z.object({
-    questionType: z.literal("image_reveal"),
-    textAnswer: textAnswerField,
-  }),
-  z.object({
-    questionType: z.literal("lyric_blank"),
-    lyricAnswers: z
-      .array(textAnswerField)
-      .min(1, "answersMinBlank")
-      .max(10, "answersMaxBlank"),
-  }),
-  z.object({
-    questionType: z.literal("decade"),
-    decade: z.coerce
-      .number()
-      .int()
-      .min(1900, "yearMin")
-      .max(2030, "yearMax"),
-    year: z.coerce.number().int().min(1900, "yearMin").max(2030, "yearMax"),
-  }),
-]);
+export const submitAnswerSchema = z
+  .discriminatedUnion("questionType", [
+    z.object({
+      questionType: z.literal("multiple_choice"),
+      optionIndex: z.coerce
+        .number()
+        .int()
+        .min(0, "optionIndexInvalid")
+        .max(3, "optionIndexInvalid"),
+    }),
+    z.object({
+      questionType: z.literal("open_text"),
+      textAnswer: textAnswerField,
+    }),
+    z.object({
+      questionType: z.literal("audio"),
+      textAnswer: textAnswerField,
+    }),
+    z.object({
+      questionType: z.literal("image_reveal"),
+      textAnswer: textAnswerField,
+    }),
+    z.object({
+      questionType: z.literal("lyric_blank"),
+      lyricAnswers: z
+        .array(textAnswerField)
+        .min(1, "answersMinBlank")
+        .max(10, "answersMaxBlank"),
+    }),
+    z.object({
+      questionType: z.literal("decade"),
+      decade: z.coerce
+        .number()
+        .int()
+        .min(1900, "yearMin")
+        .max(2030, "yearMax"),
+      year: z.coerce.number().int().min(1900, "yearMin").max(2030, "yearMax"),
+    }),
+  ])
+  .superRefine((data, ctx) => {
+    // Player picked decade D, so the year must fall inside [D, D+9]. Without
+    // this, a captain could pick 1970 + 1985 and the grading logic would
+    // award a "correct decade" point even though the player's intent was
+    // self-contradictory. Applied as superRefine on the parent because
+    // Zod's discriminatedUnion does not accept ZodEffects branches.
+    if (data.questionType !== "decade") return;
+    if (data.year < data.decade || data.year > data.decade + 9) {
+      ctx.addIssue({
+        path: ["year"],
+        code: z.ZodIssueCode.custom,
+        message: "yearOutsideDecade",
+      });
+    }
+  });
 
 export type CreateTeamFormInput = z.infer<typeof createTeamFormSchema>;
 export type CreateTeamInput = z.infer<typeof createTeamSchema>;

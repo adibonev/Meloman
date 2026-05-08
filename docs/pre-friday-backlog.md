@@ -1,6 +1,6 @@
 # Pre-Friday Backlog
 
-Last updated: 2026-05-05
+Last updated: 2026-05-08
 
 This is a short working list for the days before Friday, 2026-05-08. It separates safe repo-hardening work from Stage 3 product work that should stay with Claude Code.
 
@@ -19,17 +19,19 @@ These are low-risk improvements that should not conflict with the main Stage 3 i
 
 ## Claude-Owned Stage 3 Work
 
-These are product/architecture tasks that should be implemented in a focused Claude Code session:
+Recently landed in a focused Claude Code session:
 
-- Fullscreen host presentation route.
-- Keyboard controls for the host presentation.
-- Audio playback from R2 signed URLs inside the live quiz flow, respecting the separate clip-duration vs answer-timer behavior.
-- Image reveal blur sync.
-- Live answer count updates.
-- Leaderboard broadcast and display.
+- Fullscreen host presentation route at `/host/{CODE}/present`.
+- Keyboard controls (`SPACE` advance, `L` leaderboard, `ESC` close).
+- Audio playback from R2 signed URLs respecting timer-bounded clip behavior.
+- Static blurred image reveal that flips on `reveal`.
+- Live leaderboard overlay re-rendered from server-loaded team scores.
+
+Still queued:
+
 - Host override panel for disputed open-text answers.
-- Pause/resume timer state.
-- End-of-quiz podium.
+- Pause/resume timer state (enables the `P` keyboard shortcut from CLAUDE.md §3.1).
+- End-of-quiz podium animation.
 - Final round logic.
 
 ## Current Quality Gate

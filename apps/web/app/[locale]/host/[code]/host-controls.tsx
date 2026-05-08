@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   nextQuestionAction,
+  pauseSessionAction,
+  resumeSessionAction,
   revealAnswerAction,
   startQuizAction,
 } from "./actions";
@@ -19,6 +21,8 @@ type ServerErrorKey =
   | "invalidState"
   | "noQuestions"
   | "noCurrentQuestion"
+  | "answerNotFound"
+  | "wrongQuestionType"
   | "generic";
 
 type HostActionClientResult = { errorKey: ServerErrorKey } | { ok: true };
@@ -84,6 +88,25 @@ export function HostControls({
             disabled={isPending}
           >
             {isPending ? t("working") : t("nextQuestion")}
+          </Button>
+        )}
+        {(status === "active" || status === "reveal") && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => runAction(() => pauseSessionAction(code))}
+            disabled={isPending}
+          >
+            {isPending ? t("working") : t("pauseSession")}
+          </Button>
+        )}
+        {status === "paused" && (
+          <Button
+            type="button"
+            onClick={() => runAction(() => resumeSessionAction(code))}
+            disabled={isPending}
+          >
+            {isPending ? t("working") : t("resumeSession")}
           </Button>
         )}
         {status === "finished" && (

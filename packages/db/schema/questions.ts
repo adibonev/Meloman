@@ -31,6 +31,12 @@ export const questions = pgTable(
     mediaUrl: text("media_url"),
     mediaSource: text("media_source"),
     mediaAttribution: text("media_attribution"),
+    // Image-reveal questions only. Pixels of CSS blur applied during the
+    // active window. Admin picks per question because every photo has a
+    // different "guessability" — a tight portrait needs less blur than a
+    // wide concert shot. Nullable so existing rows pre-migration keep
+    // working with a sensible default.
+    mediaBlurPx: integer("media_blur_px"),
     spotifyUri: text("spotify_uri"),
     youtubeUrl: text("youtube_url"),
     options: jsonb("options"),

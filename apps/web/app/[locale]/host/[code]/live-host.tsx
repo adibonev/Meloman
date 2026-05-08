@@ -22,12 +22,16 @@ export function LiveHost({ code }: { code: string }) {
     channel.bind(PUSHER_EVENTS.scoresUpdated, refresh);
     channel.bind(PUSHER_EVENTS.questionStarted, refresh);
     channel.bind(PUSHER_EVENTS.questionRevealed, refresh);
+    channel.bind(PUSHER_EVENTS.sessionPaused, refresh);
+    channel.bind(PUSHER_EVENTS.sessionResumed, refresh);
     channel.bind(PUSHER_EVENTS.sessionFinished, refresh);
 
     return () => {
       channel.unbind(PUSHER_EVENTS.scoresUpdated, refresh);
       channel.unbind(PUSHER_EVENTS.questionStarted, refresh);
       channel.unbind(PUSHER_EVENTS.questionRevealed, refresh);
+      channel.unbind(PUSHER_EVENTS.sessionPaused, refresh);
+      channel.unbind(PUSHER_EVENTS.sessionResumed, refresh);
       channel.unbind(PUSHER_EVENTS.sessionFinished, refresh);
       pusher.unsubscribe(quizChannelName(code));
     };

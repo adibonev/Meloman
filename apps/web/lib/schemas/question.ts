@@ -122,6 +122,14 @@ export const IMAGE_ACCEPTED_MIME_TYPES = [
   "image/webp",
 ] as const;
 
+// Per-question blur amount for image reveal. 2px is "barely blurred" for
+// already-cropped or low-detail photos; 80px is essentially opaque noise.
+// Default 24px is a balanced value that hides facial details but keeps
+// silhouette and palette readable.
+export const IMAGE_BLUR_MIN_PX = 2;
+export const IMAGE_BLUR_MAX_PX = 80;
+export const IMAGE_BLUR_DEFAULT_PX = 24;
+
 export const createImageRevealQuestionMetadataSchema = z
   .object({
     questionText: z
@@ -138,6 +146,11 @@ export const createImageRevealQuestionMetadataSchema = z
       .max(500, "attributionMax")
       .optional()
       .or(z.literal("").transform(() => undefined)),
+    blurPx: z.coerce
+      .number()
+      .int()
+      .min(IMAGE_BLUR_MIN_PX, "blurMin")
+      .max(IMAGE_BLUR_MAX_PX, "blurMax"),
     timeLimitSeconds: z.coerce
       .number()
       .int()

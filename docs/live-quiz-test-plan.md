@@ -1,6 +1,6 @@
 # Live Quiz Manual Test Plan
 
-Last updated: 2026-05-05
+Last updated: 2026-05-08
 
 Use this checklist when testing Stage 3 live quiz behavior locally.
 
@@ -68,6 +68,40 @@ Test one example of each type:
 - Image reveal: submit text answer while reveal question is active.
 - Lyric blank: submit all blanks, verify per-blank score.
 - Decade/year: submit decade and year, verify partial scoring.
+
+## Host Presentation (fullscreen)
+
+Open a second tab from the host lobby via "Open fullscreen presentation" — the URL is `/bg/host/{CODE}/present`.
+
+- Header shows the join code in large type and the current status.
+- During `lobby`, the join code dominates the screen so players can read it from across the venue.
+- Pressing `SPACE` while the question is active reveals the answer.
+- Pressing `SPACE` while the answer is revealed advances to the next question.
+- Pressing `L` toggles the leaderboard overlay.
+- Pressing `ESC` closes the leaderboard overlay if it is open.
+- The footer shows the keyboard hints, "Working..." while a server action runs, and the most recent error key (if any).
+- Refreshing the presentation page during an active question continues the timer from the real remaining time.
+
+### Audio Question
+
+- During `active`, the MP3 plays from a Cloudflare R2 signed URL (no public download exposed).
+- If the answer timer is shorter than the clip, playback stops at the timer end (silence is not added; it is cut).
+- If the clip is shorter than the timer, the clip ends naturally and the rest of the timer is silence — playback does not loop.
+- On `reveal`, audio is paused.
+- If autoplay is blocked by the browser, a fallback `<audio controls>` element appears so the host can press play once and the same component will start the next clip cleanly.
+
+### Image Reveal Question
+
+- During `active`, the image is shown with a heavy static blur (no progressive un-blur).
+- On `reveal`, the image transitions to no blur over ~600ms and the attribution caption appears underneath if present.
+- Refreshing the page during reveal still shows the un-blurred image.
+
+### Leaderboard Overlay
+
+- `L` opens an overlay with teams sorted by total score, descending.
+- Clicking outside the overlay closes it.
+- The "Close" button and `ESC` also close the overlay.
+- Submitting an answer broadcasts `scores-updated` over Pusher; the host page refreshes and the overlay reflects the new score the next time it is opened (or stays current if it was already open during the refresh).
 
 ## Pusher Behavior
 

@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { BlurredImage } from "@/components/live/blurred-image";
 import { TimerCountdown } from "@/components/live/timer-countdown";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,9 @@ type LobbyQuestion = {
   timeLimitSeconds: number;
   correctAnswerLabel: string | null;
   blankCount: number;
+  signedImageUrl: string | null;
+  mediaBlurPx: number | null;
+  mediaAttribution: string | null;
 };
 
 type AnswerErrorKey =
@@ -83,6 +87,31 @@ export function QuestionPanel({
   const [year, setYear] = useState("");
   const [isPending, startTransition] = useTransition();
 
+  // Year input is constrained to the selected decade. If the captain switches
+  // decade after typing a year, we clear the year so they don't submit a
+  // self-contradictory guess (e.g. decade 1970 + year 1985).
+  const decadeNum = Number(decade);
+  const decadeStart = Number.isFinite(decadeNum) ? decadeNum : 1970;
+  const decadeEnd = decadeStart + 9;
+  const yearNum = Number(year);
+  const yearOutsideDecade =
+    year !== "" &&
+    Number.isFinite(yearNum) &&
+    (yearNum < decadeStart || yearNum > decadeEnd);
+
+  function handleDecadeChange(value: string) {
+    setDecade(value);
+    const nextStart = Number(value);
+    const currentYear = Number(year);
+    if (
+      year !== "" &&
+      Number.isFinite(currentYear) &&
+      (currentYear < nextStart || currentYear > nextStart + 9)
+    ) {
+      setYear("");
+    }
+  }
+
   function runSubmit(formData: FormData, optionIndex: number | null = null) {
     if (!question) return;
     setErrorKey(null);
@@ -138,7 +167,18 @@ export function QuestionPanel({
     );
   }
 
-  if (!question || status === "lobby" || status === "paused") {
+  if (status === "paused") {
+    // Distinct from the lobby copy: at this point the quiz has already
+    // started and the captain may have a partial answer typed. Make it
+    // clear the host paused on purpose so they don't refresh.
+    return (
+      <p className="rounded-md border border-foreground/40 bg-foreground/10 px-4 py-3 text-center text-sm font-medium">
+        {t("pausedNotice")}
+      </p>
+    );
+  }
+
+  if (!question || status === "lobby") {
     return (
       <p className="rounded-md bg-muted/30 px-4 py-3 text-center text-sm text-muted-foreground">
         {t("waitingForHost")}
@@ -170,6 +210,16 @@ export function QuestionPanel({
           {question.questionText}
         </h2>
       </div>
+
+      {question.questionType === "image_reveal" && question.signedImageUrl && (
+        <BlurredImage
+          alt={question.questionText}
+          attribution={question.mediaAttribution}
+          blurPx={question.mediaBlurPx}
+          reveal={status === "reveal"}
+          signedUrl={question.signedImageUrl}
+        />
+      )}
 
       {question.questionType === "multiple_choice" && (
         <div className="grid gap-2">
@@ -245,7 +295,7 @@ export function QuestionPanel({
               <select
                 id="decade-answer"
                 value={decade}
-                onChange={(event) => setDecade(event.target.value)}
+                onChange={(event) => handleDecadeChange(event.target.value)}
                 disabled={!canSubmit || isPending}
                 className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
               >
@@ -257,21 +307,37 @@ export function QuestionPanel({
               </select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="year-answer">{t("yearLabel")}</Label>
+              <Label htmlFor="year-answer">
+                {t("yearLabelWithRange", {
+                  start: decadeStart,
+                  end: decadeEnd,
+                })}
+              </Label>
               <Input
                 id="year-answer"
                 type="number"
                 inputMode="numeric"
-                min={1900}
-                max={2030}
+                min={decadeStart}
+                max={decadeEnd}
                 value={year}
                 onChange={(event) => setYear(event.target.value)}
                 disabled={!canSubmit || isPending}
                 autoComplete="off"
               />
+              {yearOutsideDecade && (
+                <p className="text-xs text-destructive">
+                  {t("yearOutsideDecadeHint", {
+                    start: decadeStart,
+                    end: decadeEnd,
+                  })}
+                </p>
+              )}
             </div>
           </div>
-          <Button type="submit" disabled={!canSubmit || isPending}>
+          <Button
+            type="submit"
+            disabled={!canSubmit || isPending || yearOutsideDecade}
+          >
             {isPending ? t("submittingAnswer") : t("submitAnswer")}
           </Button>
         </form>

@@ -1,0 +1,1 @@
+ALTER TABLE "questions" ADD COLUMN "media_blur_px" integer;

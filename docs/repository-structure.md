@@ -91,6 +91,7 @@ Current docs:
 - `testing-strategy.md` - automated/manual testing strategy, including Jest and Playwright scope.
 - `claude-stage-3-prompt.md` - ready-to-use prompt for the next Claude Code Stage 3 session.
 - `pre-friday-backlog.md` - short safe-work vs Claude-owned-work list before Friday, 2026-05-08.
+- `backlog.md` - canonical queue of feedback items beyond the current Stage 3 slice.
 - `repository-structure.md` - this document.
 
 Rules:

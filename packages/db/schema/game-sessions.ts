@@ -45,6 +45,14 @@ export const gameSessions = pgTable(
     // recent server-pushed `serverNow`.
     questionStartedAt: timestamp("question_started_at", { withTimezone: true }),
     questionEndsAt: timestamp("question_ends_at", { withTimezone: true }),
+    // When the host pauses the session. On resume we shift questionStartedAt
+    // and questionEndsAt forward by (now - pausedAt) so the player gets the
+    // same remaining time they had at the moment the host clicked pause.
+    pausedAt: timestamp("paused_at", { withTimezone: true }),
+    // Status to return to on resume. We can only pause from `active` or
+    // `reveal`, and we need to remember which one so resume puts us back
+    // there cleanly. Nullable: only set while status === 'paused'.
+    pausedFromStatus: gameSessionStatusEnum("paused_from_status"),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })

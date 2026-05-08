@@ -59,6 +59,7 @@ describe("question schemas", () => {
         acceptableAnswers: ["David Bowie"],
         imageSource: "Wikipedia",
         imageAttribution: "Wikipedia contributors",
+        blurPx: 24,
       }).success
     ).toBe(true);
 
@@ -68,6 +69,7 @@ describe("question schemas", () => {
         acceptableAnswers: ["David Bowie"],
         imageSource: "Wikipedia",
         imageAttribution: "",
+        blurPx: 24,
       }).success
     ).toBe(false);
 
@@ -77,8 +79,31 @@ describe("question schemas", () => {
         acceptableAnswers: ["David Bowie"],
         imageSource: "AlbumCover",
         imageAttribution: "",
+        blurPx: 24,
       }).success
     ).toBe(true);
+  });
+
+  it("rejects blurPx outside the supported range", () => {
+    expect(
+      createImageRevealQuestionMetadataSchema.safeParse({
+        ...BASE_QUESTION,
+        acceptableAnswers: ["David Bowie"],
+        imageSource: "AlbumCover",
+        imageAttribution: "",
+        blurPx: 1,
+      }).success
+    ).toBe(false);
+
+    expect(
+      createImageRevealQuestionMetadataSchema.safeParse({
+        ...BASE_QUESTION,
+        acceptableAnswers: ["David Bowie"],
+        imageSource: "AlbumCover",
+        imageAttribution: "",
+        blurPx: 200,
+      }).success
+    ).toBe(false);
   });
 
   it("matches lyric blanks to the answer count", () => {

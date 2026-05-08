@@ -114,4 +114,32 @@ describe("play schemas", () => {
       }).success
     ).toBe(false);
   });
+
+  it("rejects decade answers when the year falls outside the picked decade", () => {
+    // Player picked the 70s but typed 1985 — server-side defense in case the
+    // client UI is bypassed (the visible form already disables submit here).
+    expect(
+      submitAnswerSchema.safeParse({
+        questionType: "decade",
+        decade: "1970",
+        year: "1985",
+      }).success
+    ).toBe(false);
+
+    // Boundary checks: first and last year of the decade are both valid.
+    expect(
+      submitAnswerSchema.safeParse({
+        questionType: "decade",
+        decade: "1970",
+        year: "1970",
+      }).success
+    ).toBe(true);
+    expect(
+      submitAnswerSchema.safeParse({
+        questionType: "decade",
+        decade: "1970",
+        year: "1979",
+      }).success
+    ).toBe(true);
+  });
 });

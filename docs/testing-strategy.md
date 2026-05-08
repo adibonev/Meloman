@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Last updated: 2026-05-06
+Last updated: 2026-05-08
 
 Meloman uses layered testing. The goal is not to test every implementation detail, but to protect the flows that would hurt a live quiz night if they broke.
 
@@ -12,6 +12,7 @@ Jest currently covers:
 - Live quiz grading logic.
 - Pusher channel naming helpers.
 - Countdown timer helpers and component behavior.
+- Live presentation media components: blurred image reveal switching and audio clip player timer-bounded pause.
 - Zod validation schemas for player answer inputs and question creation inputs.
 - Translation key consistency between Bulgarian and English message files.
 

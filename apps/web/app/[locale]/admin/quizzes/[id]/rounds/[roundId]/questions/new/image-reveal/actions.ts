@@ -59,6 +59,7 @@ export async function createImageRevealQuestionAction(
     acceptableAnswers,
     imageSource: formData.get("imageSource"),
     imageAttribution: formData.get("imageAttribution") ?? "",
+    blurPx: formData.get("blurPx"),
     timeLimitSeconds: formData.get("timeLimitSeconds"),
     pointsBase: formData.get("pointsBase"),
   });
@@ -109,6 +110,7 @@ export async function createImageRevealQuestionAction(
     mediaUrl: key,
     mediaSource: parsed.data.imageSource,
     mediaAttribution: parsed.data.imageAttribution ?? null,
+    mediaBlurPx: parsed.data.blurPx,
     orderIndex: nextOrder,
     timeLimitSeconds: parsed.data.timeLimitSeconds,
     pointsBase: parsed.data.pointsBase,

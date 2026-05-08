@@ -1,6 +1,6 @@
 # Stage 3 Handoff: Live Quiz Engine
 
-Last updated: 2026-05-06
+Last updated: 2026-05-08
 
 ## Current Status
 
@@ -11,9 +11,14 @@ Completed core pieces:
 - Pusher helpers with safe channel names (`quiz-{CODE}` instead of colon-separated names).
 - Live quiz DB tables: sessions, teams, team members, answers.
 - Host lobby route at `apps/web/app/[locale]/host/[code]`.
+- Fullscreen host presentation route at `apps/web/app/[locale]/host/[code]/present`.
 - Player join/lobby route at `apps/web/app/[locale]/play/[code]/lobby`.
 - Team roster loading and player membership checks.
 - Host controls for `Start`, `Reveal answer`, and `Next question`.
+- Keyboard controls on the presentation route: `SPACE` advances the flow, `L` toggles the leaderboard overlay, `ESC` closes the overlay.
+- Audio playback for audio questions, served from R2 signed URLs, bounded by the answer timer (clip stops when the timer ends).
+- Image reveal questions render a static heavy-blur image during `active`, un-blur on `reveal`, and show attribution after reveal.
+- Live leaderboard overlay rendered from server-loaded team scores; refreshes via Pusher `scores-updated` so points stay current as answers come in.
 - State flow: `lobby -> active -> reveal -> finished`.
 - Player answer submission for all six question types.
 - Server-side grading helpers with Jest coverage.
@@ -22,6 +27,7 @@ Completed core pieces:
 - Server-authoritative countdown UI using `questionEndsAt` and DB `now()`.
 - Auto reveal when the active question timer expires.
 - Player lobby refresh on Pusher `question-started`, `question-revealed`, and `session-finished`.
+- Jest coverage for the new presentation media components: `BlurredImage` blur on/off and `AudioClipPlayer` timer-bounded pause.
 - Root Jest scripts, including watch mode.
 - Root and web Playwright scripts for browser-level regression checks.
 - Current web lint is clean.
@@ -45,6 +51,11 @@ Recent Stage 3 commits:
 - Host controls: `apps/web/app/[locale]/host/[code]/host-controls.tsx`
 - Auto reveal effect: `apps/web/app/[locale]/host/[code]/auto-reveal-on-timeout.tsx`
 - Host Pusher subscription: `apps/web/app/[locale]/host/[code]/live-host.tsx`
+- Fullscreen presentation page: `apps/web/app/[locale]/host/[code]/present/page.tsx`
+- Presentation shell (keyboard + leaderboard overlay state): `apps/web/app/[locale]/host/[code]/present/presentation-shell.tsx`
+- Audio clip player: `apps/web/components/live/audio-clip-player.tsx`
+- Blurred image reveal: `apps/web/components/live/blurred-image.tsx`
+- Leaderboard overlay: `apps/web/components/live/leaderboard-overlay.tsx`
 - Player lobby page: `apps/web/app/[locale]/play/[code]/lobby/page.tsx`
 - Player answer panel: `apps/web/app/[locale]/play/[code]/lobby/question-panel.tsx`
 - Player Pusher subscription: `apps/web/app/[locale]/play/[code]/lobby/live-lobby.tsx`
@@ -52,6 +63,7 @@ Recent Stage 3 commits:
 - Grading logic: `apps/web/lib/live-quiz/grading.ts`
 - Timer UI: `apps/web/components/live/timer-countdown.tsx`
 - Pusher channel helpers: `apps/web/lib/pusher-channels.ts`
+- R2 signed URL helpers: `apps/web/lib/r2.ts`
 - Testing strategy: `docs/testing-strategy.md`
 - Ready-to-use Claude prompt: `docs/claude-stage-3-prompt.md`
 
@@ -74,28 +86,22 @@ The next question is intentionally host-controlled after reveal. Do not auto-adv
 
 High priority:
 
-- Fullscreen host presentation route (`/host/session/[code]/present` or final agreed route).
-- Keyboard controls for host presentation.
-- Better host-side question rendering for all six types.
-- Audio question playback from R2 signed URLs.
-- Image reveal blur sync based on server timestamps.
-- Live leaderboard and score broadcast.
-- End-of-quiz podium.
+- End-of-quiz podium animation.
+- Better host-side question rendering for lyric_blank and decade types on the presentation route (currently the question text shows but per-blank/per-year hints are minimal).
 
 Medium priority:
 
 - Host override panel for disputed open-text answers.
-- Answer count updates during active questions.
-- Pause/resume timer state.
+- Pause/resume timer state (CLAUDE.md `P` keyboard shortcut depends on this).
 - Final round logic.
 - Better player UI states after submit/reveal.
 
 Polish:
 
-- TV-friendly layout.
+- TV-friendly layout refinement.
 - Mobile viewport QA.
-- Sponsor logo placement.
-- Animation polish.
+- Sponsor logo placement on the presentation footer.
+- Animation polish (Framer Motion for reveal/podium).
 
 ## Known Product Decisions
 
@@ -127,7 +133,7 @@ pnpm test:watch
 
 ## Suggested Next Step
 
-Implement the fullscreen host presentation route first. It is the biggest missing "wow moment" for Stage 3 and can reuse the current session state, question loading, timer, and Pusher refresh wiring.
+Add the end-of-quiz podium animation, then layer pause/resume timer state on top so the `P` keyboard shortcut from CLAUDE.md §3.1 can be wired into the presentation shell.
 
 ## Repository Maintenance Note
 

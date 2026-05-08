@@ -5,6 +5,9 @@ import { useForm, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import {
   IMAGE_ACCEPTED_MIME_TYPES,
+  IMAGE_BLUR_DEFAULT_PX,
+  IMAGE_BLUR_MAX_PX,
+  IMAGE_BLUR_MIN_PX,
   IMAGE_MAX_SIZE_BYTES,
   IMAGE_SOURCES,
   IMAGE_SOURCES_REQUIRING_ATTRIBUTION,
@@ -30,7 +33,9 @@ type ValidationKey =
   | "timeLimitMin"
   | "timeLimitMax"
   | "pointsMin"
-  | "pointsMax";
+  | "pointsMax"
+  | "blurMin"
+  | "blurMax";
 
 const fieldClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
@@ -40,6 +45,7 @@ type FormShape = {
   acceptableAnswersText: string;
   imageSource: ImageSource;
   imageAttribution: string;
+  blurPx: number;
   timeLimitSeconds: number;
   pointsBase: number;
 };
@@ -102,6 +108,7 @@ export function ImageRevealForm({
         acceptableAnswers,
         imageSource: values.imageSource,
         imageAttribution: values.imageAttribution,
+        blurPx: values.blurPx,
         timeLimitSeconds: values.timeLimitSeconds,
         pointsBase: values.pointsBase,
       });
@@ -123,12 +130,14 @@ export function ImageRevealForm({
       acceptableAnswersText: "",
       imageSource: "Wikipedia",
       imageAttribution: "",
+      blurPx: IMAGE_BLUR_DEFAULT_PX,
       timeLimitSeconds: 20,
       pointsBase: 1,
     },
   });
 
   const selectedSource = useWatch({ control, name: "imageSource" });
+  const selectedBlur = useWatch({ control, name: "blurPx" });
   const attributionRequired =
     IMAGE_SOURCES_REQUIRING_ATTRIBUTION.includes(selectedSource);
 
@@ -226,6 +235,7 @@ export function ImageRevealForm({
       if (values.imageAttribution) {
         formData.set("imageAttribution", values.imageAttribution);
       }
+      formData.set("blurPx", String(values.blurPx));
       formData.set("timeLimitSeconds", String(values.timeLimitSeconds));
       formData.set("pointsBase", String(values.pointsBase));
       formData.set("imageFile", imageFile);
@@ -288,17 +298,62 @@ export function ImageRevealForm({
         </p>
 
         {previewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element -- local blob URL, intentionally not optimized
-          <img
-            src={previewUrl}
-            alt=""
-            className="mt-2 max-h-48 rounded-md border border-border object-contain"
-          />
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <figure className="space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("blurPreviewOriginal")}
+              </p>
+              {/* eslint-disable-next-line @next/next/no-img-element -- local blob URL, intentionally not optimized */}
+              <img
+                src={previewUrl}
+                alt=""
+                className="max-h-48 rounded-md border border-border object-contain"
+              />
+            </figure>
+            <figure className="space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("blurPreviewBlurred", { blur: selectedBlur })}
+              </p>
+              <div className="overflow-hidden rounded-md border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element -- local blob URL, intentionally not optimized */}
+                <img
+                  src={previewUrl}
+                  alt=""
+                  className="max-h-48 object-contain"
+                  style={{
+                    filter: `blur(${selectedBlur}px)`,
+                    transform: "scale(1.04)",
+                  }}
+                />
+              </div>
+            </figure>
+          </div>
         )}
 
         {imageFileError && (
           <p className="text-xs text-destructive">
             {t(`errors.${imageFileError}`)}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="blurPx">
+          {t("blurLabel", { blur: selectedBlur })}
+        </Label>
+        <input
+          id="blurPx"
+          type="range"
+          min={IMAGE_BLUR_MIN_PX}
+          max={IMAGE_BLUR_MAX_PX}
+          step={1}
+          className="block w-full"
+          {...register("blurPx", { valueAsNumber: true })}
+        />
+        <p className="text-xs text-muted-foreground">{t("blurHint")}</p>
+        {errors.blurPx?.message && (
+          <p className="text-xs text-destructive">
+            {tValidation(errors.blurPx.message as ValidationKey)}
           </p>
         )}
       </div>

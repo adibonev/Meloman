@@ -12,6 +12,7 @@ import {
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
+import { getDownloadUrl } from "@/lib/r2";
 import { LiveLobby } from "./live-lobby";
 import { QuestionPanel } from "./question-panel";
 
@@ -161,6 +162,9 @@ export default async function PlayLobbyPage({
           correctAnswer: questions.correctAnswer,
           pointsBase: questions.pointsBase,
           timeLimitSeconds: questions.timeLimitSeconds,
+          mediaUrl: questions.mediaUrl,
+          mediaAttribution: questions.mediaAttribution,
+          mediaBlurPx: questions.mediaBlurPx,
         })
         .from(questions)
         .where(eq(questions.id, sessionRow.currentQuestionId))
@@ -182,6 +186,23 @@ export default async function PlayLobbyPage({
       : [];
 
   const options = getStringArray(currentQuestion?.options);
+
+  // Image-reveal questions get a signed URL so the player phone shows the
+  // same blurred photo that the host TV does. Audio is intentionally NOT
+  // streamed to phones (CLAUDE.md §4.9: audio plays only on the venue PA so
+  // players can't capture and Shazam it).
+  let signedImageUrl: string | null = null;
+  if (
+    currentQuestion?.questionType === "image_reveal" &&
+    currentQuestion.mediaUrl
+  ) {
+    try {
+      signedImageUrl = await getDownloadUrl(currentQuestion.mediaUrl);
+    } catch (err) {
+      console.error("R2 image signed URL failed (player):", err);
+    }
+  }
+
   const questionForPanel = currentQuestion
     ? {
         id: currentQuestion.id,
@@ -203,6 +224,9 @@ export default async function PlayLobbyPage({
           currentQuestion.questionType,
           currentQuestion.correctAnswer
         ),
+        signedImageUrl,
+        mediaBlurPx: currentQuestion.mediaBlurPx ?? null,
+        mediaAttribution: currentQuestion.mediaAttribution ?? null,
       }
     : null;
   const questionEndsAtMs = sessionRow.questionEndsAt?.valueOf() ?? null;

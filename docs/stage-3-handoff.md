@@ -26,6 +26,7 @@ Completed core pieces:
 - `between_rounds` session status: between two rounds the session pauses on a leaderboard slide. Host clicks "Start next round" (or `SPACE`) to apply the cutoff and start the next round. Both host TV (`BetweenRoundsLeaderboard`) and player phones show the standings; eliminated teams see a "not advancing" notice.
 - Host override panel for disputed open-text, audio, and image-reveal answers during reveal — accept / reject toggle, recomputes team total_score, marks `host_override`.
 - Decade question UX: player year input is constrained to the selected decade range; server schema rejects mismatched year/decade pairs.
+- Max team size per quiz: admin sets the cap on the quiz detail form, player team picker shows full teams, and `joinTeamAction` enforces the cap server-side.
 - State flow: `lobby -> active -> reveal -> (between_rounds ->) active -> ... -> finished`, with optional `paused` state from `active` or `reveal`.
 - Player answer submission for all six question types.
 - Server-side grading helpers with Jest coverage.
@@ -102,7 +103,6 @@ High priority:
 
 Medium priority:
 
-- Max team size per quiz (`docs/backlog.md` #3).
 - Better player UI states after submit/reveal — confetti when correct, "next question coming up" indicator between active and reveal.
 
 Polish:
@@ -142,7 +142,7 @@ pnpm test:watch
 
 ## Suggested Next Step
 
-Pick one of the medium-priority items: max team size (small) or player post-submit/reveal polish (medium). After that, polish (sponsor logo, TV layout, lyric/decade presentation rendering) before the SoftUni defense.
+Pick one of the medium-priority items: player post-submit/reveal polish (medium) or TV/mobile layout QA. After that, polish lyric/decade presentation rendering before the SoftUni defense.
 
 Pause/resume, host override, per-round cutoff, between-rounds leaderboard, and podium are all shipped — do not rebuild them unless a concrete bug is found.
 

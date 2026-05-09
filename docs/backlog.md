@@ -92,17 +92,16 @@ Each item lists:
   YouTube instead. Consider whether moods can drive **all** daily content
   (Song of the Day, Mystery Artist) or only a side feature.
 
-### Admin sets max team size per quiz
+### Admin sets max team size per quiz (LANDED 2026-05-09)
 
 - **What**: Admin UI control to cap how many players can join a single
   team. Enforced server-side at team-join time.
-- **Why**: live quiz nights expect 5-6 players per team (per CLAUDE.md §1.1)
-  but enforcement is not currently in code.
-- **Sprint**: Stage 3 polish (small migration + admin form field).
-- **Effort**: small.
-- **Notes**: needs a column on `quizzes` (or `game_sessions`); existing
-  `joinTeamAction` already counts members for cosmetics, so the count
-  query is cheap to extend.
+- **Why**: live quiz nights expect 5-6 players per team (per CLAUDE.md §1.1).
+- **Sprint**: SHIPPED in Stage 3.
+- **Effort**: small (delivered).
+- **Notes**: `quizzes.max_team_size` is configured in the admin quiz detail
+  form, the player team picker marks full teams, and `joinTeamAction`
+  enforces the cap server-side.
 
 ### Players can switch team / better team picker UX
 

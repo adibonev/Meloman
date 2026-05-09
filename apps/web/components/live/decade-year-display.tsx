@@ -2,6 +2,10 @@ function decadeFromYear(year: number): number {
   return Math.floor(year / 10) * 10;
 }
 
+export function formatDecadeShort(decade: number): string {
+  return `${String(decade % 100).padStart(2, "0")}s`;
+}
+
 function ScoreCard({
   label,
   pointsLabel,
@@ -63,7 +67,9 @@ export function DecadeYearDisplay({
           label={decadeLabel}
           pointsLabel={decadePointsLabel}
           revealValue={
-            reveal && correctDecade !== null ? `${correctDecade}s` : null
+            reveal && correctDecade !== null
+              ? formatDecadeShort(correctDecade)
+              : null
           }
         />
         <ScoreCard

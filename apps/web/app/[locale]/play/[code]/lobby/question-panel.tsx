@@ -152,6 +152,33 @@ function TeamResultBanner({
   );
 }
 
+function SubmittedStateBanner({ isCaptain }: { isCaptain: boolean }) {
+  const t = useTranslations("PlayLobby");
+
+  return (
+    <div className="rounded-md border border-emerald-400/50 bg-emerald-400/10 px-4 py-3 text-center">
+      <p className="font-heading text-lg uppercase tracking-wider text-emerald-300">
+        {t("answerLockedTitle")}
+      </p>
+      <p className="mt-1 text-sm text-emerald-200/90">
+        {isCaptain
+          ? t("answerLockedCaptainBody")
+          : t("answerLockedMemberBody")}
+      </p>
+    </div>
+  );
+}
+
+function RevealNextHint() {
+  const t = useTranslations("PlayLobby");
+
+  return (
+    <p className="rounded-md border border-border bg-background/60 px-3 py-2 text-center text-xs uppercase tracking-widest text-muted-foreground">
+      {t("nextQuestionComing")}
+    </p>
+  );
+}
+
 function BetweenRoundsPanel({
   cutoffApplied,
   isEliminated,
@@ -578,7 +605,7 @@ export function QuestionPanel({
         <p className="text-xs text-muted-foreground">{t("captainOnly")}</p>
       )}
       {status === "active" && hasSubmitted && (
-        <p className="text-xs text-muted-foreground">{t("answerSubmitted")}</p>
+        <SubmittedStateBanner isCaptain={isCaptain} />
       )}
       {showResult && teamResult && (
         <TeamResultBanner question={question} result={teamResult} />
@@ -588,6 +615,7 @@ export function QuestionPanel({
           {t("correctAnswer", { answer: question.correctAnswerLabel })}
         </p>
       )}
+      {status === "reveal" && <RevealNextHint />}
       {errorKey && (
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {t(`answerErrors.${errorKey}`)}

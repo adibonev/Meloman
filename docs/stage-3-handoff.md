@@ -38,6 +38,7 @@ Completed core pieces:
 - Jest coverage for the new presentation media components: `BlurredImage` blur on/off and `AudioClipPlayer` timer-bounded pause.
 - Sponsor management polish: admins can upload logos to R2, edit/delete sponsors, assign one or more sponsors to a quiz, and the host presentation footer renders sponsor logos/names.
 - Host presentation renders lyric blanks with TV-sized blank slots, reveal-time answer order chips, and per-blank scoring metadata; decade/year questions show separate decade and exact-year scoring cards.
+- Player post-submit/reveal polish: after submit the team sees an "answer locked" state, reveal screens show the result plus a next-question hint, and question form state resets cleanly on the next question remount.
 - Root Jest scripts, including watch mode.
 - Root and web Playwright scripts for browser-level regression checks.
 - Current web lint is clean.
@@ -98,10 +99,6 @@ The next question is intentionally host-controlled after reveal. Do not auto-adv
 
 ## Remaining Stage 3 Work
 
-Medium priority:
-
-- Better player UI states after submit/reveal — confetti when correct, "next question coming up" indicator between active and reveal.
-
 Polish:
 
 - TV-friendly layout refinement.
@@ -139,7 +136,7 @@ pnpm test:watch
 
 ## Suggested Next Step
 
-Pick one of the medium-priority items: player post-submit/reveal polish (medium) or TV/mobile layout QA before the SoftUni defense.
+Pick one of the polish items: TV/mobile layout QA or animation polish before the SoftUni defense.
 
 Pause/resume, host override, per-round cutoff, between-rounds leaderboard, and podium are all shipped — do not rebuild them unless a concrete bug is found.
 

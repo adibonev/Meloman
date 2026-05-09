@@ -19,6 +19,7 @@ import { TimerCountdown } from "@/components/live/timer-countdown";
 import { AudioClipPlayer } from "@/components/live/audio-clip-player";
 import { BetweenRoundsLeaderboard } from "@/components/live/between-rounds-leaderboard";
 import { BlurredImage } from "@/components/live/blurred-image";
+import { DecadeYearDisplay } from "@/components/live/decade-year-display";
 import type { LeaderboardTeam } from "@/components/live/leaderboard-overlay";
 import { LyricBlankDisplay } from "@/components/live/lyric-blank-display";
 import { Podium } from "@/components/live/podium";
@@ -30,6 +31,10 @@ import { PresentationShell } from "./presentation-shell";
 function getStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string");
+}
+
+function getNumber(value: unknown): number | null {
+  return typeof value === "number" ? value : null;
 }
 
 function getCorrectAnswerLabel(
@@ -456,9 +461,31 @@ export default async function HostPresentPage({
 
               {currentQuestion.questionType === "lyric_blank" ? (
                 <LyricBlankDisplay
+                  answerOrderLabel={t("lyricBlankAnswerOrder")}
+                  blankCountLabel={t("lyricBlankCount", {
+                    count: getStringArray(currentQuestion.correctAnswer).length,
+                  })}
                   reveal={row.status === "reveal"}
                   correctWords={getStringArray(currentQuestion.correctAnswer)}
+                  perBlankPointsLabel={t("lyricBlankPointsEach", {
+                    points: currentQuestion.pointsBase,
+                  })}
                   text={currentQuestion.questionText}
+                />
+              ) : currentQuestion.questionType === "decade" ? (
+                <DecadeYearDisplay
+                  correctYear={getNumber(currentQuestion.correctAnswer)}
+                  decadeLabel={t("decadeCardLabel")}
+                  decadePointsLabel={t("decadePoints", {
+                    points: currentQuestion.pointsBase,
+                  })}
+                  exactYearLabel={t("exactYearCardLabel")}
+                  exactYearPointsLabel={t("exactYearPoints", {
+                    points: currentQuestion.pointsBase * 2,
+                  })}
+                  promptLabel={t("decadePrompt")}
+                  questionText={currentQuestion.questionText}
+                  reveal={row.status === "reveal"}
                 />
               ) : (
                 <h2 className="font-heading text-5xl font-black uppercase tracking-wider md:text-6xl">
@@ -544,7 +571,8 @@ export default async function HostPresentPage({
 
               {row.status === "reveal" &&
                 correctAnswerLabel &&
-                currentQuestion.questionType !== "lyric_blank" && (
+                currentQuestion.questionType !== "lyric_blank" &&
+                currentQuestion.questionType !== "decade" && (
                   <p className="rounded-md bg-foreground/10 px-6 py-3 font-heading text-3xl uppercase tracking-wider">
                     {t("correctAnswer", { answer: correctAnswerLabel })}
                   </p>

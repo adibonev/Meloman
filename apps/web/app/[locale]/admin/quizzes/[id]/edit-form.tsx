@@ -23,16 +23,21 @@ type ValidationKey =
   | "titleMax"
   | "descriptionMax"
   | "maxTeamSizeMin"
-  | "maxTeamSizeMax";
+  | "maxTeamSizeMax"
+  | "sponsorIdInvalid";
+
+type SponsorOption = { id: string; name: string };
 
 const fieldClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
 
 export function EditQuizForm({
   quizId,
+  sponsors,
   defaultValues,
 }: {
   quizId: string;
+  sponsors: SponsorOption[];
   defaultValues: {
     title: string;
     description: string;
@@ -40,6 +45,7 @@ export function EditQuizForm({
     language: (typeof QUIZ_LANGUAGES)[number];
     status: (typeof QUIZ_STATUSES)[number];
     maxTeamSize: number;
+    sponsorIds: string[];
   };
 }) {
   const t = useTranslations("AdminQuizDetail");
@@ -69,6 +75,9 @@ export function EditQuizForm({
       formData.set("language", data.language);
       formData.set("status", data.status);
       formData.set("maxTeamSize", String(data.maxTeamSize));
+      for (const sponsorId of data.sponsorIds ?? []) {
+        formData.append("sponsorIds", sponsorId);
+      }
       const result = await updateQuizAction(quizId, formData);
       if (result?.errorKey) setServerErrorKey(result.errorKey);
     });
@@ -155,6 +164,37 @@ export function EditQuizForm({
         {errors.maxTeamSize?.message && (
           <p className="text-xs text-destructive">
             {tValidation(errors.maxTeamSize.message as ValidationKey)}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>{t("sponsorLabel")}</Label>
+        <div className="grid gap-2 rounded-md border border-border bg-background px-3 py-3 sm:grid-cols-2">
+          {sponsors.length > 0 ? (
+            sponsors.map((sponsor) => (
+              <label
+                key={sponsor.id}
+                className="flex items-center gap-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  value={sponsor.id}
+                  {...register("sponsorIds")}
+                />
+                <span>{sponsor.name}</span>
+              </label>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("sponsorNone")}
+            </p>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">{t("sponsorHint")}</p>
+        {errors.sponsorIds?.message && (
+          <p className="text-xs text-destructive">
+            {tValidation(errors.sponsorIds.message as ValidationKey)}
           </p>
         )}
       </div>

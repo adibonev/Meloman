@@ -48,12 +48,17 @@ export function PresentationShell({
   isHost,
   status,
   teams,
+  sponsors,
 }: {
   children: React.ReactNode;
   code: string;
   isHost: boolean;
   status: SessionStatus;
   teams: LeaderboardTeam[];
+  // Optional sponsors: rendered in the footer of the fullscreen
+  // presentation so the venue brand is visible to the room without
+  // blocking the question or leaderboard.
+  sponsors: { id: string; name: string; logoUrl: string | null }[];
 }) {
   const t = useTranslations("HostPresent");
   const router = useRouter();
@@ -194,6 +199,7 @@ export function PresentationShell({
               <span>{t("hint.leaderboard")}</span>
               <span>{t("hint.exit")}</span>
             </div>
+            {sponsors.length > 0 && <SponsorStrip sponsors={sponsors} />}
             <div className="flex items-center gap-3">
               {isPending && <span>{t("working")}</span>}
               {serverErrorKey && (
@@ -219,5 +225,60 @@ export function PresentationShell({
         teams={teams}
       />
     </>
+  );
+}
+
+function SponsorStrip({
+  sponsors,
+}: {
+  sponsors: { id: string; name: string; logoUrl: string | null }[];
+}) {
+  const t = useTranslations("HostPresent");
+
+  return (
+    <div
+      className="flex min-w-0 flex-1 items-center justify-center gap-3 normal-case tracking-normal"
+      aria-label={t("sponsorsLabel")}
+    >
+      <span className="shrink-0 text-[10px] uppercase tracking-widest opacity-60">
+        {t("sponsorsLabel")}
+      </span>
+      <div className="flex min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-2">
+        {sponsors.map((sponsor) => (
+          <SponsorBadge key={sponsor.id} sponsor={sponsor} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Renders a compact sponsor badge. Tries the logo first; if it
+// fails to load (404, CORS error, etc.) we fall back to plain text so
+// the host doesn't see a broken-image icon next to the venue name.
+function SponsorBadge({
+  sponsor,
+}: {
+  sponsor: { name: string; logoUrl: string | null };
+}) {
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  const showLogo = sponsor.logoUrl && !logoFailed;
+
+  return (
+    <div className="flex items-center border-l border-border pl-3">
+      {showLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element -- arbitrary external host, intentionally not optimized
+        <img
+          src={sponsor.logoUrl ?? undefined}
+          alt={sponsor.name}
+          className="h-7 max-w-32 object-contain"
+          onError={() => setLogoFailed(true)}
+        />
+      ) : (
+        <span className="max-w-36 truncate font-heading text-base text-foreground">
+          {sponsor.name}
+        </span>
+      )}
+    </div>
   );
 }

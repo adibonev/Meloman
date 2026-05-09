@@ -1,9 +1,15 @@
 "use server";
 
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 import { db } from "@meloman/db";
-import { gameSessions, quizzes, rounds } from "@meloman/db/schema";
+import {
+  gameSessions,
+  quizSponsors,
+  quizzes,
+  rounds,
+  sponsors,
+} from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { generateJoinCode } from "@/lib/join-code";
@@ -18,7 +24,14 @@ export async function updateQuizAction(id: string, formData: FormData) {
     return { errorKey: "forbidden" as const };
   }
 
-  const hasSponsorId = formData.has("sponsorId");
+  const sponsorIds = Array.from(
+    new Set(
+      formData
+        .getAll("sponsorIds")
+        .filter((value): value is string => typeof value === "string")
+        .filter(Boolean)
+    )
+  );
   const raw = {
     title: formData.get("title"),
     description: formData.get("description") ?? "",
@@ -26,7 +39,7 @@ export async function updateQuizAction(id: string, formData: FormData) {
     language: formData.get("language"),
     status: formData.get("status"),
     maxTeamSize: formData.get("maxTeamSize") ?? 0,
-    ...(hasSponsorId ? { sponsorId: formData.get("sponsorId") ?? "" } : {}),
+    sponsorIds,
   };
 
   const parsed = updateQuizSchema.safeParse(raw);
@@ -49,6 +62,18 @@ export async function updateQuizAction(id: string, formData: FormData) {
   const shouldStampPublishedAt =
     parsed.data.status === "published" && existing.publishedAt === null;
 
+  const parsedSponsorIds = parsed.data.sponsorIds ?? [];
+  if (parsedSponsorIds.length > 0) {
+    const existingSponsors = await db
+      .select({ id: sponsors.id })
+      .from(sponsors)
+      .where(inArray(sponsors.id, parsedSponsorIds));
+
+    if (existingSponsors.length !== parsedSponsorIds.length) {
+      return { errorKey: "invalidData" as const };
+    }
+  }
+
   await db
     .update(quizzes)
     .set({
@@ -59,10 +84,25 @@ export async function updateQuizAction(id: string, formData: FormData) {
       status: parsed.data.status,
       maxTeamSize:
         parsed.data.maxTeamSize > 0 ? parsed.data.maxTeamSize : null,
-      ...(hasSponsorId ? { sponsorId: parsed.data.sponsorId ?? null } : {}),
+      sponsorId: parsedSponsorIds[0] ?? null,
       ...(shouldStampPublishedAt ? { publishedAt: new Date() } : {}),
     })
     .where(eq(quizzes.id, id));
+
+  // Neon HTTP driver used by this project does not support transactions,
+  // so keep this as simple sequential writes. The legacy quizzes.sponsorId
+  // above always mirrors the first selection as a fallback if this write is
+  // interrupted.
+  await db.delete(quizSponsors).where(eq(quizSponsors.quizId, id));
+
+  if (parsedSponsorIds.length > 0) {
+    await db.insert(quizSponsors).values(
+      parsedSponsorIds.map((sponsorId) => ({
+        quizId: id,
+        sponsorId,
+      }))
+    );
+  }
 
   const locale = await getLocale();
   redirect({ href: "/admin/quizzes", locale });

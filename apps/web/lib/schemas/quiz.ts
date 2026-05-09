@@ -35,13 +35,7 @@ export const updateQuizSchema = z.object({
     .int()
     .min(MAX_TEAM_SIZE_MIN, "maxTeamSizeMin")
     .max(MAX_TEAM_SIZE_MAX, "maxTeamSizeMax"),
-  // Empty string in the form means "no sponsor". UUID validation only
-  // applies when something was picked.
-  sponsorId: z
-    .string()
-    .uuid("sponsorIdInvalid")
-    .or(z.literal("").transform(() => undefined))
-    .optional(),
+  sponsorIds: z.array(z.string().uuid("sponsorIdInvalid")).optional(),
 });
 
 export type CreateQuizInput = z.infer<typeof createQuizSchema>;

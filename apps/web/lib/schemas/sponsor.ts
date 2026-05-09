@@ -14,3 +14,13 @@ export const createSponsorSchema = z.object({
 });
 
 export type CreateSponsorInput = z.infer<typeof createSponsorSchema>;
+
+// Logo upload limits (smaller than the question image cap because
+// sponsor logos are typically <500KB optimised; 2MB is generous).
+export const SPONSOR_LOGO_MAX_SIZE_BYTES = 2 * 1024 * 1024;
+export const SPONSOR_LOGO_ACCEPTED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/svg+xml",
+] as const;

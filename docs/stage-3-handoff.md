@@ -35,6 +35,7 @@ Completed core pieces:
 - Auto reveal when the active question timer expires.
 - Player lobby refresh on Pusher `question-started`, `question-revealed`, and `session-finished`.
 - Jest coverage for the new presentation media components: `BlurredImage` blur on/off and `AudioClipPlayer` timer-bounded pause.
+- Sponsor management polish: admins can upload logos to R2, edit/delete sponsors, assign one or more sponsors to a quiz, and the host presentation footer renders sponsor logos/names.
 - Root Jest scripts, including watch mode.
 - Root and web Playwright scripts for browser-level regression checks.
 - Current web lint is clean.
@@ -108,7 +109,6 @@ Polish:
 
 - TV-friendly layout refinement.
 - Mobile viewport QA.
-- Sponsor logo placement on the presentation footer.
 - Animation polish (Framer Motion for reveal / podium / between-rounds slide).
 - Drop the legacy `teams.is_finalist` and `quizzes.final_round_top_n` columns once the per-round model has soaked.
 

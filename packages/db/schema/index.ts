@@ -1,6 +1,7 @@
 export * from "./users";
 export * from "./sponsors";
 export * from "./quizzes";
+export * from "./quiz-sponsors";
 export * from "./rounds";
 export * from "./questions";
 export * from "./game-sessions";

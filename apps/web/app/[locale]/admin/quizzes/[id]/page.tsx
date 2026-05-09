@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
-import { quizzes, rounds } from "@meloman/db/schema";
+import { quizSponsors, quizzes, rounds, sponsors } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { EditQuizForm } from "./edit-form";
@@ -38,6 +38,26 @@ export default async function AdminQuizDetailPage({
     .where(eq(rounds.quizId, quiz.id))
     .orderBy(asc(rounds.orderIndex));
 
+  // Sponsors come up rarely (a few per organisation) so a flat select is
+  // fine; the form renders them in a dropdown alongside the existing
+  // status / language / theme controls.
+  const allSponsors = await db
+    .select({ id: sponsors.id, name: sponsors.name })
+    .from(sponsors)
+    .orderBy(asc(sponsors.name));
+
+  const assignedSponsors = await db
+    .select({ sponsorId: quizSponsors.sponsorId })
+    .from(quizSponsors)
+    .where(eq(quizSponsors.quizId, quiz.id));
+
+  const selectedSponsorIds =
+    assignedSponsors.length > 0
+      ? assignedSponsors.map((sponsor) => sponsor.sponsorId)
+      : quiz.sponsorId
+        ? [quiz.sponsorId]
+        : [];
+
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div className="flex items-center justify-between">
@@ -54,6 +74,7 @@ export default async function AdminQuizDetailPage({
 
       <EditQuizForm
         quizId={quiz.id}
+        sponsors={allSponsors}
         defaultValues={{
           title: quiz.title,
           description: quiz.description ?? "",
@@ -61,6 +82,7 @@ export default async function AdminQuizDetailPage({
           language: quiz.language,
           status: quiz.status,
           maxTeamSize: quiz.maxTeamSize ?? 0,
+          sponsorIds: selectedSponsorIds,
         }}
       />
 

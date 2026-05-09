@@ -1,0 +1,1 @@
+ALTER TABLE "sponsors" ADD COLUMN "logo_r2_key" text;

@@ -33,19 +33,29 @@ describe("admin settings schemas", () => {
     ).toBe(false);
   });
 
-  it("accepts an empty sponsor selection or a valid sponsor UUID", () => {
+  it("accepts empty, single, or multiple sponsor selections", () => {
     expect(
       updateQuizSchema.safeParse({
         ...BASE_QUIZ,
         maxTeamSize: "0",
-        sponsorId: "",
+        sponsorIds: [],
       }).success
     ).toBe(true);
     expect(
       updateQuizSchema.safeParse({
         ...BASE_QUIZ,
         maxTeamSize: "0",
-        sponsorId: "95e6f2a9-0c4e-41a3-bafe-123456789abc",
+        sponsorIds: ["95e6f2a9-0c4e-41a3-bafe-123456789abc"],
+      }).success
+    ).toBe(true);
+    expect(
+      updateQuizSchema.safeParse({
+        ...BASE_QUIZ,
+        maxTeamSize: "0",
+        sponsorIds: [
+          "95e6f2a9-0c4e-41a3-bafe-123456789abc",
+          "209a50b0-8b68-42b7-b7c8-123456789abc",
+        ],
       }).success
     ).toBe(true);
 
@@ -53,7 +63,7 @@ describe("admin settings schemas", () => {
       updateQuizSchema.safeParse({
         ...BASE_QUIZ,
         maxTeamSize: "0",
-        sponsorId: "not-a-uuid",
+        sponsorIds: ["not-a-uuid"],
       }).success
     ).toBe(false);
   });

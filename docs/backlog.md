@@ -22,6 +22,60 @@ Each item lists:
 
 ## Items
 
+### Manual point adjustment between rounds
+
+- **What**: Host can add or remove points from any team between rounds
+  (or even during reveal) for venue-specific bonuses, manual corrections
+  beyond the per-answer override panel, or penalising obvious cheating.
+- **Why**: Adi runs real quiz nights where things happen the system can't
+  predict — a team gets an extra point for a hilarious wrong answer, a
+  team is docked for using their phone, etc. The current host override
+  panel only lets him toggle individual question answers.
+- **Sprint**: Stage 3 polish if simple, otherwise post-MVP.
+- **Effort**: small to medium.
+- **Notes**: can be implemented as a `+ / -` control next to each team
+  on the host lobby (active during `between_rounds` / `reveal` /
+  `paused`); writes to `teams.total_score` directly with a Pusher
+  scoresUpdated broadcast. Consider a small audit log column or
+  separate `score_adjustments` table to keep history (but that's
+  bigger).
+
+### Playwright tests covering every interactive button
+
+- **What**: Build out the Playwright suite so every clickable control
+  in the host + player + admin flows has at least one happy-path
+  automated test. Adi shouldn't have to manually click through every
+  feature when verifying a release.
+- **Why**: pre-defense the manual QA load is real, and SoftUni grading
+  rewards observable test coverage.
+- **Sprint**: Stage 3 polish for high-priority flows; broader coverage
+  post-MVP.
+- **Effort**: medium to large depending on coverage target.
+- **Notes**: existing Playwright suite in `apps/web/e2e/` covers
+  public/auth navigation only. Logical next targets are: live quiz
+  end-to-end (host start → reveal → next), admin quiz creation, sponsor
+  CRUD, override panel, between-rounds slide. Use `docs/live-quiz-test-plan.md`
+  as the manual-to-automated translation map.
+
+### Themed admin panel matching quiz theme
+
+- **What**: Admin chrome (sidebar / header / form styling) inherits the
+  active quiz's theme (modern monochrome / vintage 70s / neon 80s).
+  Today admin is locked to the dark monochrome shell, but the host
+  presents from there, so the visual jump from admin → /present is
+  jarring on a real venue setup.
+- **Why**: the admin panel is part of the live presentation flow, not
+  just a backstage tool. It should feel like the quiz it's about to
+  run.
+- **Sprint**: post-MVP polish. Don't gate the SoftUni defense on this.
+- **Effort**: medium. Needs theme tokens decoupled from
+  components, theme switching at the admin route level, and probably a
+  brand asset pack per theme.
+- **Notes**: Tailwind v4 + shadcn already supports a tokens approach;
+  the work is mostly defining the three tokens sets and gating the
+  admin layout on the active quiz's `theme` field. CLAUDE.md §3.1
+  describes the three themes.
+
 ### Daily song by mood (player-facing)
 
 - **What**: In the daily app, ask the user what mood they're in (pick from a

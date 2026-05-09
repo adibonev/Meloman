@@ -6,7 +6,9 @@ import {
   answers,
   gameSessions,
   questions,
+  quizSponsors,
   quizzes,
+  sponsors,
   teamMembers,
   teams,
   users,
@@ -89,12 +91,18 @@ export default async function HostPresentPage({
   const [row] = await db
     .select({
       sessionId: gameSessions.id,
+      quizId: gameSessions.quizId,
       hostId: gameSessions.hostId,
       status: gameSessions.status,
       pausedFromStatus: gameSessions.pausedFromStatus,
       quizTitle: quizzes.title,
       currentQuestionId: gameSessions.currentQuestionId,
       questionEndsAt: gameSessions.questionEndsAt,
+      // Legacy single-sponsor fallback. New assignments live in
+      // quiz_sponsors so a quiz can show multiple sponsors.
+      sponsorName: sponsors.name,
+      sponsorLogoUrl: sponsors.logoUrl,
+      sponsorLogoR2Key: sponsors.logoR2Key,
       serverNowMs:
         sql<number>`(extract(epoch from now()) * 1000)::double precision`.mapWith(
           Number
@@ -102,6 +110,7 @@ export default async function HostPresentPage({
     })
     .from(gameSessions)
     .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
+    .leftJoin(sponsors, eq(sponsors.id, quizzes.sponsorId))
     .where(eq(gameSessions.joinCode, upper))
     .limit(1);
 
@@ -211,6 +220,52 @@ export default async function HostPresentPage({
       : null;
   const questionEndsAtMs = row.questionEndsAt?.valueOf() ?? null;
 
+  const assignedSponsorRows = await db
+    .select({
+      id: sponsors.id,
+      name: sponsors.name,
+      logoUrl: sponsors.logoUrl,
+      logoR2Key: sponsors.logoR2Key,
+    })
+    .from(quizSponsors)
+    .innerJoin(sponsors, eq(sponsors.id, quizSponsors.sponsorId))
+    .where(eq(quizSponsors.quizId, row.quizId))
+    .orderBy(asc(sponsors.name));
+
+  const sponsorRows =
+    assignedSponsorRows.length > 0
+      ? assignedSponsorRows
+      : row.sponsorName
+        ? [
+            {
+              id: row.sponsorLogoR2Key ?? row.sponsorName,
+              name: row.sponsorName,
+              logoUrl: row.sponsorLogoUrl,
+              logoR2Key: row.sponsorLogoR2Key,
+            },
+          ]
+        : [];
+
+  // Sponsor logos: R2 uploads need a fresh signed URL. Failure is
+  // non-fatal — each badge falls back to the sponsor name.
+  const presentationSponsors = await Promise.all(
+    sponsorRows.map(async (sponsor) => {
+      let signedLogoUrl: string | null = null;
+      if (sponsor.logoR2Key) {
+        try {
+          signedLogoUrl = await getDownloadUrl(sponsor.logoR2Key);
+        } catch (err) {
+          console.error("R2 sponsor logo signed URL failed:", err);
+        }
+      }
+      return {
+        id: sponsor.id,
+        name: sponsor.name,
+        logoUrl: signedLogoUrl ?? sponsor.logoUrl ?? null,
+      };
+    })
+  );
+
   // Generate signed URLs for media-bearing questions. 5-min default expiry
   // is plenty for a 30-sec clip plus reveal time; refresh happens on
   // every status change because the Pusher subscription triggers
@@ -240,6 +295,7 @@ export default async function HostPresentPage({
       isHost={isHost}
       status={row.status}
       teams={leaderboardTeams}
+      sponsors={presentationSponsors}
     >
       <header className="flex items-center justify-between border-b border-border px-8 py-4">
         <div className="space-y-0.5">

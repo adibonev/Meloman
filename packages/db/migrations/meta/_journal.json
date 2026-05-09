@@ -50,6 +50,20 @@
       "when": 1778272778600,
       "tag": "0006_slimy_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778303624460,
+      "tag": "0007_last_black_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778305093657,
+      "tag": "0008_mighty_phantom_reporter",
+      "breakpoints": true
     }
   ]
 }

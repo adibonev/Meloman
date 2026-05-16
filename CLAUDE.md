@@ -1243,9 +1243,11 @@ Friend is providing seed content. Status:
 - ✅ Docs: README (architecture + demo creds), `docs/api.md`,
   `docs/database-schema.md`, CI green.
 
-**Remaining (Phase 6 / 7):** Loom walkthrough (owner-recorded), optional
-restore of deliberately deferred items in `docs/backlog.md` (TipTap editor,
-NativeWind, QR scan, password reset, Framer Motion polish).
+**Remaining (Phase 6 / 7):** Loom walkthrough (owner-recorded). Most
+deferred items have since shipped (TipTap editor, password reset, Framer
+Motion polish, host join QR, fallback polling — see `docs/backlog.md`).
+Still deliberately deferred: NativeWind migration and the in-app
+expo-camera QR scanner (both EAS-build risk near the deadline).
 
 Deferred-by-design trade-offs for the deadline are logged honestly in
 `docs/backlog.md` and `docs/final-10-day-plan.md`.

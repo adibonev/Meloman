@@ -211,9 +211,13 @@ Each item lists:
   hidden `name="body"` input fed from `editor.getHTML()` keeps the
   FormData contract, so the server action and `stories.body` HTML
   storage are unchanged.
-- **Reset password from user admin** — CLAUDE.md §3.4 lists it; Resend is not
-  installed. User management ships with role change + ban/unban. Add reset
-  (Resend email) post-deadline.
+- ~~**Reset password from user admin**~~ — DONE 2026-05-17. Full
+  password reset shipped: stateless HS256 token (no DB table), shared
+  service behind REST routes (`/api/auth/forgot-password`,
+  `/api/auth/reset-password`) + web `(auth)` pages, "Forgot password?"
+  on login, and a super-admin "Reset password" button that emails the
+  user a link. Resend degrades gracefully (logs the link without
+  `RESEND_API_KEY`) so it works in dev / unverified-domain demos.
 - **NativeWind in mobile app** — CLAUDE.md §2.2 mandates NativeWind for the
   Expo app. To guarantee a clean EAS build under the deadline, the mobile
   screens use React Native `StyleSheet` (same monochrome brand palette,

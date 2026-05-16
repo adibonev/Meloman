@@ -25,7 +25,11 @@ export default defineConfig({
     // so CI stays fast and green.
     {
       name: "smoke",
-      testMatch: ["public-auth.spec.ts", "live-quiz-entry.spec.ts"],
+      testMatch: [
+        "public-auth.spec.ts",
+        "live-quiz-entry.spec.ts",
+        "reset-password.spec.ts",
+      ],
       use: { ...devices["Desktop Chrome"] },
     },
     // Logs in with the demo accounts once and stores the session.

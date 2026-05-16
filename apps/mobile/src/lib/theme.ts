@@ -1,12 +1,16 @@
-// Brand palette mirrors CLAUDE.md §8.11 (pure monochrome, dark).
+// Premium warm mid-tone theme — mirrors packages/shared/design-tokens.ts
+// and apps/web/app/globals.css. Keep all three in sync.
 export const colors = {
-  bg: "#000000",
-  card: "#0A0A0A",
-  elevated: "#141414",
-  border: "#262626",
-  fg: "#FFFFFF",
-  muted: "#A8A8A8",
-  dim: "#6B6B6B",
+  bg: "#2A2520", // warm mid-tone background
+  card: "#3A3530", // elevated cards
+  elevated: "#4A453F", // hover / secondary surface
+  border: "#3A3530", // subtle border
+  borderStrong: "#4A453F",
+  accent: "#FFD166", // clean gold
+  accentHover: "#FFB845",
+  fg: "#F5E6D3", // cream white
+  muted: "#B5A88F", // warm muted
+  dim: "#8A7E6B",
   danger: "#F87171",
 };
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anton, Inter } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -11,15 +11,15 @@ const inter = Inter({
   subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
-const anton = Anton({
-  variable: "--font-anton",
-  subsets: ["latin"],
-  weight: "400",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin", "cyrillic"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
   title: "Meloman",
-  description: "Музикален quiz и daily entertainment",
+  description: "Музикален куиз и ежедневно забавление",
 };
 
 export function generateStaticParams() {
@@ -39,7 +39,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={`dark ${inter.variable} ${anton.variable}`}>
+    <html lang={locale} className={`dark ${inter.variable} ${playfair.variable}`}>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

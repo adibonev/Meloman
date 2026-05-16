@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-anton);
+    --font-heading: var(--font-playfair), var(--font-inter), Georgia, serif;
     --font-sans: var(--font-inter);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -82,39 +82,40 @@
     --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Meloman brand dark theme — pure monochrome per design system */
+/* Meloman brand — premium warm mid-tone theme (owner-approved redesign;
+   supersedes the former pure-monochrome system in CLAUDE.md §9). */
 .dark {
-    --background: oklch(0 0 0);           /* #000000 pure black */
-    --foreground: oklch(1 0 0);           /* #FFFFFF pure white */
-    --card: oklch(0.05 0 0);              /* #0A0A0A near-black cards */
-    --card-foreground: oklch(1 0 0);
-    --popover: oklch(0.09 0 0);           /* #141414 modals */
-    --popover-foreground: oklch(1 0 0);
-    --primary: oklch(1 0 0);              /* white = primary action */
-    --primary-foreground: oklch(0 0 0);
-    --secondary: oklch(0.14 0 0);         /* #1F1F1F hover */
-    --secondary-foreground: oklch(1 0 0);
-    --muted: oklch(0.14 0 0);
-    --muted-foreground: oklch(0.69 0 0);  /* #A8A8A8 metadata text */
-    --accent: oklch(0.14 0 0);
-    --accent-foreground: oklch(1 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(0.18 0 0);            /* #262626 subtle borders */
-    --input: oklch(0.18 0 0);
-    --ring: oklch(0.46 0 0);              /* #6B6B6B focus ring */
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.69 0 0);
-    --chart-3: oklch(0.46 0 0);
-    --chart-4: oklch(0.28 0 0);           /* #404040 */
-    --chart-5: oklch(0.18 0 0);
-    --sidebar: oklch(0.05 0 0);
-    --sidebar-foreground: oklch(1 0 0);
-    --sidebar-primary: oklch(1 0 0);
-    --sidebar-primary-foreground: oklch(0 0 0);
-    --sidebar-accent: oklch(0.14 0 0);
-    --sidebar-accent-foreground: oklch(1 0 0);
-    --sidebar-border: oklch(0.18 0 0);
-    --sidebar-ring: oklch(0.46 0 0);
+    --background: #2A2520;               /* warm mid-tone */
+    --foreground: #F5E6D3;              /* cream white */
+    --card: #3A3530;                    /* elevated cards */
+    --card-foreground: #F5E6D3;
+    --popover: #3A3530;
+    --popover-foreground: #F5E6D3;
+    --primary: #FFD166;                 /* clean gold accent */
+    --primary-foreground: #2A2520;      /* dark text on gold */
+    --secondary: #4A453F;               /* hover / secondary surface */
+    --secondary-foreground: #F5E6D3;
+    --muted: #3A3530;
+    --muted-foreground: #B5A88F;        /* warm muted */
+    --accent: #4A453F;
+    --accent-foreground: #F5E6D3;
+    --destructive: #F87171;
+    --border: #3A3530;                  /* subtle */
+    --input: #4A453F;
+    --ring: #FFD166;                    /* gold focus */
+    --chart-1: #FFD166;
+    --chart-2: #FFB845;
+    --chart-3: #B5A88F;
+    --chart-4: #8A7E6B;
+    --chart-5: #4A453F;
+    --sidebar: #2A2520;
+    --sidebar-foreground: #F5E6D3;
+    --sidebar-primary: #FFD166;
+    --sidebar-primary-foreground: #2A2520;
+    --sidebar-accent: #4A453F;
+    --sidebar-accent-foreground: #F5E6D3;
+    --sidebar-border: #3A3530;
+    --sidebar-ring: #FFD166;
 }
 
 @layer base {

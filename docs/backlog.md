@@ -72,14 +72,21 @@ Each item lists:
   rewards observable test coverage.
 - **Sprint**: SHIPPED in Stage 3 polish.
 - **Effort**: large (delivered).
-- **Notes**: Project split — `pnpm test:e2e` runs only the DB-safe
-  `smoke` set (`public-auth.spec.ts` + `live-quiz-entry.spec.ts`, 8
-  tests) so CI stays fast/green; `pnpm test:e2e:full` runs the authed
-  suite locally against the dev DB. Mutating specs use timestamped
-  names so runs are isolated/re-runnable; session state is gitignored.
-  Still post-MVP: a multi-actor live game sim (two contexts, host +
-  player, Pusher timing) — needs a dedicated seeded test DB to not be
-  flaky. `docs/live-quiz-test-plan.md` remains the manual map.
+- **Notes**: 23 tests total, all green. Project split — `pnpm
+  test:e2e` runs the DB-safe `smoke` set (public-auth +
+  live-quiz-entry + reset-password, 10 tests) so CI stays fast/green;
+  `pnpm test:e2e:full` runs the authed suite locally vs the dev DB
+  (setup + 11): admin quiz authoring, **all 6 question type forms**,
+  edit/delete (quiz title, question, round), sponsor CRUD, TipTap
+  story, player surface, and the **full two-actor live game loop**
+  (host authors/starts → player joins, answers → reveal → finish, in
+  two browser contexts; cross-context via Pusher or the §5.4 poll
+  fallback). Mutating specs use timestamped names so runs are
+  isolated/re-runnable; session state is gitignored. Remaining gaps
+  (small): real R2 media upload for audio/image questions, host
+  pause/resume + score-adjust + guest-video specifics, and the Expo
+  app (Playwright is web-only). `docs/live-quiz-test-plan.md` remains
+  the manual map.
 
 ### Themed admin panel matching quiz theme
 

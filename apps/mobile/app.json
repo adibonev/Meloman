@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Meloman",
+    "slug": "meloman",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "meloman",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "bg.meloman.app"
+    },
+    "android": {
+      "package": "bg.meloman.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 96
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "apiBaseUrl": "http://192.168.1.3:3000",
+      "router": {},
+      "eas": {
+        "projectId": "e68cca39-d69e-40b7-9653-11a21e38faca"
+      }
+    },
+    "owner": "adibonevs-organization"
+  }
+}

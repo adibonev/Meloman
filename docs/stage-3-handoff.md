@@ -106,7 +106,7 @@ Polish:
 
 - TV-friendly layout refinement.
 - Mobile viewport QA.
-- Animation polish (Framer Motion for reveal / podium / between-rounds slide).
+- ~~Animation polish (Framer Motion for reveal / podium / between-rounds slide).~~ DONE 2026-05-16: podium columns rise bronze→silver→gold, between-rounds rows stagger in, correct-answer banner pops on reveal (`reveal-banner.tsx`).
 - Drop the legacy `teams.is_finalist` and `quizzes.final_round_top_n` columns once the per-round model has soaked.
 
 ## Known Product Decisions

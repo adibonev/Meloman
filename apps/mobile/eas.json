@@ -14,7 +14,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://meloman.vercel.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://meloman-web.vercel.app"
       }
     },
     "production": {
@@ -22,7 +22,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://meloman.vercel.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://meloman-web.vercel.app"
       }
     }
   },

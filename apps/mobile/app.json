@@ -44,7 +44,7 @@
       "reactCompiler": true
     },
     "extra": {
-      "apiBaseUrl": "http://192.168.1.3:3000",
+      "apiBaseUrl": "https://meloman-web.vercel.app",
       "router": {},
       "eas": {
         "projectId": "e68cca39-d69e-40b7-9653-11a21e38faca"

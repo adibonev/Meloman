@@ -35,6 +35,27 @@ export async function createQuizWithRound(
   return page.url();
 }
 
+/** Add one multiple-choice question from a round detail URL; leaves the
+ *  page back on the round detail. */
+export async function addMcQuestion(
+  page: Page,
+  roundUrl: string,
+  questionText: string
+) {
+  await openQuestionForm(page, roundUrl, "Multiple Choice");
+  await page.getByLabel("Question text").fill(questionText);
+  await page.getByLabel("Option A").fill("Right");
+  await page.getByLabel("Option B").fill("Wrong 1");
+  await page.getByLabel("Option C").fill("Wrong 2");
+  await page.getByLabel("Option D").fill("Wrong 3");
+  await page.locator('input[name="correctIndex"][value="0"]').check();
+  await page.getByLabel("Time limit (seconds)").fill("20");
+  await page.getByLabel("Points for correct answer").fill("1");
+  await page.getByRole("button", { name: "Create question" }).click();
+  await expect(page).toHaveURL(/\/rounds\/[0-9a-f-]+$/);
+  await expect(page.getByText(questionText)).toBeVisible();
+}
+
 /** Publish the given quiz (must be opened from its detail page). */
 export async function publishQuiz(page: Page, quizTitle: string) {
   await page.goto("/en/admin/quizzes");

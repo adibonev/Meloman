@@ -75,10 +75,17 @@ validation + R2 multipart media upload).
 | GET | `/api/spotify/search?q=` | admin | Spotify track metadata autofill |
 | GET | `/api/wikipedia/search?q=` | admin | Wikipedia artist bio/image autofill |
 
-## Planned (Phase 2–3)
+## Stories & Daily
 
-Stories (`GET/POST /api/stories`, `GET/PATCH /api/stories/[slug]`), Daily
-(`GET /api/daily/today`, `POST /api/daily/song/answer`,
-`POST /api/daily/mystery/guess`), Progress (`GET /api/users/me/progress`),
-Admin users (`POST /api/admin/users/[id]/ban`,
-`POST /api/admin/users/[id]/role`), `POST /api/admin/upload`.
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/stories` | — | List published stories |
+| POST | `/api/stories` | admin | Create a story draft |
+| GET | `/api/stories/[slug]` | — | Story detail (bumps view_count) |
+| PATCH | `/api/stories/[slug]` | admin | Update + publish/unpublish |
+| GET | `/api/daily/today` | — | Today's Song of the Day / Mystery Artist |
+| GET | `/api/users/me/progress` | user | Streak, XP and earned badges |
+
+Admin user management (ban / role) and daily content management run as
+Server Actions (`/admin/users`, `/admin/daily`), not REST, because they are
+admin-UI-only and never consumed by the mobile client.

@@ -113,8 +113,51 @@ Anti-cheat: `UNIQUE(team_id, device_fingerprint)` on `team_members`;
 `UNIQUE(team_id, question_id)` on `answers` (one answer per team per
 question).
 
-## Planned (Phase 2)
+## Editorial & engagement tables (migrations 0009–0010)
 
-`stories`, `daily_content`, `user_progress`, `badges`, `user_badges` —
-added with migrations when the Stories/Daily features land. This document
-is updated then (per CLAUDE.md §8.10: keep docs honest).
+Shipped — 15 tables total.
+
+```mermaid
+erDiagram
+    users ||--o{ stories : authors
+    users ||--o{ user_progress : tracks
+    users ||--o{ user_badges : earns
+    badges ||--o{ user_badges : awarded
+    stories {
+        uuid id PK
+        uuid author_id FK
+        varchar slug UK
+        text title
+        text body "TipTap/HTML"
+        varchar artist_name
+        int view_count
+        timestamptz published_at "null = draft"
+    }
+    daily_content {
+        uuid id PK
+        date content_date UK
+        enum content_type "song_of_day|mystery_artist"
+        jsonb payload
+    }
+    user_progress {
+        uuid user_id FK
+        date date
+        int daily_xp
+        int streak_count_at_day
+    }
+    badges {
+        uuid id PK
+        varchar slug UK
+        text name
+        jsonb criteria
+    }
+    user_badges {
+        uuid user_id FK
+        uuid badge_id FK
+        timestamptz earned_at
+    }
+```
+
+`user_progress` PK is `(user_id, date)`; `user_badges` PK is
+`(user_id, badge_id)`. `users.banned_at` (migration 0010) gates the user
+management panel.

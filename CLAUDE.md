@@ -1211,22 +1211,26 @@ Friend is providing seed content. Status:
 
 ## 16. Current project status
 
-**As of 2026-05-05:**
-- ✅ Sprint 1 foundation is implemented: monorepo, web app, Auth.js, i18n, protected routes, README/AGENTS docs.
-- ✅ Sprint 2 quiz builder foundation is implemented: quizzes, rounds, six question types, R2 upload helpers, Spotify/Wikipedia helpers.
-- ✅ Sprint 3 live quiz foundation is in progress: sessions, teams, team members, answer submission, grading, Pusher helpers, host/player lobby, timer, auto reveal, Jest coverage.
-- ✅ CI is configured for web lint, typecheck, Jest, and build.
-- ✅ Repository structure, testing strategy, live quiz test plan, and Claude handoff docs are in `docs/`.
-- ⏳ Sprint 3 still needs fullscreen host presentation, leaderboard, answer override panel, pause/resume, podium, and final round logic.
-- ⏳ Sprint 4 mobile app and daily engagement features are not started.
+**As of 2026-05-16 (capstone submission state):**
+- ✅ Sprints 1–3 complete: monorepo, Auth.js, i18n, quiz builder with six
+  question types, full live quiz engine (fullscreen host presentation,
+  server-authoritative timer, grading + host override, pause/resume,
+  per-round elimination, between-rounds leaderboard, podium).
+- ✅ REST API surface: 30+ JSON endpoints with cookie + bearer auth guards.
+- ✅ Stories + Daily: 15 DB tables, public magazine screens, profile.
+- ✅ Admin: quizzes, sponsors, user management, stories editor, daily
+  manager, analytics.
+- ✅ Mobile: Expo SDK 55 app, 7 screens, Android APK via EAS.
+- ✅ Deployed: https://meloman-web.vercel.app + seeded real content.
+- ✅ Docs: README (architecture + demo creds), `docs/api.md`,
+  `docs/database-schema.md`, CI green.
 
-**Next milestone:** Continue Sprint 3 with fullscreen host presentation while preserving the existing playable host/player lobby flow.
+**Remaining (Phase 6 / 7):** Loom walkthrough (owner-recorded), optional
+restore of deliberately deferred items in `docs/backlog.md` (TipTap editor,
+NativeWind, QR scan, password reset, Framer Motion polish).
 
-Before continuing Stage 3:
-1. Read `docs/stage-3-handoff.md`.
-2. Read `docs/repository-structure.md`.
-3. Read `docs/testing-strategy.md`.
-4. Run the quality gates after substantial changes.
+Deferred-by-design trade-offs for the deadline are logged honestly in
+`docs/backlog.md` and `docs/final-10-day-plan.md`.
 
 ---
 

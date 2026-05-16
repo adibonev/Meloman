@@ -104,13 +104,20 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg, padding: spacing.lg },
+  screen: {
+    flex: 1,
+    backgroundColor: colors.bg,
+    padding: spacing.lg,
+    paddingBottom: 120,
+  },
   center: {
     flex: 1,
     backgroundColor: colors.bg,
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.md,
+    padding: spacing.lg,
+    paddingBottom: 120,
   },
   h1: { color: colors.fg, fontSize: 32, fontWeight: "900" },
   h2: {
@@ -125,7 +132,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
+    borderLeftColor: colors.accent,
+    borderLeftWidth: 3,
     borderRadius: 12,
     padding: spacing.md,
     alignItems: "center",
@@ -134,18 +143,18 @@ const styles = StyleSheet.create({
   muted: { color: colors.muted, fontSize: 14 },
   badge: { color: colors.fg, fontSize: 15, marginTop: 4 },
   btn: {
-    backgroundColor: colors.fg,
-    paddingVertical: 12,
+    backgroundColor: colors.accent,
+    paddingVertical: 14,
     paddingHorizontal: spacing.lg,
-    borderRadius: 12,
+    borderRadius: 14,
   },
-  btnText: { color: colors.bg, fontWeight: "700" },
+  btnText: { color: colors.bg, fontWeight: "800" },
   signOut: {
     marginTop: spacing.xl,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: 12,
-    borderRadius: 12,
+    borderColor: colors.borderStrong,
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
   },
   signOutText: { color: colors.fg, fontWeight: "600" },

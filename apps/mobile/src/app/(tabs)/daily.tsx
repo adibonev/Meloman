@@ -34,9 +34,9 @@ export default function DailyScreen() {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={{ padding: spacing.lg }}
+      contentContainerStyle={{ padding: spacing.lg, paddingBottom: 120 }}
     >
-      <Text style={styles.h1}>Музика за деня</Text>
+      <Text style={styles.h1}>Песен на деня</Text>
       {error ? (
         <Text style={styles.error}>{error}</Text>
       ) : !data ? (
@@ -73,8 +73,9 @@ const styles = StyleSheet.create({
   },
   h1: { color: colors.fg, fontSize: 32, fontWeight: "900", marginBottom: spacing.lg },
   kicker: {
-    color: colors.dim,
+    color: colors.accent,
     fontSize: 12,
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 2,
   },
@@ -89,7 +90,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
+    borderLeftColor: colors.accent,
+    borderLeftWidth: 3,
     borderRadius: 12,
     padding: spacing.md,
   },

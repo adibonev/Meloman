@@ -45,7 +45,7 @@ export default function StoriesScreen() {
       style={styles.list}
       data={stories}
       keyExtractor={(s) => s.slug}
-      contentContainerStyle={{ padding: spacing.md }}
+      contentContainerStyle={{ padding: spacing.md, paddingBottom: 120 }}
       ListEmptyComponent={
         <Text style={styles.empty}>Все още няма публикувани истории.</Text>
       }
@@ -80,7 +80,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
+    borderLeftColor: colors.accent,
+    borderLeftWidth: 3,
     borderRadius: 12,
     padding: spacing.md,
     marginBottom: spacing.md,

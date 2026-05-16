@@ -35,6 +35,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.screen}>
+      <Text style={styles.kicker}>Меломан</Text>
       <Text style={styles.h1}>Вход</Text>
       <TextInput
         value={email}
@@ -72,27 +73,35 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     justifyContent: "center",
   },
+  kicker: {
+    color: colors.accent,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    marginBottom: spacing.sm,
+  },
   h1: {
     color: colors.fg,
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: "900",
     marginBottom: spacing.lg,
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
     borderRadius: 12,
-    padding: 14,
+    padding: 15,
     color: colors.fg,
     fontSize: 16,
     marginBottom: spacing.md,
   },
   btn: {
-    backgroundColor: colors.fg,
-    paddingVertical: 14,
-    borderRadius: 12,
+    backgroundColor: colors.accent,
+    paddingVertical: 16,
+    borderRadius: 14,
     alignItems: "center",
   },
-  btnText: { color: colors.bg, fontWeight: "700", fontSize: 16 },
+  btnText: { color: colors.bg, fontWeight: "800", fontSize: 16 },
   error: { color: colors.danger, marginTop: spacing.md, textAlign: "center" },
 });

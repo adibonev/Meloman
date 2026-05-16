@@ -1,5 +1,9 @@
 {
   "name": "@meloman/shared",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "exports": {
+    "./design-tokens": "./design-tokens.ts",
+    "./badges-icons": "./badges-icons.ts"
+  }
 }

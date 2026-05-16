@@ -4,11 +4,13 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "./client";
 import {
+  badges,
   dailyContent,
   questions,
   quizzes,
   rounds,
   stories,
+  userBadges,
   users,
 } from "./schema";
 import { uploadToR2 } from "./r2-seed";
@@ -93,6 +95,92 @@ const SEED_STORIES = [
       "„Дори и да не ме харесват, дори и да ме мразят, хората знаят какво се случва с мен, защото аз съм навсякъде.“ Честит рожден ден, Васил Боянов — Азис."
     ),
   },
+];
+
+// Badge catalog. Icons + rarity live in packages/shared/badges-icons.ts
+// (slug is the single source of truth shared with the UI). Criteria is the
+// auto-detection rule for a future awarding engine — informational for now.
+const SEED_BADGES: {
+  slug: string;
+  name: string;
+  description: string;
+  criteria: Record<string, unknown>;
+}[] = [
+  // STREAK
+  { slug: "meloman-novice", name: "Меломан Novice", description: "7 поредни дни активност", criteria: { type: "streak", days: 7 } },
+  { slug: "meloman-apprentice", name: "Меломан Чирак", description: "14 поредни дни активност", criteria: { type: "streak", days: 14 } },
+  { slug: "consistent", name: "Постоянство", description: "21 поредни дни активност", criteria: { type: "streak", days: 21 } },
+  { slug: "vinyl-veteran", name: "Винил Ветеран", description: "30 поредни дни активност", criteria: { type: "streak", days: 30 } },
+  { slug: "lifer", name: "Меломан за цял живот", description: "100 поредни дни активност", criteria: { type: "streak", days: 100 } },
+  { slug: "legend", name: "Легенда", description: "365 поредни дни активност", criteria: { type: "streak", days: 365 } },
+  { slug: "cold-save", name: "Спасен с лед", description: "Използвай Streak Freeze", criteria: { type: "streak_freeze", count: 1 } },
+  // DAILY
+  { slug: "morning-bird", name: "Ранно пиле", description: "Реши Песен на деня преди 9:00", criteria: { type: "daily_time", before: "09:00" } },
+  { slug: "night-owl", name: "Нощна птица", description: "Реши Песен на деня след 22:00", criteria: { type: "daily_time", after: "22:00" } },
+  { slug: "listener", name: "Слушател", description: "Чуй 10 Песни на деня", criteria: { type: "daily_count", songs: 10 } },
+  { slug: "meloman", name: "Истински меломан", description: "50 дни с дневно съдържание", criteria: { type: "daily_count", days: 50 } },
+  { slug: "first-guess", name: "От раз", description: "Познай Песен на деня от първи опит", criteria: { type: "first_try" } },
+  { slug: "quick-mind", name: "Бърз ум", description: "Познай за под 10 секунди", criteria: { type: "daily_speed", seconds: 10 } },
+  { slug: "perfect-week", name: "Перфектна седмица", description: "7 верни поредни дни", criteria: { type: "daily_perfect", days: 7 } },
+  // LIVE QUIZ
+  { slug: "first-concert", name: "Първи концерт", description: "Изиграй първия си куиз на живо", criteria: { type: "quiz_played", count: 1 } },
+  { slug: "regular", name: "Редовен", description: "Изиграй 10 куиза на живо", criteria: { type: "quiz_played", count: 10 } },
+  { slug: "bronze", name: "Бронз", description: "Завърши 3-ти на куиз", criteria: { type: "quiz_place", place: 3 } },
+  { slug: "silver", name: "Сребро", description: "Завърши 2-ри на куиз", criteria: { type: "quiz_place", place: 2 } },
+  { slug: "champion", name: "Шампион", description: "Спечели куиз на живо", criteria: { type: "quiz_place", place: 1 } },
+  { slug: "snap-submit", name: "Светкавица", description: "Верен отговор за под 3 секунди", criteria: { type: "answer_speed", seconds: 3 } },
+  { slug: "captain", name: "Капитан", description: "Бъди капитан на отбор", criteria: { type: "captain" } },
+  { slug: "vidin-champion", name: "Шампион на Видин", description: "Топ 3 на събитие във Видин", criteria: { type: "local", city: "Vidin", place: 3 } },
+  { slug: "tour", name: "Турне", description: "Играй на 3 различни събития", criteria: { type: "events", count: 3 } },
+  { slug: "perfect-game", name: "Перфектна игра", description: "Всички въпроси верни в куиз", criteria: { type: "quiz_perfect" } },
+  // GENRES
+  { slug: "rock-encyclopedia", name: "Рок енциклопедия", description: "20 верни рок въпроса", criteria: { type: "genre", genre: "rock", correct: 20 } },
+  { slug: "pop-star", name: "Поп звезда", description: "20 верни поп въпроса", criteria: { type: "genre", genre: "pop", correct: 20 } },
+  { slug: "classic", name: "Класика", description: "20 верни класически въпроса", criteria: { type: "genre", genre: "classical", correct: 20 } },
+  { slug: "metal-head", name: "Метъл глава", description: "20 верни метъл въпроса", criteria: { type: "genre", genre: "metal", correct: 20 } },
+  { slug: "jazz-cat", name: "Джаз котка", description: "20 верни джаз въпроса", criteria: { type: "genre", genre: "jazz", correct: 20 } },
+  { slug: "bulgarian", name: "Българска вълна", description: "30 верни български въпроса", criteria: { type: "genre", genre: "bg", correct: 30 } },
+  { slug: "globetrotter", name: "Световен пътешественик", description: "Верни въпроси от 5 държави", criteria: { type: "countries", count: 5 } },
+  { slug: "retro-soul", name: "Ретро душа", description: "20 верни соул/фънк въпроса", criteria: { type: "genre", genre: "soul", correct: 20 } },
+  { slug: "80s-kid", name: "Дете на 80-те", description: "20 верни въпроса от 80-те", criteria: { type: "decade", decade: 1980, correct: 20 } },
+  { slug: "90s-nostalgia", name: "90-те носталгия", description: "20 верни въпроса от 90-те", criteria: { type: "decade", decade: 1990, correct: 20 } },
+  // READER
+  { slug: "curious", name: "Любопитен", description: "Прочети първата си история", criteria: { type: "stories_read", count: 1 } },
+  { slug: "bookworm", name: "Книжен плъх", description: "Прочети 10 истории", criteria: { type: "stories_read", count: 10 } },
+  { slug: "scholar", name: "Учен", description: "Прочети 30 истории", criteria: { type: "stories_read", count: 30 } },
+  { slug: "explorer", name: "Изследовател", description: "Разгледай 5 артист страници", criteria: { type: "artists_viewed", count: 5 } },
+  { slug: "deep-read", name: "Задълбочен", description: "Прочети история до края", criteria: { type: "story_complete" } },
+  // SPECIAL
+  { slug: "first-steps", name: "Първи стъпки", description: "Завърши регистрацията си", criteria: { type: "onboarding" } },
+  { slug: "welcome-pack", name: "Добре дошъл", description: "Първи ден в Меломан", criteria: { type: "first_day" } },
+  { slug: "lucky", name: "Късметлия", description: "Познай само с едно налучкване", criteria: { type: "lucky_guess" } },
+  { slug: "sniper", name: "Снайперист", description: "10 поредни верни отговора", criteria: { type: "streak_correct", count: 10 } },
+  { slug: "champion-week", name: "Седмичен шампион", description: "Топ 3 в седмичната класация", criteria: { type: "weekly_leaderboard", place: 3 } },
+  { slug: "founders", name: "Основатели", description: "Един от първите 100 потребители", criteria: { type: "early_user", max: 100 } },
+  { slug: "birthday", name: "Рожден ден", description: "Влез на рождения си ден", criteria: { type: "birthday" } },
+  { slug: "bulgarian-pro", name: "Българска класа", description: "100 верни български въпроса", criteria: { type: "genre", genre: "bg", correct: 100 } },
+  // SOCIAL
+  { slug: "social", name: "Социален", description: "Покани приятел", criteria: { type: "invite", count: 1 } },
+  { slug: "promoter", name: "Промоутър", description: "Покани 5 приятели", criteria: { type: "invite", count: 5 } },
+  { slug: "share", name: "Споделил", description: "Сподели Wrapped карта", criteria: { type: "share" } },
+  { slug: "team-player", name: "Отборен играч", description: "Играй в 5 различни отбора", criteria: { type: "teams", count: 5 } },
+  // TOTAL XP
+  { slug: "xp-1k", name: "1 000 точки", description: "Събери 1 000 XP", criteria: { type: "xp", amount: 1000 } },
+  { slug: "xp-5k", name: "5 000 точки", description: "Събери 5 000 XP", criteria: { type: "xp", amount: 5000 } },
+  { slug: "xp-10k", name: "10 000 точки", description: "Събери 10 000 XP", criteria: { type: "xp", amount: 10000 } },
+  { slug: "semi-collector", name: "Полу-колекционер", description: "Отключи 15 значки", criteria: { type: "badges", count: 15 } },
+  { slug: "collector", name: "Колекционер", description: "Отключи 30 значки", criteria: { type: "badges", count: 30 } },
+  { slug: "immortal", name: "Безсмъртен", description: "Отключи всички значки", criteria: { type: "badges", all: true } },
+];
+
+// Awarded to the demo player so /profile shows both states (clear + locked).
+const DEMO_AWARDED_BADGES = [
+  "meloman-novice",
+  "first-concert",
+  "curious",
+  "first-steps",
+  "welcome-pack",
+  "xp-1k",
 ];
 
 async function seedUsers() {
@@ -345,6 +433,52 @@ async function seedDaily() {
   console.log(`  ✓ song_of_day (${today}), mystery_artist (${tomorrow})`);
 }
 
+async function seedBadges() {
+  console.log("\nSeeding badges...");
+  for (const b of SEED_BADGES) {
+    await db
+      .insert(badges)
+      .values({
+        slug: b.slug,
+        name: b.name,
+        description: b.description,
+        criteria: b.criteria,
+      })
+      .onConflictDoUpdate({
+        target: badges.slug,
+        set: {
+          name: b.name,
+          description: b.description,
+          criteria: b.criteria,
+        },
+      });
+  }
+  console.log(`  ✓ ${SEED_BADGES.length} badges`);
+
+  const [player] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, "player@meloman.bg"))
+    .limit(1);
+  if (!player) return;
+
+  for (const slug of DEMO_AWARDED_BADGES) {
+    const [badge] = await db
+      .select({ id: badges.id })
+      .from(badges)
+      .where(eq(badges.slug, slug))
+      .limit(1);
+    if (!badge) continue;
+    await db
+      .insert(userBadges)
+      .values({ userId: player.id, badgeId: badge.id })
+      .onConflictDoNothing();
+  }
+  console.log(
+    `  ✓ awarded ${DEMO_AWARDED_BADGES.length} badges to demo player`
+  );
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not set. Check .env.local at repo root.");
@@ -355,6 +489,7 @@ async function main() {
   await seedStories(adminId);
   await seedDemoQuiz(adminId);
   await seedDaily();
+  await seedBadges();
 
   console.log(`\nDone. Password for seeded accounts: ${SEED_PASSWORD}`);
   process.exit(0);

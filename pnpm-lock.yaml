@@ -123,6 +123,9 @@ importers:
       '@meloman/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@meloman/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@neondatabase/serverless':
         specifier: ^0.10.4
         version: 0.10.4

@@ -8,7 +8,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@meloman/db"],
+  transpilePackages: ["@meloman/db", "@meloman/shared"],
   // Pin Turbopack's workspace root to the monorepo, so it ignores the
   // unrelated `package-lock.json` sitting in the user's home folder.
   turbopack: {

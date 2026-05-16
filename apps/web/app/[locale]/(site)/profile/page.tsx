@@ -5,6 +5,8 @@ import { badges, userBadges, userProgress } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { BadgeIcon } from "@/components/badge";
+import { cn } from "@/lib/utils";
 
 export default async function ProfilePage({
   params,
@@ -47,18 +49,21 @@ export default async function ProfilePage({
     .orderBy(desc(userProgress.date))
     .limit(1);
 
-  const earned = await db
+  const allBadges = await db
     .select({
       slug: badges.slug,
       name: badges.name,
       description: badges.description,
-      iconUrl: badges.iconUrl,
-      earnedAt: userBadges.earnedAt,
     })
+    .from(badges)
+    .orderBy(badges.createdAt);
+
+  const earnedRows = await db
+    .select({ slug: badges.slug })
     .from(userBadges)
     .innerJoin(badges, eq(userBadges.badgeId, badges.id))
-    .where(eq(userBadges.userId, userId))
-    .orderBy(desc(userBadges.earnedAt));
+    .where(eq(userBadges.userId, userId));
+  const earnedSlugs = new Set(earnedRows.map((r) => r.slug));
 
   const totalXp = Number(xpRow?.totalXp ?? 0);
   const streak = streakRow?.streak ?? 0;
@@ -96,31 +101,44 @@ export default async function ProfilePage({
         <h2 className="font-heading text-2xl font-black uppercase">
           {t("badges")}
         </h2>
-        {earned.length === 0 ? (
+        {allBadges.length === 0 ? (
           <p className="mt-4 text-muted-foreground">{t("noBadges")}</p>
         ) : (
           <ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {earned.map((b) => (
-              <li
-                key={b.slug}
-                className="rounded-lg border border-border p-4 text-center"
-              >
-                {b.iconUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={b.iconUrl}
-                    alt=""
-                    className="mx-auto mb-2 h-12 w-12"
+            {allBadges.map((b) => {
+              const unlocked = earnedSlugs.has(b.slug);
+              return (
+                <li
+                  key={b.slug}
+                  className={cn(
+                    "flex flex-col items-center rounded-lg border border-border p-4 text-center transition-all",
+                    unlocked
+                      ? "border-l-2 border-l-primary bg-card"
+                      : "bg-card/40",
+                  )}
+                >
+                  <BadgeIcon
+                    slug={b.slug}
+                    unlocked={unlocked}
+                    size="lg"
+                    description={b.description ?? undefined}
                   />
-                )}
-                <p className="font-medium">{b.name}</p>
-                {b.description && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {b.description}
+                  <p
+                    className={cn(
+                      "mt-3 font-medium",
+                      !unlocked && "text-muted-foreground",
+                    )}
+                  >
+                    {b.name}
                   </p>
-                )}
-              </li>
-            ))}
+                  {b.description && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {b.description}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

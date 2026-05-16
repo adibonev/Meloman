@@ -20,6 +20,7 @@
     "@base-ui/react": "^1.4.1",
     "@hookform/resolvers": "^5.2.2",
     "@meloman/db": "workspace:*",
+    "@meloman/shared": "workspace:*",
     "@neondatabase/serverless": "^0.10.4",
     "@tailwindcss/postcss": "^4.2.4",
     "bcryptjs": "^3.0.3",

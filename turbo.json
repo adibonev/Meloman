@@ -1,6 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["DATABASE_URL", "AUTH_SECRET", "NODE_ENV"],
+  "globalEnv": [
+    "DATABASE_URL",
+    "AUTH_SECRET",
+    "AUTH_TRUST_HOST",
+    "NODE_ENV",
+    "R2_ACCOUNT_ID",
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "R2_BUCKET_NAME",
+    "PUSHER_APP_ID",
+    "PUSHER_KEY",
+    "PUSHER_SECRET",
+    "PUSHER_CLUSTER",
+    "NEXT_PUBLIC_PUSHER_KEY",
+    "NEXT_PUBLIC_PUSHER_CLUSTER",
+    "SPOTIFY_CLIENT_ID",
+    "SPOTIFY_CLIENT_SECRET"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

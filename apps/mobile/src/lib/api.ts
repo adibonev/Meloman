@@ -122,3 +122,118 @@ export function getSession(code: string) {
     { auth: true }
   );
 }
+
+// --- Live quiz (native player) ---
+
+export type PlayTeam = {
+  id: string;
+  name: string;
+  color: string;
+  avatarEmoji: string;
+  totalScore: number;
+  isActive: boolean;
+};
+
+export type PlayQuestion = {
+  id: string;
+  questionType:
+    | "multiple_choice"
+    | "open_text"
+    | "audio"
+    | "image_reveal"
+    | "lyric_blank"
+    | "decade";
+  questionText: string;
+  options: string[];
+  maxPoints: number;
+  timeLimitSeconds: number;
+  blankCount: number;
+  signedImageUrl: string | null;
+  mediaBlurPx: number | null;
+  mediaAttribution: string | null;
+  correctAnswerLabel: string | null;
+};
+
+export type PlayState = {
+  status:
+    | "lobby"
+    | "active"
+    | "reveal"
+    | "between_rounds"
+    | "paused"
+    | "finished";
+  serverNowMs: number;
+  timerEndsAtMs: number | null;
+  joinable: boolean;
+  myTeam: {
+    id: string;
+    name: string;
+    color: string;
+    avatarEmoji: string;
+    isCaptain: boolean;
+  } | null;
+  teams: PlayTeam[];
+  members: { id: string; name: string; isCaptain: boolean; isYou: boolean }[];
+  question: PlayQuestion | null;
+  hasSubmitted: boolean;
+  teamResult: {
+    isCorrect: boolean;
+    pointsAwarded: number;
+    submittedAnswer: unknown;
+  } | null;
+  isEliminated: boolean;
+  cutoffApplied: boolean;
+};
+
+export function getPlayState(code: string) {
+  return request<PlayState>(
+    `/api/sessions/${encodeURIComponent(code)}/play`,
+    { auth: true }
+  );
+}
+
+export function createTeam(
+  code: string,
+  name: string,
+  deviceFingerprint: string
+) {
+  return request<{ ok: true; teamId: string }>(
+    `/api/sessions/${encodeURIComponent(code)}/teams`,
+    {
+      method: "POST",
+      auth: true,
+      body: { action: "create", name, deviceFingerprint },
+    }
+  );
+}
+
+export function joinTeam(
+  code: string,
+  teamId: string,
+  deviceFingerprint: string
+) {
+  return request<{ ok: true; teamId: string }>(
+    `/api/sessions/${encodeURIComponent(code)}/teams`,
+    {
+      method: "POST",
+      auth: true,
+      body: { action: "join", teamId, deviceFingerprint },
+    }
+  );
+}
+
+// Payload mirrors the server's submitAnswerSchema discriminated union.
+export type SubmitAnswerPayload =
+  | { questionType: "multiple_choice"; optionIndex: number }
+  | { questionType: "open_text"; textAnswer: string }
+  | { questionType: "audio"; textAnswer: string }
+  | { questionType: "image_reveal"; textAnswer: string }
+  | { questionType: "lyric_blank"; lyricAnswers: string[] }
+  | { questionType: "decade"; decade: number; year: number };
+
+export function submitAnswer(code: string, payload: SubmitAnswerPayload) {
+  return request<{ ok: true }>(
+    `/api/sessions/${encodeURIComponent(code)}/answer`,
+    { method: "POST", auth: true, body: payload }
+  );
+}

@@ -7,7 +7,7 @@
 // session on web, bearer token on mobile), never touch FormData, and never
 // redirect — they return typed results so each caller can respond in its
 // own way (redirect vs JSON).
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@meloman/db";
 import {
   answers,
@@ -16,8 +16,10 @@ import {
   quizzes,
   teamMembers,
   teams,
+  users,
 } from "@meloman/db/schema";
 import { gradeAnswer } from "@/lib/live-quiz/grading";
+import { getDownloadUrl } from "@/lib/r2";
 import { broadcast, PUSHER_EVENTS, quizChannel } from "@/lib/pusher-server";
 import {
   TEAM_COLORS,
@@ -338,4 +340,318 @@ export async function submitTeamAnswer(
   });
 
   return { ok: true };
+}
+
+// --- Player state (read) — powers the mobile lobby/poll loop ---
+
+function getStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function getCorrectAnswerLabel(
+  questionType: string,
+  correctAnswer: unknown,
+  options: string[]
+): string | null {
+  if (questionType === "multiple_choice" && typeof correctAnswer === "number") {
+    return options[correctAnswer] ?? null;
+  }
+  if (typeof correctAnswer === "string") return correctAnswer;
+  if (typeof correctAnswer === "number") return String(correctAnswer);
+  if (Array.isArray(correctAnswer)) {
+    return correctAnswer
+      .filter(
+        (item): item is string | number =>
+          typeof item === "string" || typeof item === "number"
+      )
+      .map(String)
+      .join(", ");
+  }
+  return null;
+}
+
+function getBlankCount(questionType: string, correctAnswer: unknown): number {
+  if (questionType !== "lyric_blank") return 0;
+  return Math.max(1, getStringArray(correctAnswer).length);
+}
+
+function getMaxPoints(
+  questionType: string,
+  pointsBase: number,
+  correctAnswer: unknown
+): number {
+  if (questionType === "lyric_blank") {
+    return getBlankCount(questionType, correctAnswer) * pointsBase;
+  }
+  if (questionType === "decade") return pointsBase * 3;
+  return pointsBase;
+}
+
+export type PlayStateResult =
+  | { errorKey: "sessionNotFound" }
+  | {
+      ok: true;
+      status: string;
+      serverNowMs: number;
+      timerEndsAtMs: number | null;
+      joinable: boolean;
+      myTeam: {
+        id: string;
+        name: string;
+        color: string;
+        avatarEmoji: string;
+        isCaptain: boolean;
+      } | null;
+      teams: {
+        id: string;
+        name: string;
+        color: string;
+        avatarEmoji: string;
+        totalScore: number;
+        isActive: boolean;
+      }[];
+      members: {
+        id: string;
+        name: string;
+        isCaptain: boolean;
+        isYou: boolean;
+      }[];
+      question: {
+        id: string;
+        questionType: string;
+        questionText: string;
+        options: string[];
+        maxPoints: number;
+        timeLimitSeconds: number;
+        blankCount: number;
+        signedImageUrl: string | null;
+        mediaBlurPx: number | null;
+        mediaAttribution: string | null;
+        correctAnswerLabel: string | null;
+      } | null;
+      hasSubmitted: boolean;
+      teamResult: {
+        isCorrect: boolean;
+        pointsAwarded: number;
+        submittedAnswer: unknown;
+      } | null;
+      isEliminated: boolean;
+      cutoffApplied: boolean;
+    };
+
+/**
+ * Everything a player phone needs in one read — used by the mobile poll
+ * loop (no Pusher client in RN). Mirrors the web lobby page's shaping but
+ * is hardened for an API surface: the correct answer and the team's
+ * correctness/points are withheld until the host reveals (a player must
+ * not be able to read them out of the JSON during `active`).
+ */
+export async function getPlayState(
+  userId: string,
+  code: string
+): Promise<PlayStateResult> {
+  const upperCode = code.toUpperCase();
+
+  const [sessionRow] = await db
+    .select({
+      id: gameSessions.id,
+      status: gameSessions.status,
+      currentQuestionId: gameSessions.currentQuestionId,
+      questionEndsAt: gameSessions.questionEndsAt,
+    })
+    .from(gameSessions)
+    .where(eq(gameSessions.joinCode, upperCode))
+    .limit(1);
+
+  if (!sessionRow) return { errorKey: "sessionNotFound" };
+
+  const serverNowMs = Date.now();
+  const revealed =
+    sessionRow.status === "reveal" ||
+    sessionRow.status === "between_rounds" ||
+    sessionRow.status === "finished";
+
+  const sessionTeams = await db
+    .select({
+      id: teams.id,
+      name: teams.name,
+      color: teams.color,
+      avatarEmoji: teams.avatarEmoji,
+      captainUserId: teams.captainUserId,
+      totalScore: teams.totalScore,
+      isActive: teams.isActive,
+    })
+    .from(teams)
+    .where(eq(teams.sessionId, sessionRow.id));
+
+  const [myMembership] =
+    sessionTeams.length > 0
+      ? await db
+          .select({ teamId: teamMembers.teamId })
+          .from(teamMembers)
+          .where(
+            and(
+              eq(teamMembers.userId, userId),
+              inArray(
+                teamMembers.teamId,
+                sessionTeams.map((t) => t.id)
+              )
+            )
+          )
+          .limit(1)
+      : [];
+
+  const myTeam = myMembership
+    ? (sessionTeams.find((t) => t.id === myMembership.teamId) ?? null)
+    : null;
+
+  const leaderboard = sessionTeams
+    .map((t) => ({
+      id: t.id,
+      name: t.name,
+      color: t.color,
+      avatarEmoji: t.avatarEmoji,
+      totalScore: t.totalScore,
+      isActive: t.isActive,
+    }))
+    .sort((a, b) => b.totalScore - a.totalScore);
+
+  let members: {
+    id: string;
+    name: string;
+    isCaptain: boolean;
+    isYou: boolean;
+  }[] = [];
+  if (myTeam) {
+    const rows = await db
+      .select({
+        id: teamMembers.id,
+        userId: teamMembers.userId,
+        anonymousName: teamMembers.anonymousName,
+        displayName: users.displayName,
+      })
+      .from(teamMembers)
+      .leftJoin(users, eq(users.id, teamMembers.userId))
+      .where(eq(teamMembers.teamId, myTeam.id))
+      .orderBy(asc(teamMembers.joinedAt));
+    members = rows.map((m) => ({
+      id: m.id,
+      name: m.displayName ?? m.anonymousName ?? "Player",
+      isCaptain: m.userId === myTeam.captainUserId,
+      isYou: m.userId === userId,
+    }));
+  }
+
+  let question: Extract<
+    PlayStateResult,
+    { ok: true }
+  >["question"] = null;
+  let hasSubmitted = false;
+  let teamResult: Extract<
+    PlayStateResult,
+    { ok: true }
+  >["teamResult"] = null;
+
+  if (sessionRow.currentQuestionId) {
+    const [q] = await db
+      .select({
+        id: questions.id,
+        questionType: questions.questionType,
+        questionText: questions.questionText,
+        options: questions.options,
+        correctAnswer: questions.correctAnswer,
+        pointsBase: questions.pointsBase,
+        timeLimitSeconds: questions.timeLimitSeconds,
+        mediaUrl: questions.mediaUrl,
+        mediaAttribution: questions.mediaAttribution,
+        mediaBlurPx: questions.mediaBlurPx,
+      })
+      .from(questions)
+      .where(eq(questions.id, sessionRow.currentQuestionId))
+      .limit(1);
+
+    if (q) {
+      const options = getStringArray(q.options);
+      // Audio is never streamed to phones (CLAUDE.md §4.9 — plays on the
+      // venue PA only). Image-reveal gets a signed URL so the phone shows
+      // the same blurred photo as the TV.
+      let signedImageUrl: string | null = null;
+      if (q.questionType === "image_reveal" && q.mediaUrl) {
+        try {
+          signedImageUrl = await getDownloadUrl(q.mediaUrl);
+        } catch (err) {
+          console.error("R2 image signed URL failed (play api):", err);
+        }
+      }
+      question = {
+        id: q.id,
+        questionType: q.questionType,
+        questionText: q.questionText,
+        options,
+        maxPoints: getMaxPoints(
+          q.questionType,
+          q.pointsBase,
+          q.correctAnswer
+        ),
+        timeLimitSeconds: q.timeLimitSeconds,
+        blankCount: getBlankCount(q.questionType, q.correctAnswer),
+        signedImageUrl,
+        mediaBlurPx: q.mediaBlurPx ?? null,
+        mediaAttribution: q.mediaAttribution ?? null,
+        correctAnswerLabel: revealed
+          ? getCorrectAnswerLabel(q.questionType, q.correctAnswer, options)
+          : null,
+      };
+
+      if (myTeam) {
+        const [existing] = await db
+          .select({
+            isCorrect: answers.isCorrect,
+            pointsAwarded: answers.pointsAwarded,
+            submittedAnswer: answers.submittedAnswer,
+          })
+          .from(answers)
+          .where(
+            and(
+              eq(answers.teamId, myTeam.id),
+              eq(answers.questionId, sessionRow.currentQuestionId)
+            )
+          )
+          .limit(1);
+        hasSubmitted = existing !== undefined;
+        if (existing && revealed) {
+          teamResult = {
+            isCorrect: existing.isCorrect,
+            pointsAwarded: existing.pointsAwarded,
+            submittedAnswer: existing.submittedAnswer,
+          };
+        }
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    status: sessionRow.status,
+    serverNowMs,
+    timerEndsAtMs: sessionRow.questionEndsAt?.valueOf() ?? null,
+    joinable: sessionRow.status === "lobby",
+    myTeam: myTeam
+      ? {
+          id: myTeam.id,
+          name: myTeam.name,
+          color: myTeam.color,
+          avatarEmoji: myTeam.avatarEmoji,
+          isCaptain: myTeam.captainUserId === userId,
+        }
+      : null,
+    teams: leaderboard,
+    members,
+    question,
+    hasSubmitted,
+    teamResult,
+    isEliminated: myTeam ? !myTeam.isActive : false,
+    cutoffApplied: sessionTeams.some((t) => !t.isActive),
+  };
 }

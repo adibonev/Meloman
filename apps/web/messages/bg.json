@@ -93,7 +93,11 @@
     "logout": "Изход",
     "nav": {
       "quizzes": "Quiz-ове",
-      "sponsors": "Спонсори"
+      "sponsors": "Спонсори",
+      "stories": "Истории",
+      "daily": "Всеки ден",
+      "users": "Потребители",
+      "analytics": "Анализ"
     }
   },
   "AdminSponsors": {
@@ -660,5 +664,136 @@
       "wrongQuestionType": "Този тип въпрос не подлежи на ръчна оценка.",
       "generic": "Нещо се обърка. Опитай отново."
     }
+  },
+  "Nav": {
+    "home": "Начало",
+    "stories": "Истории",
+    "daily": "Всеки ден",
+    "profile": "Профил",
+    "admin": "Админ",
+    "login": "Вход",
+    "register": "Регистрация",
+    "logout": "Изход",
+    "quizzes": "Куизове",
+    "sponsors": "Спонсори"
+  },
+  "Stories": {
+    "title": "Истории",
+    "subtitle": "Музикални истории, разкази и портрети",
+    "empty": "Все още няма публикувани истории.",
+    "readTime": "{minutes} мин четене",
+    "by": "от {author}",
+    "featured": "На фокус"
+  },
+  "StoryDetail": {
+    "notFound": "Историята не е намерена.",
+    "backToStories": "Към всички истории",
+    "related": "Още истории",
+    "listenOnYoutube": "Чуй в YouTube",
+    "openInSpotify": "Отвори в Spotify",
+    "readTime": "{minutes} мин четене"
+  },
+  "ArtistPage": {
+    "title": "{name}",
+    "storiesAbout": "Истории за {name}",
+    "notFound": "Няма съдържание за този артист.",
+    "empty": "Все още няма истории за този артист."
+  },
+  "Daily": {
+    "title": "Музика за деня",
+    "songOfDay": "Песен на деня",
+    "mysteryArtist": "Мистериозен артист",
+    "noContent": "Днес няма съдържание. Върни се утре!",
+    "guessPlaceholder": "Твоят отговор...",
+    "submit": "Познай",
+    "correct": "Позна! 🎉",
+    "wrong": "Не е вярно. Опитай пак.",
+    "revealAnswer": "Отговор",
+    "hint": "Подсказка",
+    "story": "Историята"
+  },
+  "Profile": {
+    "title": "Профил",
+    "signedInAs": "Влязъл като",
+    "role": "Роля",
+    "streak": "Поредица",
+    "xp": "Общо XP",
+    "days": "{count} дни",
+    "badges": "Значки",
+    "noBadges": "Все още нямаш значки. Играй за да печелиш!",
+    "notSignedIn": "Влез, за да видиш профила си."
+  },
+  "AdminUsers": {
+    "title": "Потребители",
+    "email": "Имейл",
+    "name": "Име",
+    "role": "Роля",
+    "status": "Статус",
+    "active": "Активен",
+    "banned": "Баннат",
+    "actions": "Действия",
+    "makeAdmin": "Направи админ",
+    "makePlayer": "Направи player",
+    "makeSuperAdmin": "Направи super admin",
+    "ban": "Бан",
+    "unban": "Махни бан",
+    "empty": "Няма потребители.",
+    "forbidden": "Само super admin има достъп.",
+    "joined": "Регистриран"
+  },
+  "AdminStories": {
+    "title": "Истории",
+    "newStory": "Нова история",
+    "edit": "Редакция",
+    "slug": "Slug",
+    "storyTitle": "Заглавие",
+    "subtitle": "Подзаглавие",
+    "artist": "Артист",
+    "year": "Година",
+    "body": "Текст (HTML)",
+    "cover": "Cover image URL",
+    "hero": "Hero image URL",
+    "youtube": "YouTube URL",
+    "spotify": "Spotify URI",
+    "tags": "Тагове (със запетая)",
+    "preview": "Преглед",
+    "save": "Запази",
+    "published": "Публикувана",
+    "draft": "Чернова",
+    "publish": "Публикувай",
+    "unpublish": "Скрий",
+    "status": "Статус",
+    "empty": "Няма истории. Създай първата.",
+    "saved": "Запазено.",
+    "backToList": "Към списъка",
+    "invalid": "Невалидни данни.",
+    "views": "Прегледи"
+  },
+  "AdminDaily": {
+    "title": "Съдържание за деня",
+    "newEntry": "Ново съдържание",
+    "date": "Дата",
+    "type": "Тип",
+    "song": "Песен на деня",
+    "mystery": "Мистериозен артист",
+    "payload": "Съдържание (JSON)",
+    "save": "Запази",
+    "empty": "Няма насрочено съдържание.",
+    "saved": "Запазено.",
+    "invalid": "Невалиден JSON или данни.",
+    "delete": "Изтрий",
+    "songHint": "Песен: попълни заглавие, артист, albumCoverUrl и история (виж примера долу).",
+    "mysteryHint": "Мистериозен артист: попълни име, blurredImageUrl, подсказки и история (виж примера долу)."
+  },
+  "AdminAnalytics": {
+    "title": "Анализ",
+    "users": "Потребители",
+    "quizzes": "Куизове",
+    "sessions": "Сесии",
+    "stories": "Истории",
+    "answers": "Отговори",
+    "sponsors": "Спонсори",
+    "publishedStories": "Публикувани истории",
+    "totalViews": "Общо прегледи"
   }
 }

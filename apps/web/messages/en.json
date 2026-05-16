@@ -93,7 +93,11 @@
     "logout": "Sign out",
     "nav": {
       "quizzes": "Quizzes",
-      "sponsors": "Sponsors"
+      "sponsors": "Sponsors",
+      "stories": "Stories",
+      "daily": "Daily",
+      "users": "Users",
+      "analytics": "Analytics"
     }
   },
   "AdminSponsors": {
@@ -660,5 +664,136 @@
       "wrongQuestionType": "This question type cannot be manually reviewed.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "Nav": {
+    "home": "Home",
+    "stories": "Stories",
+    "daily": "Daily",
+    "profile": "Profile",
+    "admin": "Admin",
+    "login": "Log in",
+    "register": "Register",
+    "logout": "Log out",
+    "quizzes": "Quizzes",
+    "sponsors": "Sponsors"
+  },
+  "Stories": {
+    "title": "Stories",
+    "subtitle": "Music stories, deep-dives and portraits",
+    "empty": "No published stories yet.",
+    "readTime": "{minutes} min read",
+    "by": "by {author}",
+    "featured": "Featured"
+  },
+  "StoryDetail": {
+    "notFound": "Story not found.",
+    "backToStories": "All stories",
+    "related": "More stories",
+    "listenOnYoutube": "Listen on YouTube",
+    "openInSpotify": "Open in Spotify",
+    "readTime": "{minutes} min read"
+  },
+  "ArtistPage": {
+    "title": "{name}",
+    "storiesAbout": "Stories about {name}",
+    "notFound": "No content for this artist.",
+    "empty": "No stories about this artist yet."
+  },
+  "Daily": {
+    "title": "Daily Music",
+    "songOfDay": "Song of the Day",
+    "mysteryArtist": "Mystery Artist",
+    "noContent": "No content today. Come back tomorrow!",
+    "guessPlaceholder": "Your answer...",
+    "submit": "Guess",
+    "correct": "Correct! 🎉",
+    "wrong": "Not right. Try again.",
+    "revealAnswer": "Answer",
+    "hint": "Hint",
+    "story": "The story"
+  },
+  "Profile": {
+    "title": "Profile",
+    "signedInAs": "Signed in as",
+    "role": "Role",
+    "streak": "Streak",
+    "xp": "Total XP",
+    "days": "{count} days",
+    "badges": "Badges",
+    "noBadges": "No badges yet. Play to earn them!",
+    "notSignedIn": "Sign in to see your profile."
+  },
+  "AdminUsers": {
+    "title": "Users",
+    "email": "Email",
+    "name": "Name",
+    "role": "Role",
+    "status": "Status",
+    "active": "Active",
+    "banned": "Banned",
+    "actions": "Actions",
+    "makeAdmin": "Make admin",
+    "makePlayer": "Make player",
+    "makeSuperAdmin": "Make super admin",
+    "ban": "Ban",
+    "unban": "Unban",
+    "empty": "No users.",
+    "forbidden": "Super admin only.",
+    "joined": "Joined"
+  },
+  "AdminStories": {
+    "title": "Stories",
+    "newStory": "New story",
+    "edit": "Edit",
+    "slug": "Slug",
+    "storyTitle": "Title",
+    "subtitle": "Subtitle",
+    "artist": "Artist",
+    "year": "Year",
+    "body": "Body (HTML)",
+    "cover": "Cover image URL",
+    "hero": "Hero image URL",
+    "youtube": "YouTube URL",
+    "spotify": "Spotify URI",
+    "tags": "Tags (comma separated)",
+    "preview": "Preview",
+    "save": "Save",
+    "published": "Published",
+    "draft": "Draft",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "status": "Status",
+    "empty": "No stories. Create the first one.",
+    "saved": "Saved.",
+    "backToList": "Back to list",
+    "invalid": "Invalid data.",
+    "views": "Views"
+  },
+  "AdminDaily": {
+    "title": "Daily content",
+    "newEntry": "New entry",
+    "date": "Date",
+    "type": "Type",
+    "song": "Song of the Day",
+    "mystery": "Mystery Artist",
+    "payload": "Payload (JSON)",
+    "save": "Save",
+    "empty": "No scheduled content.",
+    "saved": "Saved.",
+    "invalid": "Invalid JSON or data.",
+    "delete": "Delete",
+    "songHint": "Song: fill title, artist, albumCoverUrl and story (see the example below).",
+    "mysteryHint": "Mystery artist: fill name, blurredImageUrl, hints and story (see the example below)."
+  },
+  "AdminAnalytics": {
+    "title": "Analytics",
+    "users": "Users",
+    "quizzes": "Quizzes",
+    "sessions": "Sessions",
+    "stories": "Stories",
+    "answers": "Answers",
+    "sponsors": "Sponsors",
+    "publishedStories": "Published stories",
+    "totalViews": "Total views"
   }
 }

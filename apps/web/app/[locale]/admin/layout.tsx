@@ -62,6 +62,30 @@ export default async function AdminLayout({
           >
             {t("nav.sponsors")}
           </Link>
+          <Link
+            href="/admin/stories"
+            className="text-foreground hover:underline"
+          >
+            {t("nav.stories")}
+          </Link>
+          <Link
+            href="/admin/daily"
+            className="text-foreground hover:underline"
+          >
+            {t("nav.daily")}
+          </Link>
+          <Link
+            href="/admin/users"
+            className="text-foreground hover:underline"
+          >
+            {t("nav.users")}
+          </Link>
+          <Link
+            href="/admin/analytics"
+            className="text-foreground hover:underline"
+          >
+            {t("nav.analytics")}
+          </Link>
         </nav>
       </header>
 

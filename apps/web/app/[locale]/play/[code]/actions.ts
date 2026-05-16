@@ -2,30 +2,32 @@
 
 import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
 import { db } from "@meloman/db";
-import {
-  answers,
-  gameSessions,
-  questions,
-  quizzes,
-  teamMembers,
-  teams,
-  users,
-} from "@meloman/db/schema";
+import { gameSessions, users } from "@meloman/db/schema";
 import { auth, signIn } from "@/auth";
 import { redirect } from "@/i18n/navigation";
-import { gradeAnswer } from "@/lib/live-quiz/grading";
-import { broadcast, PUSHER_EVENTS, quizChannel } from "@/lib/pusher-server";
 import {
-  TEAM_COLORS,
-  TEAM_EMOJIS,
+  createTeam,
+  joinTeam,
+  submitTeamAnswer,
+  type SubmitAnswerErrorKey,
+} from "@/lib/live-quiz/play-service";
+import {
   createTeamSchema,
   joinAsAnonymousSchema,
   joinTeamSchema,
   submitAnswerSchema,
 } from "@/lib/schemas/play";
+
+// createTeamAction / joinTeamAction intentionally have no explicit return
+// type: the success path ends in next-intl `redirect()`, whose type is not
+// `never`, so annotating the Promise makes TS flag a missing return. The
+// caller only checks `"errorKey" in result`, so inference is enough.
+type SubmitAnswerActionResult =
+  | { errorKey: "unauthorized" | "invalidData" | SubmitAnswerErrorKey }
+  | { ok: true };
 
 // Player flow: anonymous user joins a live session. We mint a throwaway
 // users row (never reused — random email + random password) and sign the
@@ -85,47 +87,11 @@ export async function joinAsAnonymousAction(code: string, formData: FormData) {
   redirect({ href: `/play/${upperCode}`, locale });
 }
 
-async function loadJoinableSession(code: string) {
-  const upperCode = code.toUpperCase();
-  const [session] = await db
-    .select({
-      id: gameSessions.id,
-      status: gameSessions.status,
-      maxTeamSize: quizzes.maxTeamSize,
-    })
-    .from(gameSessions)
-    .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
-    .where(eq(gameSessions.joinCode, upperCode))
-    .limit(1);
-  if (!session) return { error: "sessionNotFound" as const };
-  if (session.status !== "lobby") {
-    return { error: "sessionNotJoinable" as const };
-  }
-  return { session, upperCode };
-}
-
-async function pickFreshTeamCosmetics(sessionId: string) {
-  // Avoid colour/emoji collisions within a session so the host's TV view
-  // can tell teams apart at a glance. If we run out (>8 teams), reuse —
-  // the bar quiz will rarely have that many.
-  const used = await db
-    .select({ color: teams.color, avatarEmoji: teams.avatarEmoji })
-    .from(teams)
-    .where(eq(teams.sessionId, sessionId));
-  const usedColors = new Set(used.map((u) => u.color));
-  const usedEmojis = new Set(used.map((u) => u.avatarEmoji));
-  const color = TEAM_COLORS.find((c) => !usedColors.has(c)) ?? TEAM_COLORS[0];
-  const emoji =
-    TEAM_EMOJIS.find((e) => !usedEmojis.has(e)) ?? TEAM_EMOJIS[0];
-  return { color, emoji };
-}
-
 export async function createTeamAction(code: string, formData: FormData) {
   const userSession = await auth();
   if (!userSession?.user?.id) {
     return { errorKey: "unauthorized" as const };
   }
-  const userId = userSession.user.id;
 
   const parsed = createTeamSchema.safeParse({
     name: formData.get("name"),
@@ -135,61 +101,11 @@ export async function createTeamAction(code: string, formData: FormData) {
     return { errorKey: "invalidData" as const };
   }
 
-  const loaded = await loadJoinableSession(code);
-  if ("error" in loaded) return { errorKey: loaded.error };
-
-  // Anti-cheat: this device cannot already be a member of any team in this
-  // session. The DB enforces UNIQUE(team_id, device_fp), but only per team —
-  // we do the cross-team check here.
-  const existingTeamIds = await db
-    .select({ id: teams.id })
-    .from(teams)
-    .where(eq(teams.sessionId, loaded.session.id));
-  if (existingTeamIds.length > 0) {
-    const [clash] = await db
-      .select({ id: teamMembers.id })
-      .from(teamMembers)
-      .where(
-        and(
-          inArray(
-            teamMembers.teamId,
-            existingTeamIds.map((t) => t.id)
-          ),
-          eq(teamMembers.deviceFingerprint, parsed.data.deviceFingerprint)
-        )
-      )
-      .limit(1);
-    if (clash) {
-      return { errorKey: "deviceAlreadyInSession" as const };
-    }
-  }
-
-  const cosmetics = await pickFreshTeamCosmetics(loaded.session.id);
-
-  const [team] = await db
-    .insert(teams)
-    .values({
-      sessionId: loaded.session.id,
-      name: parsed.data.name,
-      captainUserId: userId,
-      color: cosmetics.color,
-      avatarEmoji: cosmetics.emoji,
-    })
-    .returning({ id: teams.id });
-
-  await db.insert(teamMembers).values({
-    teamId: team.id,
-    userId,
-    deviceFingerprint: parsed.data.deviceFingerprint,
-  });
-
-  // Notify the host page so its team list refreshes without a manual reload.
-  await broadcast(quizChannel(loaded.upperCode), PUSHER_EVENTS.scoresUpdated, {
-    reason: "team-created",
-  });
+  const result = await createTeam(userSession.user.id, code, parsed.data);
+  if ("errorKey" in result) return { errorKey: result.errorKey };
 
   const locale = await getLocale();
-  redirect({ href: `/play/${loaded.upperCode}/lobby`, locale });
+  redirect({ href: `/play/${result.code}/lobby`, locale });
 }
 
 export async function joinTeamAction(code: string, formData: FormData) {
@@ -197,7 +113,6 @@ export async function joinTeamAction(code: string, formData: FormData) {
   if (!userSession?.user?.id) {
     return { errorKey: "unauthorized" as const };
   }
-  const userId = userSession.user.id;
 
   const parsed = joinTeamSchema.safeParse({
     teamId: formData.get("teamId"),
@@ -207,95 +122,21 @@ export async function joinTeamAction(code: string, formData: FormData) {
     return { errorKey: "invalidData" as const };
   }
 
-  const loaded = await loadJoinableSession(code);
-  if ("error" in loaded) return { errorKey: loaded.error };
-
-  // Verify the chosen team actually belongs to this session.
-  const [team] = await db
-    .select({ id: teams.id })
-    .from(teams)
-    .where(
-      and(
-        eq(teams.id, parsed.data.teamId),
-        eq(teams.sessionId, loaded.session.id)
-      )
-    )
-    .limit(1);
-  if (!team) return { errorKey: "teamNotFound" as const };
-
-  // Cross-team device check (same as createTeamAction).
-  const sessionTeamIds = await db
-    .select({ id: teams.id })
-    .from(teams)
-    .where(eq(teams.sessionId, loaded.session.id));
-  const [clash] = await db
-    .select({ id: teamMembers.id })
-    .from(teamMembers)
-    .where(
-      and(
-        inArray(
-          teamMembers.teamId,
-          sessionTeamIds.map((t) => t.id)
-        ),
-        eq(teamMembers.deviceFingerprint, parsed.data.deviceFingerprint)
-      )
-    )
-    .limit(1);
-  if (clash) {
-    return { errorKey: "deviceAlreadyInSession" as const };
-  }
-
-  // Capacity guard: enforce per-quiz max team size if configured.
-  // Only applies to joining an existing team — `createTeamAction`
-  // implicitly seats one member, which is always within bounds.
-  if (loaded.session.maxTeamSize !== null) {
-    const [{ value: memberCount }] = await db
-      .select({ value: sql<number>`count(*)::int` })
-      .from(teamMembers)
-      .where(eq(teamMembers.teamId, parsed.data.teamId));
-    if (memberCount >= loaded.session.maxTeamSize) {
-      return { errorKey: "teamFull" as const };
-    }
-  }
-
-  await db.insert(teamMembers).values({
-    teamId: team.id,
-    userId,
-    deviceFingerprint: parsed.data.deviceFingerprint,
-  });
-
-  await broadcast(quizChannel(loaded.upperCode), PUSHER_EVENTS.scoresUpdated, {
-    reason: "member-joined",
-  });
+  const result = await joinTeam(userSession.user.id, code, parsed.data);
+  if ("errorKey" in result) return { errorKey: result.errorKey };
 
   const locale = await getLocale();
-  redirect({ href: `/play/${loaded.upperCode}/lobby`, locale });
+  redirect({ href: `/play/${result.code}/lobby`, locale });
 }
-
-type SubmitAnswerErrorKey =
-  | "unauthorized"
-  | "invalidData"
-  | "sessionNotFound"
-  | "sessionNotJoinable"
-  | "teamNotFound"
-  | "notCaptain"
-  | "eliminated"
-  | "questionClosed"
-  | "alreadySubmitted"
-  | "unsupportedQuestionType"
-  | "generic";
-
-type SubmitAnswerResult = { errorKey: SubmitAnswerErrorKey } | { ok: true };
 
 export async function submitAnswerAction(
   code: string,
   formData: FormData
-): Promise<SubmitAnswerResult> {
+): Promise<SubmitAnswerActionResult> {
   const userSession = await auth();
   if (!userSession?.user?.id) {
-    return { errorKey: "unauthorized" as const };
+    return { errorKey: "unauthorized" };
   }
-  const userId = userSession.user.id;
 
   const parsed = submitAnswerSchema.safeParse({
     questionType: formData.get("questionType"),
@@ -309,114 +150,5 @@ export async function submitAnswerAction(
     return { errorKey: "invalidData" as const };
   }
 
-  const upperCode = code.toUpperCase();
-  const [session] = await db
-    .select({
-      id: gameSessions.id,
-      status: gameSessions.status,
-      currentQuestionId: gameSessions.currentQuestionId,
-      questionStartedAt: gameSessions.questionStartedAt,
-      questionEndsAt: gameSessions.questionEndsAt,
-    })
-    .from(gameSessions)
-    .where(eq(gameSessions.joinCode, upperCode))
-    .limit(1);
-
-  if (!session) {
-    return { errorKey: "sessionNotFound" as const };
-  }
-  if (session.status !== "active" || !session.currentQuestionId) {
-    return { errorKey: "sessionNotJoinable" as const };
-  }
-  if (!session.questionStartedAt || !session.questionEndsAt) {
-    return { errorKey: "sessionNotJoinable" as const };
-  }
-
-  const nowMs = Date.now();
-  if (nowMs > session.questionEndsAt.valueOf()) {
-    return { errorKey: "questionClosed" as const };
-  }
-
-  const [membership] = await db
-    .select({
-      teamId: teamMembers.teamId,
-      captainUserId: teams.captainUserId,
-      isActive: teams.isActive,
-    })
-    .from(teamMembers)
-    .innerJoin(teams, eq(teams.id, teamMembers.teamId))
-    .where(
-      and(eq(teams.sessionId, session.id), eq(teamMembers.userId, userId))
-    )
-    .limit(1);
-
-  if (!membership) {
-    return { errorKey: "teamNotFound" as const };
-  }
-  if (membership.captainUserId !== userId) {
-    return { errorKey: "notCaptain" as const };
-  }
-  // Cutoff guard: a team eliminated by an earlier round's
-  // advancement_top_n cutoff is locked out of submitting on subsequent
-  // questions. UI also disables submit, but defense-in-depth on the
-  // server prevents a curl-level bypass.
-  if (!membership.isActive) {
-    return { errorKey: "eliminated" as const };
-  }
-
-  const [question] = await db
-    .select({
-      id: questions.id,
-      questionType: questions.questionType,
-      correctAnswer: questions.correctAnswer,
-      acceptableAnswers: questions.acceptableAnswers,
-      pointsBase: questions.pointsBase,
-    })
-    .from(questions)
-    .where(eq(questions.id, session.currentQuestionId))
-    .limit(1);
-
-  if (!question) {
-    return { errorKey: "unsupportedQuestionType" as const };
-  }
-
-  const grade = gradeAnswer(question, parsed.data);
-  if (!grade) {
-    return { errorKey: "unsupportedQuestionType" as const };
-  }
-
-  const timeToAnswerMs = Math.max(
-    0,
-    nowMs - session.questionStartedAt.valueOf()
-  );
-
-  const inserted = await db
-    .insert(answers)
-    .values({
-      teamId: membership.teamId,
-      questionId: question.id,
-      submittedAnswer: grade.submittedAnswer,
-      isCorrect: grade.isCorrect,
-      timeToAnswerMs,
-      pointsAwarded: grade.pointsAwarded,
-    })
-    .onConflictDoNothing()
-    .returning({ id: answers.id });
-
-  if (inserted.length === 0) {
-    return { errorKey: "alreadySubmitted" as const };
-  }
-
-  if (grade.pointsAwarded > 0) {
-    await db
-      .update(teams)
-      .set({ totalScore: sql`${teams.totalScore} + ${grade.pointsAwarded}` })
-      .where(eq(teams.id, membership.teamId));
-  }
-
-  await broadcast(quizChannel(upperCode), PUSHER_EVENTS.scoresUpdated, {
-    reason: "answer-submitted",
-  });
-
-  return { ok: true as const };
+  return submitTeamAnswer(userSession.user.id, code, parsed.data);
 }

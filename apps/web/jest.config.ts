@@ -5,7 +5,11 @@ const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config: Config = {
+// `satisfies` (not `: Config`) keeps the precise literal type so
+// next/jest's createJestConfig — which expects Jest's stricter
+// InitialProjectOptions (testMatch: string[]) — accepts it, while still
+// validating the shape against Jest's Config.
+const config = {
   clearMocks: true,
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov"],
@@ -15,6 +19,6 @@ const config: Config = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testEnvironment: "jsdom",
   testPathIgnorePatterns: ["<rootDir>/e2e/"],
-};
+} satisfies Config;
 
 export default createJestConfig(config);

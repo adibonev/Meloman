@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
+import { ADMIN_STATE } from "./e2e/auth-paths";
 
 const port = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 const baseURL =
@@ -20,9 +21,26 @@ export default defineConfig({
     video: "retain-on-failure",
   },
   projects: [
+    // CI-safe set: no auth, no DB writes. `pnpm test:e2e` runs only this
+    // so CI stays fast and green.
     {
-      name: "chromium",
+      name: "smoke",
+      testMatch: ["public-auth.spec.ts", "live-quiz-entry.spec.ts"],
       use: { ...devices["Desktop Chrome"] },
+    },
+    // Logs in with the demo accounts once and stores the session.
+    {
+      name: "setup",
+      testMatch: /.*\.setup\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    // Authed "press every button" flows. Local-only via
+    // `pnpm test:e2e:full`; writes throwaway data to the dev DB.
+    {
+      name: "full",
+      testMatch: "full/**/*.spec.ts",
+      dependencies: ["setup"],
+      use: { ...devices["Desktop Chrome"], storageState: ADMIN_STATE },
     },
   ],
   ...(process.env.PLAYWRIGHT_BASE_URL

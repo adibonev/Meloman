@@ -179,6 +179,25 @@ Each item lists:
   because it implied translation we don't do. The hint only made sense
   alongside actual translated content.
 
+## Deferred during 10-day sprint
+
+- **TipTap stories editor** — CLAUDE.md §2.2 mandates TipTap. To protect the
+  deadline, the admin stories editor uses an HTML `<textarea>` with a live
+  preview instead (working + demoable, zero new dependency risk). Swap to
+  TipTap in Phase 7 if time allows. Behaviour-compatible: the DB stores HTML
+  in `stories.body` either way.
+- **Reset password from user admin** — CLAUDE.md §3.4 lists it; Resend is not
+  installed. User management ships with role change + ban/unban. Add reset
+  (Resend email) post-deadline.
+- **NativeWind in mobile app** — CLAUDE.md §2.2 mandates NativeWind for the
+  Expo app. To guarantee a clean EAS build under the deadline, the mobile
+  screens use React Native `StyleSheet` (same monochrome brand palette,
+  zero metro/babel config risk). Swap to NativeWind in Phase 7 if time
+  allows. No behaviour change — styling only.
+- **QR scanner on mobile join** — CLAUDE.md §3.1 wants expo-camera QR scan.
+  Mobile `play` screen uses manual code entry (lower build risk, works on
+  emulator without a camera). Add expo-camera scan post-deadline.
+
 ## Closed
 
 Move items here as they ship to keep the live list short.

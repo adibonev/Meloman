@@ -30,9 +30,11 @@ Current apps:
 
 - `apps/web` - Next.js web application, server actions, API routes, admin UI, live quiz UI, and i18n messages.
 
-Future apps:
-
-- `apps/mobile` - Expo mobile app planned for Sprint 4.
+- `apps/mobile` - Expo (SDK 55) + expo-router mobile app. Screens: Home,
+  Stories list/detail, Daily, Profile, Join Quiz, Login. Consumes the
+  `apps/web` REST API; auth via `/api/auth/mobile-login` bearer JWT stored
+  in expo-secure-store. Styling uses RN StyleSheet (see backlog: NativeWind
+  swap deferred).
 
 Rules:
 

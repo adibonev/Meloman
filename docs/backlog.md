@@ -218,11 +218,17 @@ Each item lists:
   on login, and a super-admin "Reset password" button that emails the
   user a link. Resend degrades gracefully (logs the link without
   `RESEND_API_KEY`) so it works in dev / unverified-domain demos.
-- **NativeWind in mobile app** — CLAUDE.md §2.2 mandates NativeWind for the
-  Expo app. To guarantee a clean EAS build under the deadline, the mobile
-  screens use React Native `StyleSheet` (same monochrome brand palette,
-  zero metro/babel config risk). Swap to NativeWind in Phase 7 if time
-  allows. No behaviour change — styling only.
+- ~~**NativeWind in mobile app**~~ — DONE 2026-05-17. All 8 mobile
+  screens/components migrated from StyleSheet to NativeWind v4
+  className (CLAUDE.md §2.2). Warm palette mirrored into
+  `tailwind.config.js` so styling is unchanged (exact px values).
+  pnpm-monorepo gotcha fixed: `react-native-css-interop` added as a
+  direct mobile dep so Metro resolves nativewind's jsx-runtime.
+  Validated structurally — `expo export` (iOS + web) bundles clean on
+  Expo SDK 55 / RN 0.83 / React Compiler. Visual confirmation is via
+  `expo start --web` or an Android EAS build: Expo Go can't run SDK 55
+  (App Store Expo Go only supports the latest stable SDK), which is
+  unrelated to NativeWind.
 - **In-app expo-camera QR scanner (mobile)** — CLAUDE.md §3.1/§2.2 want an
   expo-camera scan inside the Meloman app. The host now shows a scannable
   join QR on the web TV view (`host/[code]` + presentation lobby), so any

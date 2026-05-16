@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { db } from "@meloman/db";
 import { users } from "@meloman/db/schema";
 import { auth } from "@/auth";
+import { getRequestOrigin } from "@/lib/origin";
+import { sendResetForUser } from "@/lib/auth/password-reset";
 
 const ROLES = ["player", "admin", "super_admin"] as const;
 type Role = (typeof ROLES)[number];
@@ -57,5 +59,17 @@ export async function toggleBanAction(userId: string) {
     .where(eq(users.id, userId));
 
   revalidatePath("/admin/users");
+  return { ok: true as const };
+}
+
+// Admin-triggered password reset (CLAUDE.md §3.4): emails the user a
+// reset link instead of setting a password for them — the admin never
+// sees or chooses the new password.
+export async function sendPasswordResetEmailAction(userId: string) {
+  const guard = await requireSuperAdmin();
+  if (!guard.ok) return { errorKey: "forbidden" as const };
+
+  const result = await sendResetForUser(userId, await getRequestOrigin());
+  if ("errorKey" in result) return { errorKey: "invalid" as const };
   return { ok: true as const };
 }

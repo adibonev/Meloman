@@ -110,6 +110,14 @@ export default function LoginPage() {
                 {tValidation(errors.password.message as ValidationKey)}
               </p>
             )}
+            <div className="text-right">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+              >
+                {t("forgotPassword")}
+              </Link>
+            </div>
           </div>
 
           {serverErrorKey && (

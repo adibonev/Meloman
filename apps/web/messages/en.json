@@ -37,9 +37,33 @@
     "submitting": "Signing in...",
     "noAccount": "Don't have an account?",
     "registerLink": "Sign up",
+    "forgotPassword": "Forgot password?",
     "errors": {
       "credentials": "Invalid email or password.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "ForgotPassword": {
+    "title": "Forgot password",
+    "description": "Enter your email to receive a reset link",
+    "emailLabel": "Email",
+    "submit": "Send reset link",
+    "submitting": "Sending...",
+    "success": "If that email exists, we sent a reset link. It is valid for 15 minutes.",
+    "backToLogin": "Back to sign in"
+  },
+  "ResetPassword": {
+    "title": "New password",
+    "description": "Enter your new password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Save password",
+    "submitting": "Saving...",
+    "success": "Your password has been changed. You can sign in now.",
+    "backToLogin": "Back to sign in",
+    "errors": {
+      "invalid": "Invalid data. Please check the fields.",
+      "invalidToken": "This link is invalid or expired."
     }
   },
   "Register": {
@@ -67,6 +91,7 @@
     "displayNameMin": "Name must be at least 2 characters",
     "displayNameMax": "Name cannot be more than 50 characters",
     "passwordsMismatch": "Passwords do not match",
+    "tokenRequired": "Missing token.",
     "titleMin": "Title must be at least 2 characters",
     "titleMax": "Title cannot be more than 200 characters",
     "descriptionMax": "Description cannot be more than 500 characters",
@@ -785,6 +810,7 @@
     "makeSuperAdmin": "Make super admin",
     "ban": "Ban",
     "unban": "Unban",
+    "resetPassword": "Reset password",
     "empty": "No users.",
     "forbidden": "Super admin only.",
     "joined": "Joined"

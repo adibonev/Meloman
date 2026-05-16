@@ -4,7 +4,11 @@ import { db } from "@meloman/db";
 import { users } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { changeUserRoleAction, toggleBanAction } from "./actions";
+import {
+  changeUserRoleAction,
+  sendPasswordResetEmailAction,
+  toggleBanAction,
+} from "./actions";
 
 export default async function AdminUsersPage({
   params,
@@ -136,6 +140,16 @@ export default async function AdminUsersPage({
                               variant={u.bannedAt ? "secondary" : "destructive"}
                             >
                               {u.bannedAt ? t("unban") : t("ban")}
+                            </Button>
+                          </form>
+                          <form
+                            action={async () => {
+                              "use server";
+                              await sendPasswordResetEmailAction(u.id);
+                            }}
+                          >
+                            <Button type="submit" size="sm" variant="secondary">
+                              {t("resetPassword")}
                             </Button>
                           </form>
                         </div>

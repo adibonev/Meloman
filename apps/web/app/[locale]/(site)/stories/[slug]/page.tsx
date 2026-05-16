@@ -77,7 +77,7 @@ export default async function StoryDetailPage({
 
       {/* Body is admin-authored TipTap HTML. */}
       <article
-        className="prose prose-invert mt-10 max-w-none leading-relaxed [&_p]:mb-5 [&_p]:text-lg"
+        className="prose prose-invert mt-10 mx-auto max-w-[68ch] leading-relaxed [&_p]:mb-5 [&_p]:text-lg"
         dangerouslySetInnerHTML={{ __html: story.body }}
       />
 

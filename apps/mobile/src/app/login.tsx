@@ -3,15 +3,18 @@ import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { mobileLogin } from "@/lib/api";
 import { saveToken } from "@/lib/auth";
-import { colors, spacing } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
+// NativeWind POC screen (CLAUDE.md §2.2). className values are exact px
+// arbitrary values mapped 1:1 from the old StyleSheet so there is no
+// visual change. `colors` stays imported for RN props that take a color
+// value, not a class (placeholderTextColor, ActivityIndicator).
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -34,9 +37,11 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.screen}>
-      <Text style={styles.kicker}>Меломан</Text>
-      <Text style={styles.h1}>Вход</Text>
+    <View className="flex-1 justify-center bg-bg p-[24px]">
+      <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
+        Меломан
+      </Text>
+      <Text className="mb-[24px] text-[34px] font-black text-fg">Вход</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
@@ -44,7 +49,7 @@ export default function LoginScreen() {
         placeholderTextColor={colors.dim}
         autoCapitalize="none"
         keyboardType="email-address"
-        style={styles.input}
+        className="mb-[16px] rounded-[12px] border border-border-strong p-[15px] text-[16px] text-fg"
       />
       <TextInput
         value={password}
@@ -52,56 +57,22 @@ export default function LoginScreen() {
         placeholder="Парола"
         placeholderTextColor={colors.dim}
         secureTextEntry
-        style={styles.input}
+        className="mb-[16px] rounded-[12px] border border-border-strong p-[15px] text-[16px] text-fg"
       />
-      <Pressable style={styles.btn} onPress={submit} disabled={loading}>
+      <Pressable
+        className="items-center rounded-[14px] bg-accent py-[16px]"
+        onPress={submit}
+        disabled={loading}
+      >
         {loading ? (
           <ActivityIndicator color={colors.bg} />
         ) : (
-          <Text style={styles.btnText}>Влез</Text>
+          <Text className="text-[16px] font-extrabold text-bg">Влез</Text>
         )}
       </Pressable>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text className="mt-[16px] text-center text-danger">{error}</Text>
+      ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    padding: spacing.lg,
-    justifyContent: "center",
-  },
-  kicker: {
-    color: colors.accent,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 3,
-    textTransform: "uppercase",
-    marginBottom: spacing.sm,
-  },
-  h1: {
-    color: colors.fg,
-    fontSize: 34,
-    fontWeight: "900",
-    marginBottom: spacing.lg,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: 12,
-    padding: 15,
-    color: colors.fg,
-    fontSize: 16,
-    marginBottom: spacing.md,
-  },
-  btn: {
-    backgroundColor: colors.accent,
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  btnText: { color: colors.bg, fontWeight: "800", fontSize: 16 },
-  error: { color: colors.danger, marginTop: spacing.md, textAlign: "center" },
-});

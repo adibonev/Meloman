@@ -255,7 +255,7 @@ docs and deprecation notices before changing framework-specific code.
 
 #### Theme system
 Quiz creator selects visual theme per quiz:
-- **Modern** (default) — pure monochrome (black background, white text), Anton + Inter fonts
+- **Modern** (default) — premium warm mid-tone (bg #2A2520, gold #FFD166 accent, cream text), Playfair Display + Inter fonts
 - **Vintage 70s** — brown/orange sunburst background, script fonts, cassette/microphone illustrations (matches friend's existing Canva style)
 - **Neon 80s** — synthwave aesthetic, magenta/cyan gradients, retro grid background
 
@@ -908,8 +908,17 @@ future architecture decision replaces them.
 
 ### 8.11 Branding constants
 
+> **SUPERSEDED — owner-approved redesign (2026-05-16).** Meloman now uses a
+> **premium warm mid-tone theme**, NOT pure monochrome. Single source of
+> truth: `packages/shared/design-tokens.ts` (web applies it via CSS vars in
+> `apps/web/app/globals.css`; mobile mirrors it in
+> `apps/mobile/src/lib/theme.ts`). Key tokens: bg `#2A2520`, cards `#3A3530`,
+> hover `#4A453F`, gold accent `#FFD166`, cream text `#F5E6D3`, muted
+> `#B5A88F`. Headings = **Playfair Display** (italic for hero/story titles);
+> body = **Inter**. Anton is retired. The block below is history only.
+
 ```typescript
-// Brand colors (pure monochrome, no accent)
+// Brand colors — SUPERSEDED by the warm theme (see note above)
 export const COLORS = {
   bg: {
     primary: '#000000',     // pure black
@@ -943,8 +952,12 @@ export const FONTS = {
 
 The web app's visual language is **Pitchfork-inspired editorial**, NOT Kahoot-style playful. Key principles:
 - **Dark mode by default.** Music lives in the dark.
-- **Pure monochrome.** Black background, white text, grays for hierarchy. NO accent color (yet).
-- **Typography as weapon.** Anton for headings (huge, condensed, all-caps). Inter for body.
+- **Premium warm mid-tone palette** (owner-approved redesign, 2026-05-16;
+  supersedes the former pure-monochrome "NO accent" system). Warm `#2A2520`
+  background, cream `#F5E6D3` text, **gold `#FFD166` accent**. Source of
+  truth: `packages/shared/design-tokens.ts`.
+- **Typography as weapon.** **Playfair Display** for headings (large serif,
+  italic for hero/story titles). Inter for body. (Anton is retired.)
 - **Asymmetric grids** with generous whitespace.
 - **Full-bleed hero images** with parallax on scroll.
 - **Magazine-style article layouts** for stories.
@@ -963,8 +976,8 @@ Logo file paths in repo: `apps/web/public/logo-light.svg`, `apps/web/public/logo
 For live quizzes, admin selects per-quiz theme:
 
 **Modern (default):**
-- Pure monochrome
-- Anton + Inter fonts
+- Warm mid-tone — the main app theme (§8.11; formerly pure monochrome)
+- Playfair Display + Inter fonts
 - Minimalist transitions
 - Matches main app aesthetic
 

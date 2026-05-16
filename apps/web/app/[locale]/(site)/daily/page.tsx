@@ -65,29 +65,69 @@ function SongCard({
   payload: SongPayload;
 }) {
   return (
-    <section className="mt-12">
-      <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-        {t("songOfDay")}
-      </p>
-      {payload.albumCoverUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={payload.albumCoverUrl}
-          alt=""
-          className="mt-4 aspect-square w-full max-w-sm rounded-lg object-cover"
-        />
-      )}
-      <h2 className="mt-6 font-heading text-4xl font-black uppercase">
-        {payload.title ?? "—"}
-      </h2>
-      <p className="mt-1 text-lg text-muted-foreground">{payload.artist}</p>
+    <section className="mt-12 overflow-hidden rounded-lg border border-border border-l-2 border-l-primary bg-card">
+      <div className="flex flex-col gap-8 p-6 sm:flex-row sm:p-8">
+        <div className="shrink-0">
+          {payload.albumCoverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={payload.albumCoverUrl}
+              alt=""
+              className="aspect-square w-full rounded-lg object-cover sm:w-56"
+            />
+          ) : (
+            <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-secondary sm:w-56">
+              <span className="font-heading text-6xl text-muted-foreground">
+                ♪
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-1 flex-col">
+          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-primary">
+            {t("songOfDay")}
+          </p>
+          <h2 className="mt-3 font-heading text-4xl font-black uppercase">
+            {payload.title ?? "—"}
+          </h2>
+          <p className="mt-1 text-lg text-muted-foreground">
+            {payload.artist}
+          </p>
+          {(payload.spotifyUri || payload.youtubeUrl) && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              {payload.spotifyUri && (
+                <a
+                  href={payload.spotifyUri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                >
+                  {t("openSpotify")}
+                </a>
+              )}
+              {payload.youtubeUrl && (
+                <a
+                  href={payload.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                >
+                  {t("openYoutube")}
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
       {payload.story && (
-        <details className="mt-8">
-          <summary className="cursor-pointer text-sm font-medium uppercase tracking-widest text-muted-foreground">
+        <div className="border-t border-border p-6 sm:p-8">
+          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground">
             {t("story")}
-          </summary>
-          <p className="mt-4 leading-relaxed">{payload.story}</p>
-        </details>
+          </p>
+          <p className="mt-4 leading-relaxed whitespace-pre-line text-foreground/90">
+            {payload.story}
+          </p>
+        </div>
       )}
     </section>
   );
@@ -101,38 +141,52 @@ function MysteryCard({
   payload: MysteryPayload;
 }) {
   return (
-    <section className="mt-12">
-      <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-        {t("mysteryArtist")}
-      </p>
-      {payload.blurredImageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={payload.blurredImageUrl}
-          alt=""
-          className="mt-4 aspect-square w-full max-w-sm rounded-lg object-cover blur-xl"
-        />
-      )}
-      {payload.hints && payload.hints.length > 0 && (
-        <ul className="mt-6 space-y-2">
-          {payload.hints.map((hint, i) => (
-            <li key={i} className="text-muted-foreground">
-              {t("hint")} {i + 1}: {hint}
-            </li>
-          ))}
-        </ul>
-      )}
-      <details className="mt-8">
-        <summary className="cursor-pointer text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {t("revealAnswer")}
-        </summary>
-        <p className="mt-4 font-heading text-3xl font-black uppercase">
-          {payload.name ?? "—"}
-        </p>
-        {payload.story && (
-          <p className="mt-4 leading-relaxed">{payload.story}</p>
-        )}
-      </details>
+    <section className="mt-12 overflow-hidden rounded-lg border border-border border-l-2 border-l-primary bg-card">
+      <div className="flex flex-col gap-8 p-6 sm:flex-row sm:p-8">
+        <div className="shrink-0">
+          {payload.blurredImageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={payload.blurredImageUrl}
+              alt=""
+              className="aspect-square w-full rounded-lg object-cover blur-xl sm:w-56"
+            />
+          ) : (
+            <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-secondary sm:w-56">
+              <span className="font-heading text-6xl text-muted-foreground">
+                ?
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-1 flex-col">
+          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-primary">
+            {t("mysteryArtist")}
+          </p>
+          {payload.hints && payload.hints.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {payload.hints.map((hint, i) => (
+                <li key={i} className="text-muted-foreground">
+                  {t("hint")} {i + 1}: {hint}
+                </li>
+              ))}
+            </ul>
+          )}
+          <details className="mt-6">
+            <summary className="cursor-pointer text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              {t("revealAnswer")}
+            </summary>
+            <p className="mt-4 font-heading text-3xl font-black uppercase">
+              {payload.name ?? "—"}
+            </p>
+            {payload.story && (
+              <p className="mt-4 leading-relaxed whitespace-pre-line text-foreground/90">
+                {payload.story}
+              </p>
+            )}
+          </details>
+        </div>
+      </div>
     </section>
   );
 }

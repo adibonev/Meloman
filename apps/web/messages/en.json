@@ -4,7 +4,28 @@
     "loginCta": "Sign in",
     "registerCta": "Sign up",
     "welcome": "Welcome, {name}",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "heroKicker": "Music quiz · stories · song of the day",
+    "exploreTitle": "Explore",
+    "cardDaily": "Daily music",
+    "cardDailyDesc": "Today's song and mystery artist",
+    "cardStory": "Read a story",
+    "cardStoryDesc": "Music stories and portraits",
+    "cardQuizAdmin": "Manage quizzes",
+    "cardQuizAdminDesc": "Create and run a live quiz",
+    "cardProfile": "My profile",
+    "cardProfileDesc": "Progress, XP and badges"
+  },
+  "Footer": {
+    "tagline": "Music quiz and stories",
+    "explore": "Explore",
+    "followUs": "Follow us",
+    "audioDisclaimer": "Audio snippets used under fair citation rights for educational and entertainment purposes. For full songs, support artists by purchasing on Spotify, Apple Music, or YouTube."
+  },
+  "RegisterCta": {
+    "title": "Join Meloman",
+    "subtitle": "For live quizzes, streaks, XP and badges.",
+    "cta": "Sign up"
   },
   "Login": {
     "title": "Sign in",
@@ -668,7 +689,7 @@
   "Nav": {
     "home": "Home",
     "stories": "Stories",
-    "daily": "Daily",
+    "daily": "Song of the Day",
     "profile": "Profile",
     "admin": "Admin",
     "login": "Log in",
@@ -700,7 +721,7 @@
     "empty": "No stories about this artist yet."
   },
   "Daily": {
-    "title": "Daily Music",
+    "title": "Song of the Day",
     "songOfDay": "Song of the Day",
     "mysteryArtist": "Mystery Artist",
     "noContent": "No content today. Come back tomorrow!",
@@ -710,7 +731,9 @@
     "wrong": "Not right. Try again.",
     "revealAnswer": "Answer",
     "hint": "Hint",
-    "story": "The story"
+    "story": "The story",
+    "openSpotify": "Open in Spotify",
+    "openYoutube": "Listen on YouTube"
   },
   "Profile": {
     "title": "Profile",
@@ -721,6 +744,7 @@
     "days": "{count} days",
     "badges": "Badges",
     "noBadges": "No badges yet. Play to earn them!",
+    "locked": "Locked",
     "notSignedIn": "Sign in to see your profile."
   },
   "AdminUsers": {

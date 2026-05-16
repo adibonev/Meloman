@@ -1,5 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { SiteNav } from "@/components/site-nav";
+import { RegisterCta } from "@/components/register-cta";
+import { SiteFooter } from "@/components/site-footer";
 
 /**
  * Shared chrome for public content routes (stories, daily, profile,
@@ -17,9 +19,13 @@ export default async function SiteLayout({
   setRequestLocale(locale);
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <SiteNav />
-      {children}
-    </>
+      <div className="flex flex-1 flex-col">
+        {children}
+        <RegisterCta />
+      </div>
+      <SiteFooter />
+    </div>
   );
 }

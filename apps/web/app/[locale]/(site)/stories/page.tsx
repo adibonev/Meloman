@@ -42,64 +42,71 @@ export default async function StoriesPage({
           <p className="text-muted-foreground">{t("empty")}</p>
         </div>
       ) : (
-        <div className="space-y-16">
+        <div className="space-y-12">
           <Link
             href={`/stories/${featured.slug}`}
-            className="group block border-b border-border pb-12"
+            className="group block overflow-hidden rounded-lg border border-border border-l-2 border-l-primary bg-card transition-all hover:border-l-4 hover:bg-secondary"
           >
-            <p className="mb-2 text-xs font-medium tracking-widest uppercase text-muted-foreground">
-              {t("featured")}
-            </p>
             {featured.coverImageUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={featured.coverImageUrl}
                 alt=""
-                className="mb-6 aspect-[21/9] w-full rounded-lg object-cover"
+                className="aspect-[21/9] w-full object-cover"
               />
             )}
-            <h2 className="font-heading text-4xl font-black uppercase group-hover:underline sm:text-6xl">
-              {featured.title}
-            </h2>
-            {featured.subtitle && (
-              <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-                {featured.subtitle}
+            <div className="p-6 sm:p-8">
+              <p className="mb-3 text-xs font-semibold tracking-[0.25em] uppercase text-primary">
+                {t("featured")}
               </p>
-            )}
-            <p className="mt-4 text-sm text-muted-foreground">
-              {featured.artistName ? `${featured.artistName} · ` : ""}
-              {t("readTime", { minutes: featured.readingTimeMinutes })}
-            </p>
+              <h2 className="font-heading text-4xl font-black uppercase group-hover:underline sm:text-6xl">
+                {featured.title}
+              </h2>
+              {featured.subtitle && (
+                <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+                  {featured.subtitle}
+                </p>
+              )}
+              <p className="mt-4 text-sm text-muted-foreground">
+                {featured.artistName ? `${featured.artistName} · ` : ""}
+                {t("readTime", { minutes: featured.readingTimeMinutes })}
+              </p>
+            </div>
           </Link>
 
           {rest.length > 0 && (
-            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {rest.map((story) => (
                 <Link
                   key={story.slug}
                   href={`/stories/${story.slug}`}
-                  className="group block"
+                  className="group flex flex-col overflow-hidden rounded-lg border border-border border-l-2 border-l-primary bg-card transition-all hover:-translate-y-0.5 hover:border-l-4 hover:bg-secondary"
                 >
                   {story.coverImageUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={story.coverImageUrl}
                       alt=""
-                      className="mb-4 aspect-video w-full rounded-lg object-cover"
+                      className="aspect-video w-full object-cover"
                     />
                   )}
-                  <h3 className="font-heading text-2xl font-black uppercase group-hover:underline">
-                    {story.title}
-                  </h3>
-                  {story.subtitle && (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {story.subtitle}
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="font-heading text-2xl font-black uppercase group-hover:underline">
+                      {story.title}
+                    </h3>
+                    {story.subtitle && (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {story.subtitle}
+                      </p>
+                    )}
+                    <p className="mt-4 text-xs text-muted-foreground">
+                      {story.artistName ? `${story.artistName} · ` : ""}
+                      {t("readTime", { minutes: story.readingTimeMinutes })}
                     </p>
-                  )}
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {story.artistName ? `${story.artistName} · ` : ""}
-                    {t("readTime", { minutes: story.readingTimeMinutes })}
-                  </p>
+                    <span className="mt-4 text-xs font-semibold tracking-[0.2em] uppercase text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                      →
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>

@@ -1,5 +1,7 @@
 import {
+  integer,
   jsonb,
+  pgEnum,
   pgTable,
   primaryKey,
   text,
@@ -9,8 +11,17 @@ import {
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
-// Badge catalog (CLAUDE.md §6.5). `criteria` describes the auto-detection
-// rule (e.g. { type: "streak", days: 7 }).
+export const badgeRarityEnum = pgEnum("badge_rarity", [
+  "common",
+  "rare",
+  "epic",
+  "legendary",
+]);
+
+// Badge catalog (CLAUDE.md §6.5). The catalog of record is
+// packages/db/seed-badges.ts; this table stores it. `criteria` describes
+// the auto-detection rule (e.g. { type: "streak", days: 7 }); `rarity`
+// drives the UI color, `xpReward` feeds the XP system (CLAUDE.md §3.2).
 export const badges = pgTable("badges", {
   id: uuid("id").primaryKey().defaultRandom(),
   slug: varchar("slug", { length: 100 }).notNull().unique(),
@@ -18,6 +29,10 @@ export const badges = pgTable("badges", {
   description: text("description"),
   iconUrl: text("icon_url"),
   criteria: jsonb("criteria"),
+  category: varchar("category", { length: 40 }).notNull().default("special"),
+  rarity: badgeRarityEnum("rarity").notNull().default("common"),
+  emoji: varchar("emoji", { length: 16 }).notNull().default(""),
+  xpReward: integer("xp_reward").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

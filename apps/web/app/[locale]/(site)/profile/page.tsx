@@ -54,6 +54,7 @@ export default async function ProfilePage({
       slug: badges.slug,
       name: badges.name,
       description: badges.description,
+      rarity: badges.rarity,
     })
     .from(badges)
     .orderBy(badges.createdAt);
@@ -119,6 +120,7 @@ export default async function ProfilePage({
                 >
                   <BadgeIcon
                     slug={b.slug}
+                    rarity={b.rarity}
                     unlocked={unlocked}
                     size="lg"
                     description={b.description ?? undefined}

@@ -113,19 +113,21 @@ const RARITY_COLOR: Record<BadgeRarity, string> = {
  */
 export function BadgeIcon({
   slug,
+  rarity,
   unlocked,
   size = "lg",
   description,
 }: {
   slug: string;
+  rarity: BadgeRarity;
   unlocked: boolean;
   size?: "sm" | "lg";
   description?: string;
 }) {
-  const spec = BADGE_ICONS[slug] ?? DEFAULT_BADGE_ICON;
-  const Icon = ICONS[spec.icon] ?? Award;
+  const iconName = BADGE_ICONS[slug] ?? DEFAULT_BADGE_ICON;
+  const Icon = ICONS[iconName] ?? Award;
   const isLg = size === "lg";
-  const color = unlocked ? RARITY_COLOR[spec.rarity] : RARITY_COLOR.common;
+  const color = unlocked ? RARITY_COLOR[rarity] : RARITY_COLOR.common;
 
   return (
     <div

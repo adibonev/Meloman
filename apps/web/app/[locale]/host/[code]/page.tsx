@@ -13,6 +13,8 @@ import {
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { Link } from "@/i18n/navigation";
+import { getRequestOrigin } from "@/lib/origin";
+import { JoinQr } from "@/components/live/join-qr";
 import { TimerCountdown } from "@/components/live/timer-countdown";
 import {
   AnswerOverridePanel,
@@ -76,6 +78,7 @@ export default async function HostLobbyPage({
   if (!session?.user?.id) notFound();
 
   const upper = code.toUpperCase();
+  const joinUrl = `${await getRequestOrigin()}/play/${upper}`;
 
   const [row] = await db
     .select({
@@ -271,6 +274,12 @@ export default async function HostLobbyPage({
           {upper}
         </p>
         <p className="text-sm text-muted-foreground">{t("joinHint")}</p>
+        <div className="flex flex-col items-center gap-2 pt-4">
+          <JoinQr url={joinUrl} size={160} />
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            {t("scanToJoin")}
+          </p>
+        </div>
       </section>
 
       <section className="grid grid-cols-2 gap-3 text-sm">

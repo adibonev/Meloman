@@ -544,6 +544,7 @@
     "betweenRoundsHint": "Wait for the host to announce the next round.",
     "lobbyEyebrow": "Scan or type the code at /play",
     "lobbyHint": "Wait for players to join, then press SPACE.",
+    "scanToJoin": "Scan to join",
     "playersValue": "{players} players in {teams, plural, =1 {1 team} other {# teams}}",
     "captainBadge": "Captain",
     "memberFallback": "Player",
@@ -607,6 +608,7 @@
     "backToAdmin": "← Back to quiz",
     "joinCodeLabel": "Join code",
     "joinHint": "Show this code on the TV or call it out — players enter it at /play.",
+    "scanToJoin": "Scan to join",
     "statusLabel": "Status",
     "status": {
       "lobby": "Waiting for players",

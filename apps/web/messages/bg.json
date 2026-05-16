@@ -544,6 +544,7 @@
     "betweenRoundsHint": "Изчакай домакина да обяви следващия рунд.",
     "lobbyEyebrow": "Сканирай или въведи кода на /play",
     "lobbyHint": "Изчакай играчите да се присъединят, после натисни SPACE.",
+    "scanToJoin": "Сканирай за присъединяване",
     "playersValue": "{players} играчи в {teams, plural, =1 {1 отбор} other {# отбора}}",
     "captainBadge": "Капитан",
     "memberFallback": "Игроч",
@@ -607,6 +608,7 @@
     "backToAdmin": "← Назад към quiz-а",
     "joinCodeLabel": "Join код",
     "joinHint": "Покажи този код на TV-то или го продиктувай на играчите. Те влизат на /play с този код.",
+    "scanToJoin": "Сканирай за присъединяване",
     "statusLabel": "Статус",
     "status": {
       "lobby": "Очаква играчи",

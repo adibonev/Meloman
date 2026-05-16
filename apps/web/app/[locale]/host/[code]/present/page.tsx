@@ -20,10 +20,12 @@ import { AudioClipPlayer } from "@/components/live/audio-clip-player";
 import { BetweenRoundsLeaderboard } from "@/components/live/between-rounds-leaderboard";
 import { BlurredImage } from "@/components/live/blurred-image";
 import { DecadeYearDisplay } from "@/components/live/decade-year-display";
+import { JoinQr } from "@/components/live/join-qr";
 import type { LeaderboardTeam } from "@/components/live/leaderboard-overlay";
 import { LyricBlankDisplay } from "@/components/live/lyric-blank-display";
 import { Podium } from "@/components/live/podium";
 import { getDownloadUrl } from "@/lib/r2";
+import { getRequestOrigin } from "@/lib/origin";
 import { AutoRevealOnTimeout } from "../auto-reveal-on-timeout";
 import { LiveHost } from "../live-host";
 import { PresentationShell } from "./presentation-shell";
@@ -92,6 +94,7 @@ export default async function HostPresentPage({
   if (!session?.user?.id) notFound();
 
   const upper = code.toUpperCase();
+  const joinUrl = `${await getRequestOrigin()}/play/${upper}`;
 
   const [row] = await db
     .select({
@@ -343,9 +346,17 @@ export default async function HostPresentPage({
             <p className="text-sm uppercase tracking-widest text-muted-foreground">
               {t("lobbyEyebrow")}
             </p>
-            <p className="font-heading text-7xl font-black tracking-wider">
-              {upper}
-            </p>
+            <div className="flex flex-col items-center gap-8 md:flex-row md:gap-12">
+              <p className="font-heading text-7xl font-black tracking-wider md:text-8xl">
+                {upper}
+              </p>
+              <div className="flex flex-col items-center gap-3">
+                <JoinQr url={joinUrl} size={224} />
+                <p className="text-sm uppercase tracking-widest text-muted-foreground">
+                  {t("scanToJoin")}
+                </p>
+              </div>
+            </div>
             <p className="text-lg text-muted-foreground">{t("lobbyHint")}</p>
             <p className="font-heading text-3xl uppercase tracking-wider">
               {t("playersValue", {

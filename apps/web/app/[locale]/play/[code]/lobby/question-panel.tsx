@@ -448,13 +448,15 @@ export function QuestionPanel({
   const showTextInput = TEXT_QUESTION_TYPES.includes(question.questionType);
 
   return (
-    <section className="space-y-4 rounded-md border border-border bg-card px-4 py-5">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs uppercase tracking-widest text-muted-foreground">
-          <span>
+    <section className="space-y-5 rounded-lg border border-border border-l-2 border-l-primary bg-card px-6 py-6">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold uppercase tracking-[0.25em]">
+          <span className="text-primary">
             {status === "active" ? t("activeQuestion") : t("revealQuestion")}
           </span>
-          <span>{t("points", { points: question.maxPoints })}</span>
+          <span className="text-muted-foreground">
+            {t("points", { points: question.maxPoints })}
+          </span>
         </div>
         <TimerCountdown
           key={timerEndsAtMs ?? "no-question-timer"}
@@ -464,7 +466,7 @@ export function QuestionPanel({
           label={t("timerRemaining")}
           serverNowMs={serverNowMs}
         />
-        <h2 className="font-heading text-2xl font-black uppercase tracking-wider">
+        <h2 className="font-heading text-3xl font-black uppercase tracking-wider sm:text-4xl">
           {question.questionText}
         </h2>
       </div>
@@ -480,7 +482,7 @@ export function QuestionPanel({
       )}
 
       {question.questionType === "multiple_choice" && (
-        <div className="grid gap-2">
+        <div className="grid gap-3">
           {question.options.map((option, index) => (
             <Button
               key={`${question.id}-${option}`}
@@ -488,7 +490,7 @@ export function QuestionPanel({
               variant="outline"
               disabled={!canSubmit || isPending}
               onClick={() => submitMultipleChoice(index)}
-              className="h-auto justify-start whitespace-normal py-3 text-left"
+              className="h-auto justify-start whitespace-normal py-4 text-left text-base"
             >
               {isPending && pendingOptionIndex === index
                 ? t("submittingAnswer")
@@ -510,8 +512,13 @@ export function QuestionPanel({
             placeholder={t("textAnswerPlaceholder")}
             disabled={!canSubmit || isPending}
             autoComplete="off"
+            className="h-11 text-base"
           />
-          <Button type="submit" disabled={!canSubmit || isPending}>
+          <Button
+            type="submit"
+            disabled={!canSubmit || isPending}
+            className="h-12 w-full text-base"
+          >
             {isPending ? t("submittingAnswer") : t("submitAnswer")}
           </Button>
         </form>
@@ -535,11 +542,16 @@ export function QuestionPanel({
                   }}
                   disabled={!canSubmit || isPending}
                   autoComplete="off"
+                  className="h-11 text-base"
                 />
               </div>
             ))}
           </div>
-          <Button type="submit" disabled={!canSubmit || isPending}>
+          <Button
+            type="submit"
+            disabled={!canSubmit || isPending}
+            className="h-12 w-full text-base"
+          >
             {isPending ? t("submittingAnswer") : t("submitAnswer")}
           </Button>
         </form>
@@ -555,7 +567,7 @@ export function QuestionPanel({
                 value={decade}
                 onChange={(event) => handleDecadeChange(event.target.value)}
                 disabled={!canSubmit || isPending}
-                className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-base"
               >
                 {DECADE_OPTIONS.map((option) => (
                   <option key={option} value={option}>
@@ -581,6 +593,7 @@ export function QuestionPanel({
                 onChange={(event) => setYear(event.target.value)}
                 disabled={!canSubmit || isPending}
                 autoComplete="off"
+                className="h-11 text-base"
               />
               {yearOutsideDecade && (
                 <p className="text-xs text-destructive">
@@ -595,6 +608,7 @@ export function QuestionPanel({
           <Button
             type="submit"
             disabled={!canSubmit || isPending || yearOutsideDecade}
+            className="h-12 w-full text-base"
           >
             {isPending ? t("submittingAnswer") : t("submitAnswer")}
           </Button>

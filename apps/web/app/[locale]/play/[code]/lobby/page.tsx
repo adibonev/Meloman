@@ -259,25 +259,27 @@ export default async function PlayLobbyPage({
   const questionEndsAtMs = sessionRow.questionEndsAt?.valueOf() ?? null;
 
   return (
-    <div className="mx-auto max-w-md space-y-6 px-4 py-12">
+    <div className="mx-auto max-w-lg space-y-6 px-4 py-10">
       <header className="space-y-2 text-center">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
           {t("eyebrow", { code: upperCode })}
         </p>
-        <h1 className="font-heading text-3xl font-black uppercase tracking-wider">
+        <h1 className="font-heading text-4xl font-black uppercase tracking-wider sm:text-5xl">
           {sessionRow.quizTitle}
         </h1>
       </header>
 
       <section
-        className="space-y-2 rounded-md border border-border bg-card px-6 py-6 text-center"
-        style={{ borderTopColor: myTeam.color, borderTopWidth: 3 }}
+        className="space-y-3 rounded-lg border border-border bg-card px-6 py-8 text-center"
+        style={{ borderTopColor: myTeam.color, borderTopWidth: 4 }}
       >
-        <div className="text-5xl">{myTeam.avatarEmoji}</div>
-        <p className="font-heading text-2xl font-black uppercase tracking-wider">
+        <div className="text-6xl">{myTeam.avatarEmoji}</div>
+        <p className="font-heading text-3xl font-black uppercase tracking-wider">
           {myTeam.name}
         </p>
-        <p className="text-xs text-muted-foreground">{t("yourTeam")}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
+          {t("yourTeam")}
+        </p>
       </section>
 
       <section className="space-y-2">

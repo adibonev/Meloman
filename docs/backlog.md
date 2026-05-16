@@ -69,11 +69,17 @@ Each item lists:
 - **Sprint**: Stage 3 polish for high-priority flows; broader coverage
   post-MVP.
 - **Effort**: medium to large depending on coverage target.
-- **Notes**: existing Playwright suite in `apps/web/e2e/` covers
-  public/auth navigation only. Logical next targets are: live quiz
-  end-to-end (host start → reveal → next), admin quiz creation, sponsor
-  CRUD, override panel, between-rounds slide. Use `docs/live-quiz-test-plan.md`
-  as the manual-to-automated translation map.
+- **Notes**: `apps/web/e2e/` now covers public/auth navigation
+  (`public-auth.spec.ts`, updated for the warm-theme home redesign) plus
+  the live-quiz **entry** happy path (`live-quiz-entry.spec.ts`): player
+  join landing on the BG default locale and host lobby/presentation
+  route protection. Deliberately deterministic and DB-safe — kept out of
+  CI's way and reliable. The remaining (larger) target is a full
+  authenticated multi-actor game sim: host logs in, starts a seeded
+  quiz, a second browser context joins as a player, submits, host
+  reveals, leaderboard updates. That needs a dedicated seeded test DB
+  and Pusher-timing control to not be flaky, so it stays post-MVP. Use
+  `docs/live-quiz-test-plan.md` as the manual-to-automated map.
 
 ### Themed admin panel matching quiz theme
 

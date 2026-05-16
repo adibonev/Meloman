@@ -205,11 +205,12 @@ Each item lists:
 
 ## Deferred during 10-day sprint
 
-- **TipTap stories editor** — CLAUDE.md §2.2 mandates TipTap. To protect the
-  deadline, the admin stories editor uses an HTML `<textarea>` with a live
-  preview instead (working + demoable, zero new dependency risk). Swap to
-  TipTap in Phase 7 if time allows. Behaviour-compatible: the DB stores HTML
-  in `stories.body` either way.
+- ~~**TipTap stories editor**~~ — DONE 2026-05-16. The admin stories
+  body is now a WYSIWYG TipTap editor (StarterKit + toolbar) in
+  `components/admin/rich-text-editor.tsx`. Behaviour-compatible: a
+  hidden `name="body"` input fed from `editor.getHTML()` keeps the
+  FormData contract, so the server action and `stories.body` HTML
+  storage are unchanged.
 - **Reset password from user admin** — CLAUDE.md §3.4 lists it; Resend is not
   installed. User management ships with role change + ban/unban. Add reset
   (Resend email) post-deadline.

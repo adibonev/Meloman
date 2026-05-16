@@ -58,28 +58,28 @@ Each item lists:
   reveal / before advancing. Upload rides the Server Action like audio;
   large clips remain the documented signed-URL upgrade (lib/r2.ts).
 
-### Playwright tests covering every interactive button
+### Playwright tests covering every interactive button (LANDED 2026-05-17)
 
-- **What**: Build out the Playwright suite so every clickable control
-  in the host + player + admin flows has at least one happy-path
-  automated test. Adi shouldn't have to manually click through every
-  feature when verifying a release.
+- **What**: SHIPPED. Authed Playwright coverage so Adi doesn't
+  click-test every feature by hand. A `setup` project logs in once
+  with the demo accounts and reuses the session; the `full` project
+  drives the real button flows: admin quiz authoring end to end
+  (create → publish → round → multiple-choice question → start live
+  session → host lobby with join code + QR), sponsor create/delete,
+  story creation through the TipTap editor, signed-in player profile
+  + content nav.
 - **Why**: pre-defense the manual QA load is real, and SoftUni grading
   rewards observable test coverage.
-- **Sprint**: Stage 3 polish for high-priority flows; broader coverage
-  post-MVP.
-- **Effort**: medium to large depending on coverage target.
-- **Notes**: `apps/web/e2e/` now covers public/auth navigation
-  (`public-auth.spec.ts`, updated for the warm-theme home redesign) plus
-  the live-quiz **entry** happy path (`live-quiz-entry.spec.ts`): player
-  join landing on the BG default locale and host lobby/presentation
-  route protection. Deliberately deterministic and DB-safe — kept out of
-  CI's way and reliable. The remaining (larger) target is a full
-  authenticated multi-actor game sim: host logs in, starts a seeded
-  quiz, a second browser context joins as a player, submits, host
-  reveals, leaderboard updates. That needs a dedicated seeded test DB
-  and Pusher-timing control to not be flaky, so it stays post-MVP. Use
-  `docs/live-quiz-test-plan.md` as the manual-to-automated map.
+- **Sprint**: SHIPPED in Stage 3 polish.
+- **Effort**: large (delivered).
+- **Notes**: Project split — `pnpm test:e2e` runs only the DB-safe
+  `smoke` set (`public-auth.spec.ts` + `live-quiz-entry.spec.ts`, 8
+  tests) so CI stays fast/green; `pnpm test:e2e:full` runs the authed
+  suite locally against the dev DB. Mutating specs use timestamped
+  names so runs are isolated/re-runnable; session state is gitignored.
+  Still post-MVP: a multi-actor live game sim (two contexts, host +
+  player, Pusher timing) — needs a dedicated seeded test DB to not be
+  flaky. `docs/live-quiz-test-plan.md` remains the manual map.
 
 ### Themed admin panel matching quiz theme
 

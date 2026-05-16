@@ -8,6 +8,14 @@ export const ROUND_TYPES = ["standard", "mystery_artist", "final"] as const;
 export const ADVANCEMENT_TOP_N_MIN = 0;
 export const ADVANCEMENT_TOP_N_MAX = 32;
 
+// Guest-host final round (CLAUDE.md §3.1): the admin uploads a short MP4
+// the host plays on the TV before the final questions. Kept modest and
+// uploaded through the Server Action like audio — short intro clips fit
+// well under the bumped body limit. Large clips are a documented
+// post-launch upgrade to the signed-URL flow (lib/r2.ts, docs/backlog).
+export const GUEST_VIDEO_ACCEPTED_MIME_TYPES = ["video/mp4"] as const;
+export const GUEST_VIDEO_MAX_SIZE_BYTES = 30 * 1024 * 1024;
+
 export const createRoundSchema = z.object({
   title: z.string().min(2, "titleMin").max(200, "titleMax"),
   roundType: z.enum(ROUND_TYPES),

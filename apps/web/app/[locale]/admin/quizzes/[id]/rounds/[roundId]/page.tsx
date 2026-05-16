@@ -6,6 +6,7 @@ import { questions, quizzes, rounds } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { EditRoundForm } from "./edit-form";
+import { GuestVideoForm } from "./guest-video-form";
 import { QuestionRowActions } from "./question-row-actions";
 
 export default async function AdminRoundDetailPage({
@@ -74,6 +75,13 @@ export default async function AdminRoundDetailPage({
           introSlideText: round.introSlideText ?? "",
           advancementTopN: round.advancementTopN ?? 0,
         }}
+      />
+
+      <GuestVideoForm
+        quizId={quiz.id}
+        roundId={round.id}
+        roundType={round.roundType}
+        hasGuestVideo={round.guestVideoUrl != null}
       />
 
       <section className="space-y-4 border-t border-border pt-8">

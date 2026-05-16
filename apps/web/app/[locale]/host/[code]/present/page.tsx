@@ -25,6 +25,7 @@ import { JoinQr } from "@/components/live/join-qr";
 import type { LeaderboardTeam } from "@/components/live/leaderboard-overlay";
 import { LyricBlankDisplay } from "@/components/live/lyric-blank-display";
 import { Podium } from "@/components/live/podium";
+import { RevealBanner } from "@/components/live/reveal-banner";
 import { getDownloadUrl } from "@/lib/r2";
 import { getRequestOrigin } from "@/lib/origin";
 import { AutoRevealOnTimeout } from "../auto-reveal-on-timeout";
@@ -606,9 +607,9 @@ export default async function HostPresentPage({
                 correctAnswerLabel &&
                 currentQuestion.questionType !== "lyric_blank" &&
                 currentQuestion.questionType !== "decade" && (
-                  <p className="rounded-md bg-foreground/10 px-6 py-3 font-heading text-3xl uppercase tracking-wider">
-                    {t("correctAnswer", { answer: correctAnswerLabel })}
-                  </p>
+                  <RevealBanner
+                    text={t("correctAnswer", { answer: correctAnswerLabel })}
+                  />
                 )}
 
               {isHost && row.status === "active" && (

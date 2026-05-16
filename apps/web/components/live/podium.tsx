@@ -1,8 +1,17 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { LeaderboardTeam } from "./leaderboard-overlay";
 import { rankTeams } from "./podium-rank";
+
+// Reveal builds to the climax: bronze first, then silver, then gold last.
+// Restraint over spectacle (CLAUDE.md §9.1) — a short rise + fade.
+const PODIUM_RISE_DELAY: Record<1 | 2 | 3, number> = {
+  3: 0.15,
+  2: 0.45,
+  1: 0.8,
+};
 
 // Podium order is 2nd / 1st / 3rd visually so the gold spot stands in the
 // middle. We keep the underlying ranking array sorted by score (desc), and
@@ -63,9 +72,17 @@ export function Podium({ teams }: { teams: LeaderboardTeam[] }) {
             );
           }
           return (
-            <div
+            <motion.div
               key={team.id}
               className="flex w-32 flex-col items-center gap-2 md:w-40"
+              initial={{ opacity: 0, y: 48 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: PODIUM_RISE_DELAY[rank],
+                type: "spring",
+                stiffness: 120,
+                damping: 14,
+              }}
             >
               <span aria-hidden className="text-5xl">
                 {team.avatarEmoji}
@@ -88,7 +105,7 @@ export function Podium({ teams }: { teams: LeaderboardTeam[] }) {
                   {rank}
                 </span>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -96,10 +113,13 @@ export function Podium({ teams }: { teams: LeaderboardTeam[] }) {
       {remaining.length > 0 && (
         <ol className="w-full max-w-2xl space-y-2">
           {remaining.map((team, index) => (
-            <li
+            <motion.li
               key={team.id}
               className="flex items-center gap-4 rounded-md border border-border bg-card px-4 py-3"
               style={{ borderLeftColor: team.color, borderLeftWidth: 4 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 + index * 0.08, duration: 0.3 }}
             >
               <span className="font-heading w-10 text-2xl font-black tabular-nums">
                 {index + 4}
@@ -113,7 +133,7 @@ export function Podium({ teams }: { teams: LeaderboardTeam[] }) {
               <span className="font-heading text-2xl font-black tabular-nums">
                 {team.totalScore}
               </span>
-            </li>
+            </motion.li>
           ))}
         </ol>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { LeaderboardTeam } from "./leaderboard-overlay";
 import { rankTeams } from "./podium-rank";
@@ -28,10 +29,13 @@ export function BetweenRoundsLeaderboard({
   return (
     <ol className="w-full space-y-2">
       {ranked.map((team, index) => (
-        <li
+        <motion.li
           key={team.id}
           className="flex items-center gap-5 rounded-md border border-border bg-card px-5 py-4"
           style={{ borderLeftColor: team.color, borderLeftWidth: 6 }}
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: index * 0.07, duration: 0.3 }}
         >
           <span className="font-heading w-12 text-3xl font-black tabular-nums">
             {index + 1}
@@ -45,7 +49,7 @@ export function BetweenRoundsLeaderboard({
           <span className="font-heading text-3xl font-black tabular-nums">
             {team.totalScore}
           </span>
-        </li>
+        </motion.li>
       ))}
     </ol>
   );

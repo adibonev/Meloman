@@ -22,23 +22,41 @@ Each item lists:
 
 ## Items
 
-### Manual point adjustment between rounds
+### Manual point adjustment between rounds (LANDED 2026-05-16)
 
-- **What**: Host can add or remove points from any team between rounds
-  (or even during reveal) for venue-specific bonuses, manual corrections
-  beyond the per-answer override panel, or penalising obvious cheating.
-- **Why**: Adi runs real quiz nights where things happen the system can't
-  predict — a team gets an extra point for a hilarious wrong answer, a
-  team is docked for using their phone, etc. The current host override
-  panel only lets him toggle individual question answers.
-- **Sprint**: Stage 3 polish if simple, otherwise post-MVP.
-- **Effort**: small to medium.
-- **Notes**: can be implemented as a `+ / -` control next to each team
-  on the host lobby (active during `between_rounds` / `reveal` /
-  `paused`); writes to `teams.total_score` directly with a Pusher
-  scoresUpdated broadcast. Consider a small audit log column or
-  separate `score_adjustments` table to keep history (but that's
-  bigger).
+- **What**: SHIPPED. A `−/+` stepper next to each team on the host
+  lobby's between-rounds slide. Host builds a delta and commits once;
+  writes `teams.total_score` (clamped at 0) and fires one Pusher
+  `scores-updated` broadcast so every screen refreshes.
+- **Why**: Adi runs real quiz nights where things happen the system
+  can't predict — a bonus for a hilarious answer, a dock for phone use
+  — beyond what the per-answer override panel covers.
+- **Sprint**: SHIPPED in Stage 3 polish.
+- **Effort**: small to medium (delivered).
+- **Notes**: Scoped to `between_rounds` only (not reveal/paused) —
+  that's when the host reviews the leaderboard and mid-question editing
+  would race the grader. Bounded to ±100 server-side against
+  fat-fingers. No audit table: the correction is a denormalized total
+  write, history is out of scope; a `score_adjustments` table stays a
+  bigger post-MVP option if disputes ever need a paper trail.
+
+### Guest-host MP4 final round (LANDED 2026-05-16)
+
+- **What**: SHIPPED. Admin attaches an MP4 (≤30 MB, R2) to a `final`
+  round on the round edit page; the host presentation shows a "Guest
+  video" control that plays it fullscreen on the TV.
+- **Why**: CLAUDE.md §3.1 guest-host final variant — the friend's
+  quizzes have a celebrity-intro bumper before the final questions.
+- **Sprint**: SHIPPED in Stage 3 polish.
+- **Effort**: medium (delivered).
+- **Notes**: Playback is **host-triggered**, not an automated
+  pre-question gate. The timer is server-authoritative and only runs in
+  `active` (§4.4); a gate that auto-plays the clip and pauses the
+  countdown before every final question would need a state-machine
+  addition, deliberately out of scope near the deadline. The host
+  already drives all pacing (§3.1), so they play the bumper during
+  reveal / before advancing. Upload rides the Server Action like audio;
+  large clips remain the documented signed-URL upgrade (lib/r2.ts).
 
 ### Playwright tests covering every interactive button
 

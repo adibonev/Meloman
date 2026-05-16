@@ -25,6 +25,9 @@ Completed core pieces:
 - Per-round advancement criteria (`rounds.advancement_top_n`): admin sets how many teams continue after each round. The bottom teams flip to `teams.is_active = false` and are locked out of subsequent submits.
 - `between_rounds` session status: between two rounds the session pauses on a leaderboard slide. Host clicks "Start next round" (or `SPACE`) to apply the cutoff and start the next round. Both host TV (`BetweenRoundsLeaderboard`) and player phones show the standings; eliminated teams see a "not advancing" notice.
 - Host override panel for disputed open-text, audio, and image-reveal answers during reveal — accept / reject toggle, recomputes team total_score, marks `host_override`.
+- Scannable join QR on the host lobby and presentation lobby (`qrcode.react`, points at `/play/[code]` built from the request origin) so players join by camera instead of typing the code.
+- Host manual score adjustment on the between-rounds slide: a `−/+` stepper per team, committed once, writes `teams.total_score` (clamped at 0, ±100 bound) and broadcasts `scores-updated`.
+- Guest-host MP4 final round: admin attaches an MP4 to a `final` round (R2, ≤30 MB); the presentation shows a host-triggered "Guest video" control that plays it fullscreen on the TV. Host-triggered by design so playback never races the server-authoritative timer.
 - Decade question UX: player year input is constrained to the selected decade range; server schema rejects mismatched year/decade pairs.
 - Max team size per quiz: admin sets the cap on the quiz detail form, player team picker shows full teams, and `joinTeamAction` enforces the cap server-side.
 - State flow: `lobby -> active -> reveal -> (between_rounds ->) active -> ... -> finished`, with optional `paused` state from `active` or `reveal`.

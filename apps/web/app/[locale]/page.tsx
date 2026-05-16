@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { SiteNav } from "@/components/site-nav";
 import { auth, signOut } from "@/auth";
 
 export default async function HomePage({
@@ -14,7 +15,9 @@ export default async function HomePage({
   const session = await auth();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4">
+    <>
+      <SiteNav />
+      <main className="flex min-h-[calc(100vh-65px)] flex-col items-center justify-center px-4">
       <div className="flex flex-col items-center gap-10 text-center">
         <h1 className="font-heading text-7xl font-black tracking-[0.2em] text-foreground sm:text-8xl">
           MELOMAN
@@ -53,6 +56,7 @@ export default async function HomePage({
           </div>
         )}
       </div>
-    </main>
+      </main>
+    </>
   );
 }

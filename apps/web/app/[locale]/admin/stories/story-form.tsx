@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 export type StoryFormState = { error?: string };
 
@@ -165,26 +166,14 @@ export function StoryForm({
         </Button>
       </div>
 
-      <div className="space-y-4">
-        <label className="block">
-          <span className="text-sm text-muted-foreground">{t("body")}</span>
-          <textarea
-            name="body"
-            required
-            rows={16}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="<p>...</p>"
-            className={`${inputCls} font-mono`}
-          />
-        </label>
-        <div>
-          <p className="mb-2 text-sm text-muted-foreground">{t("preview")}</p>
-          <div
-            className="prose prose-invert max-w-none rounded-lg border border-border p-4"
-            dangerouslySetInnerHTML={{ __html: body }}
-          />
-        </div>
+      <div className="space-y-2">
+        <span className="text-sm text-muted-foreground">{t("body")}</span>
+        {/* TipTap is WYSIWYG, so it doubles as the preview — the old
+            separate HTML textarea + preview pane is gone. The hidden
+            input keeps the FormData contract (`name="body"`, HTML
+            string) so the server action is unchanged. */}
+        <RichTextEditor value={body} onChange={setBody} />
+        <input type="hidden" name="body" value={body} />
       </div>
     </form>
   );

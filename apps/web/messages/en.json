@@ -798,7 +798,7 @@
     "subtitle": "Subtitle",
     "artist": "Artist",
     "year": "Year",
-    "body": "Body (HTML)",
+    "body": "Body",
     "cover": "Cover image URL",
     "hero": "Hero image URL",
     "youtube": "YouTube URL",
@@ -815,7 +815,16 @@
     "saved": "Saved.",
     "backToList": "Back to list",
     "invalid": "Invalid data.",
-    "views": "Views"
+    "views": "Views",
+    "rtBold": "Bold",
+    "rtItalic": "Italic",
+    "rtH2": "Heading",
+    "rtH3": "Subheading",
+    "rtBullet": "Bullets",
+    "rtOrdered": "Numbered",
+    "rtQuote": "Quote",
+    "rtUndo": "Undo",
+    "rtRedo": "Redo"
   },
   "AdminDaily": {
     "title": "Daily content",

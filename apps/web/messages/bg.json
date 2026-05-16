@@ -798,7 +798,7 @@
     "subtitle": "Подзаглавие",
     "artist": "Артист",
     "year": "Година",
-    "body": "Текст (HTML)",
+    "body": "Текст",
     "cover": "Cover image URL",
     "hero": "Hero image URL",
     "youtube": "YouTube URL",
@@ -815,7 +815,16 @@
     "saved": "Запазено.",
     "backToList": "Към списъка",
     "invalid": "Невалидни данни.",
-    "views": "Прегледи"
+    "views": "Прегледи",
+    "rtBold": "Удебелен",
+    "rtItalic": "Курсив",
+    "rtH2": "Заглавие",
+    "rtH3": "Подзаглавие",
+    "rtBullet": "Списък",
+    "rtOrdered": "Номериран",
+    "rtQuote": "Цитат",
+    "rtUndo": "Назад",
+    "rtRedo": "Напред"
   },
   "AdminDaily": {
     "title": "Съдържание за деня",

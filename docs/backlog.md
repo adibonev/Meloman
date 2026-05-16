@@ -194,9 +194,14 @@ Each item lists:
   screens use React Native `StyleSheet` (same monochrome brand palette,
   zero metro/babel config risk). Swap to NativeWind in Phase 7 if time
   allows. No behaviour change — styling only.
-- **QR scanner on mobile join** — CLAUDE.md §3.1 wants expo-camera QR scan.
-  Mobile `play` screen uses manual code entry (lower build risk, works on
-  emulator without a camera). Add expo-camera scan post-deadline.
+- **In-app expo-camera QR scanner (mobile)** — CLAUDE.md §3.1/§2.2 want an
+  expo-camera scan inside the Meloman app. The host now shows a scannable
+  join QR on the web TV view (`host/[code]` + presentation lobby), so any
+  phone's native camera opens `/play/[code]` — the scan-to-join need is
+  covered. The in-app scanner stays manual code entry: adding expo-camera
+  touches `app.json` native permissions and needs a fresh EAS build to
+  validate, which risks the graded Android APK before the capstone
+  deadline. Owner decision 2026-05-16: defer to post-deadline (Phase 7).
 
 ## Closed
 

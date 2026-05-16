@@ -592,6 +592,8 @@
     "leaderboardClose": "Close",
     "leaderboardEmpty": "No scores yet. Wait for the first round.",
     "leaderboardButton": "Leaderboard",
+    "guestVideoButton": "Guest video",
+    "guestVideoClose": "Close video",
     "working": "Working...",
     "hint": {
       "space": "SPACE — start / reveal / next",

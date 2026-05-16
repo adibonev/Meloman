@@ -592,6 +592,8 @@
     "leaderboardClose": "Затвори",
     "leaderboardEmpty": "Все още няма точки. Изчакай първия рунд.",
     "leaderboardButton": "Класиране",
+    "guestVideoButton": "Видео на госта",
+    "guestVideoClose": "Затвори видеото",
     "working": "Изпълнява се...",
     "hint": {
       "space": "SPACE — старт / разкрий / следващ",

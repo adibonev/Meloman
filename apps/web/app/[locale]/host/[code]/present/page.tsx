@@ -8,6 +8,7 @@ import {
   questions,
   quizSponsors,
   quizzes,
+  rounds,
   sponsors,
   teamMembers,
   teams,
@@ -194,8 +195,11 @@ export default async function HostPresentPage({
           mediaUrl: questions.mediaUrl,
           mediaAttribution: questions.mediaAttribution,
           mediaBlurPx: questions.mediaBlurPx,
+          roundType: rounds.roundType,
+          guestVideoUrl: rounds.guestVideoUrl,
         })
         .from(questions)
+        .leftJoin(rounds, eq(rounds.id, questions.roundId))
         .where(eq(questions.id, row.currentQuestionId))
         .limit(1)
     : [];
@@ -297,6 +301,23 @@ export default async function HostPresentPage({
     }
   }
 
+  // Guest-host final round (CLAUDE.md §3.1): one MP4 per final round the
+  // host plays fullscreen before each question. The round (not the
+  // question) carries the clip, so this is independent of mediaUrl.
+  let signedGuestVideoUrl: string | null = null;
+  if (
+    currentQuestion?.roundType === "final" &&
+    currentQuestion.guestVideoUrl
+  ) {
+    try {
+      signedGuestVideoUrl = await getDownloadUrl(
+        currentQuestion.guestVideoUrl
+      );
+    } catch (err) {
+      console.error("R2 guest video signed URL failed:", err);
+    }
+  }
+
   return (
     <PresentationShell
       code={upper}
@@ -304,6 +325,7 @@ export default async function HostPresentPage({
       status={row.status}
       teams={leaderboardTeams}
       sponsors={presentationSponsors}
+      guestVideoUrl={signedGuestVideoUrl}
     >
       <header className="flex items-center justify-between border-b border-border px-8 py-4">
         <div className="space-y-0.5">

@@ -7,6 +7,7 @@ import {
   LeaderboardOverlay,
   type LeaderboardTeam,
 } from "@/components/live/leaderboard-overlay";
+import { GuestVideoOverlay } from "@/components/live/guest-video-overlay";
 import {
   continueFromBetweenRoundsAction,
   nextQuestionAction,
@@ -49,6 +50,7 @@ export function PresentationShell({
   status,
   teams,
   sponsors,
+  guestVideoUrl,
 }: {
   children: React.ReactNode;
   code: string;
@@ -59,6 +61,9 @@ export function PresentationShell({
   // presentation so the venue brand is visible to the room without
   // blocking the question or leaderboard.
   sponsors: { id: string; name: string; logoUrl: string | null }[];
+  // Signed URL of the final round's guest-host MP4, when the current
+  // question belongs to a `final` round that has one. Host-only.
+  guestVideoUrl?: string | null;
 }) {
   const t = useTranslations("HostPresent");
   const router = useRouter();
@@ -206,6 +211,9 @@ export function PresentationShell({
                 <span className="text-destructive">
                   {t(`errors.${serverErrorKey}`)}
                 </span>
+              )}
+              {isHost && guestVideoUrl && (
+                <GuestVideoOverlay signedUrl={guestVideoUrl} />
               )}
               <button
                 type="button"

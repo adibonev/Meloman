@@ -1,15 +1,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
 import { listStories, type StoryListItem } from "@/lib/api";
-import { colors, spacing } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
 export default function StoriesScreen() {
   const router = useRouter();
@@ -26,7 +19,7 @@ export default function StoriesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-bg p-[24px]">
         <ActivityIndicator color={colors.fg} />
       </View>
     );
@@ -34,31 +27,37 @@ export default function StoriesScreen() {
 
   if (error) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.error}>{error}</Text>
+      <View className="flex-1 items-center justify-center bg-bg p-[24px]">
+        <Text className="text-center text-danger">{error}</Text>
       </View>
     );
   }
 
   return (
     <FlatList
-      style={styles.list}
+      className="flex-1 bg-bg"
       data={stories}
       keyExtractor={(s) => s.slug}
-      contentContainerStyle={{ padding: spacing.md, paddingBottom: 120 }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
       ListEmptyComponent={
-        <Text style={styles.empty}>Все още няма публикувани истории.</Text>
+        <Text className="mt-[40px] text-center text-muted">
+          Все още няма публикувани истории.
+        </Text>
       }
       renderItem={({ item }) => (
         <Pressable
-          style={styles.card}
+          className="mb-[16px] rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px]"
           onPress={() => router.push(`/story/${item.slug}`)}
         >
-          <Text style={styles.title}>{item.title}</Text>
+          <Text className="text-[20px] font-extrabold text-fg">
+            {item.title}
+          </Text>
           {item.subtitle ? (
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
+            <Text className="mt-[4px] text-[14px] text-muted">
+              {item.subtitle}
+            </Text>
           ) : null}
-          <Text style={styles.meta}>
+          <Text className="mt-[8px] text-[12px] text-dim">
             {item.artistName ? `${item.artistName} · ` : ""}
             {item.readingTimeMinutes} мин четене
           </Text>
@@ -67,29 +66,3 @@ export default function StoriesScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  list: { flex: 1, backgroundColor: colors.bg },
-  center: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.lg,
-  },
-  card: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderLeftColor: colors.accent,
-    borderLeftWidth: 3,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  title: { color: colors.fg, fontSize: 20, fontWeight: "800" },
-  subtitle: { color: colors.muted, fontSize: 14, marginTop: 4 },
-  meta: { color: colors.dim, fontSize: 12, marginTop: 8 },
-  empty: { color: colors.muted, textAlign: "center", marginTop: spacing.xl },
-  error: { color: colors.danger, textAlign: "center" },
-});

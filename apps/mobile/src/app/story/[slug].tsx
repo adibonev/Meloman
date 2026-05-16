@@ -1,14 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { getStory, type StoryDetail } from "@/lib/api";
-import { colors, spacing } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
 // Minimal HTML → text: the body is TipTap/HTML. React Native has no DOM,
 // so strip tags for a readable plain-text view (good enough for the
@@ -40,7 +34,7 @@ export default function StoryDetailScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-bg p-[24px]">
         <ActivityIndicator color={colors.fg} />
       </View>
     );
@@ -48,8 +42,8 @@ export default function StoryDetailScreen() {
 
   if (error || !story) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.error}>
+      <View className="flex-1 items-center justify-center bg-bg p-[24px]">
+        <Text className="text-center text-danger">
           {error ?? "Историята не е намерена."}
         </Text>
       </View>
@@ -58,51 +52,24 @@ export default function StoryDetailScreen() {
 
   return (
     <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ padding: spacing.lg }}
+      className="flex-1 bg-bg"
+      contentContainerStyle={{ padding: 24 }}
     >
-      <Text style={styles.title}>{story.title}</Text>
+      <Text className="text-[32px] font-black tracking-[0.5px] text-fg">
+        {story.title}
+      </Text>
       {story.subtitle ? (
-        <Text style={styles.subtitle}>{story.subtitle}</Text>
+        <Text className="mt-[8px] text-[17px] text-muted">
+          {story.subtitle}
+        </Text>
       ) : null}
-      <Text style={styles.meta}>
+      <Text className="mt-[16px] text-[12px] font-bold uppercase tracking-[1.5px] text-accent">
         {story.artistName ? `${story.artistName} · ` : ""}
         {story.readingTimeMinutes} мин четене
       </Text>
-      <Text style={styles.body}>{htmlToText(story.body)}</Text>
+      <Text className="mt-[24px] text-[17px] leading-[27px] text-fg">
+        {htmlToText(story.body)}
+      </Text>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg },
-  center: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.lg,
-  },
-  title: {
-    color: colors.fg,
-    fontSize: 32,
-    fontWeight: "900",
-    letterSpacing: 0.5,
-  },
-  subtitle: { color: colors.muted, fontSize: 17, marginTop: spacing.sm },
-  meta: {
-    color: colors.accent,
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-    marginTop: spacing.md,
-  },
-  body: {
-    color: colors.fg,
-    fontSize: 17,
-    lineHeight: 27,
-    marginTop: spacing.lg,
-  },
-  error: { color: colors.danger, textAlign: "center" },
-});

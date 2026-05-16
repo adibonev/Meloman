@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { getDailyToday, type DailyToday } from "@/lib/api";
-import { colors, spacing } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
 export default function DailyScreen() {
   const [data, setData] = useState<DailyToday["daily"]>(null);
@@ -23,7 +17,7 @@ export default function DailyScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-bg">
         <ActivityIndicator color={colors.fg} />
       </View>
     );
@@ -33,68 +27,40 @@ export default function DailyScreen() {
 
   return (
     <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ padding: spacing.lg, paddingBottom: 120 }}
+      className="flex-1 bg-bg"
+      contentContainerStyle={{ padding: 24, paddingBottom: 120 }}
     >
-      <Text style={styles.h1}>Песен на деня</Text>
+      <Text className="mb-[24px] text-[32px] font-black text-fg">
+        Песен на деня
+      </Text>
       {error ? (
-        <Text style={styles.error}>{error}</Text>
+        <Text className="text-danger">{error}</Text>
       ) : !data ? (
-        <Text style={styles.muted}>Днес няма съдържание. Върни се утре!</Text>
+        <Text className="mt-[4px] text-[15px] text-muted">
+          Днес няма съдържание. Върни се утре!
+        </Text>
       ) : (
-        <View style={styles.card}>
-          <Text style={styles.kicker}>
+        <View className="rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px]">
+          <Text className="text-[12px] font-bold uppercase tracking-[2px] text-accent">
             {data.contentType === "song_of_day"
               ? "Песен на деня"
               : "Мистериозен артист"}
           </Text>
-          <Text style={styles.title}>
+          <Text className="mt-[8px] text-[26px] font-extrabold text-fg">
             {payload.title ?? payload.name ?? "—"}
           </Text>
           {payload.artist ? (
-            <Text style={styles.muted}>{payload.artist}</Text>
+            <Text className="mt-[4px] text-[15px] text-muted">
+              {payload.artist}
+            </Text>
           ) : null}
           {payload.story ? (
-            <Text style={styles.body}>{payload.story}</Text>
+            <Text className="mt-[16px] text-[15px] leading-[22px] text-fg">
+              {payload.story}
+            </Text>
           ) : null}
         </View>
       )}
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg },
-  center: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  h1: { color: colors.fg, fontSize: 32, fontWeight: "900", marginBottom: spacing.lg },
-  kicker: {
-    color: colors.accent,
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 2,
-  },
-  title: {
-    color: colors.fg,
-    fontSize: 26,
-    fontWeight: "800",
-    marginTop: spacing.sm,
-  },
-  muted: { color: colors.muted, fontSize: 15, marginTop: 4 },
-  body: { color: colors.fg, fontSize: 15, lineHeight: 22, marginTop: spacing.md },
-  card: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderLeftColor: colors.accent,
-    borderLeftWidth: 3,
-    borderRadius: 12,
-    padding: spacing.md,
-  },
-  error: { color: colors.danger },
-});

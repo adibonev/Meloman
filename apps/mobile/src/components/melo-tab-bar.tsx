@@ -1,6 +1,5 @@
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors } from "@/lib/theme";
+import { Pressable, Text, View } from "react-native";
 
 // Short tab labels (the screen header keeps the full name).
 const LABELS: Record<string, string> = {
@@ -12,13 +11,16 @@ const LABELS: Record<string, string> = {
 
 /**
  * Floating, centred pill tab bar (owner request: "tabs at the bottom,
- * centred, like little buttons"). Pure RN primitives — no extra deps so
- * the EAS build stays clean. Active pill = gold, matching the web theme.
+ * centred, like little buttons"). Active pill = gold, matching the web
+ * theme. NativeWind className (CLAUDE.md §2.2).
  */
 export function MeloTabBar({ state, navigation }: BottomTabBarProps) {
   return (
-    <View style={styles.wrap} pointerEvents="box-none">
-      <View style={styles.bar}>
+    <View
+      className="absolute bottom-[26px] left-0 right-0 items-center"
+      pointerEvents="box-none"
+    >
+      <View className="flex-row gap-[4px] rounded-full border border-border-strong bg-card p-[6px]">
         {state.routes.map((route, index) => {
           const focused = state.index === index;
           const label = LABELS[route.name] ?? route.name;
@@ -37,11 +39,15 @@ export function MeloTabBar({ state, navigation }: BottomTabBarProps) {
                   navigation.navigate(route.name);
                 }
               }}
-              style={[styles.pill, focused && styles.pillActive]}
+              className={`rounded-full px-[18px] py-[11px] ${
+                focused ? "bg-accent" : ""
+              }`}
             >
               <Text
                 numberOfLines={1}
-                style={[styles.label, focused && styles.labelActive]}
+                className={`text-[13px] font-bold ${
+                  focused ? "text-bg" : "text-muted"
+                }`}
               >
                 {label}
               </Text>
@@ -52,30 +58,3 @@ export function MeloTabBar({ state, navigation }: BottomTabBarProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 26,
-    alignItems: "center",
-  },
-  bar: {
-    flexDirection: "row",
-    gap: 4,
-    backgroundColor: colors.card,
-    borderColor: colors.borderStrong,
-    borderWidth: 1,
-    borderRadius: 999,
-    padding: 6,
-  },
-  pill: {
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: 999,
-  },
-  pillActive: { backgroundColor: colors.accent },
-  label: { color: colors.muted, fontSize: 13, fontWeight: "700" },
-  labelActive: { color: colors.bg },
-});

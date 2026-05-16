@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -20,9 +19,21 @@ import {
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 import { getDeviceId } from "@/lib/device";
-import { colors, spacing } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
 const POLL_MS = 2500;
+
+// NativeWind className (CLAUDE.md §2.2). Values are exact px arbitrary
+// values mapped 1:1 from the old StyleSheet so there is no visual
+// change. `colors` stays for RN color props (placeholderTextColor,
+// ActivityIndicator). Reused class strings are hoisted as constants.
+const BTN_PRIMARY = "mt-[8px] items-center rounded-[14px] bg-accent py-[16px]";
+const TXT_PRIMARY = "text-[16px] font-extrabold text-bg";
+const FIELD =
+  "rounded-[12px] border border-border-strong p-[14px] text-[16px] text-fg";
+const MUTED = "mt-[4px] text-[15px] text-muted";
+const CENTER =
+  "flex-1 items-center justify-center gap-[16px] bg-bg p-[24px]";
 
 export default function PlayScreen() {
   const router = useRouter();
@@ -77,7 +88,7 @@ export default function PlayScreen() {
 
   if (!authChecked) {
     return (
-      <View style={styles.center}>
+      <View className={CENTER}>
         <ActivityIndicator color={colors.accent} />
       </View>
     );
@@ -85,14 +96,13 @@ export default function PlayScreen() {
 
   if (!signedIn) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.kicker}>Меломан</Text>
-        <Text style={styles.muted}>Влез в профила си, за да играеш.</Text>
-        <Pressable
-          style={styles.primaryBtn}
-          onPress={() => router.push("/login")}
-        >
-          <Text style={styles.primaryText}>Вход</Text>
+      <View className={CENTER}>
+        <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
+          Меломан
+        </Text>
+        <Text className={MUTED}>Влез в профила си, за да играеш.</Text>
+        <Pressable className={BTN_PRIMARY} onPress={() => router.push("/login")}>
+          <Text className={TXT_PRIMARY}>Вход</Text>
         </Pressable>
       </View>
     );
@@ -101,10 +111,12 @@ export default function PlayScreen() {
   // Step 1 — enter the join code.
   if (!joinedCode) {
     return (
-      <View style={styles.screen}>
-        <Text style={styles.kicker}>Live quiz</Text>
-        <Text style={styles.h1}>Влез в куиз</Text>
-        <Text style={styles.muted}>
+      <View className="flex-1 bg-bg p-[24px]">
+        <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
+          Live quiz
+        </Text>
+        <Text className="text-[32px] font-black text-fg">Влез в куиз</Text>
+        <Text className={MUTED}>
           Въведи кода, който водещият показва на екрана.
         </Text>
         <TextInput
@@ -113,10 +125,10 @@ export default function PlayScreen() {
           placeholder="MELO42"
           placeholderTextColor={colors.dim}
           autoCapitalize="characters"
-          style={styles.codeInput}
+          className="mb-[16px] mt-[24px] rounded-[12px] border border-border-strong p-[15px] text-center text-[22px] tracking-[6px] text-fg"
         />
         <Pressable
-          style={styles.primaryBtn}
+          className={BTN_PRIMARY}
           onPress={() => {
             if (code.trim().length < 4) {
               setError("Въведи валиден код.");
@@ -127,18 +139,22 @@ export default function PlayScreen() {
             setJoinedCode(code.trim().toUpperCase());
           }}
         >
-          <Text style={styles.primaryText}>Влез</Text>
+          <Text className={TXT_PRIMARY}>Влез</Text>
         </Pressable>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? (
+          <Text className="mt-[16px] text-center text-danger">{error}</Text>
+        ) : null}
       </View>
     );
   }
 
   if (!state) {
     return (
-      <View style={styles.center}>
+      <View className={CENTER}>
         <ActivityIndicator color={colors.accent} />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? (
+          <Text className="mt-[16px] text-center text-danger">{error}</Text>
+        ) : null}
       </View>
     );
   }
@@ -218,8 +234,8 @@ function TeamPicker({
   const [name, setName] = useState("");
   if (!state.joinable) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.muted}>
+      <View className={CENTER}>
+        <Text className={MUTED}>
           Този куиз вече е започнал или е приключил.
         </Text>
       </View>
@@ -227,43 +243,53 @@ function TeamPicker({
   }
   return (
     <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ paddingBottom: spacing.xl }}
+      className="flex-1 bg-bg p-[24px]"
+      contentContainerStyle={{ paddingBottom: 40 }}
     >
-      <Text style={styles.kicker}>Избери отбор</Text>
-      <Text style={styles.h2}>Създай отбор</Text>
+      <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
+        Избери отбор
+      </Text>
+      <Text className="mb-[8px] mt-[24px] text-[20px] font-extrabold text-fg">
+        Създай отбор
+      </Text>
       <TextInput
         value={name}
         onChangeText={setName}
         placeholder="Име на отбора"
         placeholderTextColor={colors.dim}
-        style={styles.input}
+        className={FIELD}
       />
       <Pressable
-        style={[styles.primaryBtn, busy && styles.disabled]}
+        className={`${BTN_PRIMARY} ${busy ? "opacity-50" : ""}`}
         disabled={busy}
         onPress={() => name.trim().length >= 2 && onCreate(name.trim())}
       >
-        <Text style={styles.primaryText}>Създай</Text>
+        <Text className={TXT_PRIMARY}>Създай</Text>
       </Pressable>
 
       {state.teams.length > 0 && (
         <>
-          <Text style={styles.h2}>Или се присъедини</Text>
+          <Text className="mb-[8px] mt-[24px] text-[20px] font-extrabold text-fg">
+            Или се присъедини
+          </Text>
           {state.teams.map((tm) => (
             <Pressable
               key={tm.id}
-              style={[styles.teamRow, busy && styles.disabled]}
+              className={`mt-[8px] flex-row items-center gap-[16px] rounded-[12px] border border-border-strong bg-card p-[16px] ${
+                busy ? "opacity-50" : ""
+              }`}
               disabled={busy}
               onPress={() => onJoin(tm.id)}
             >
-              <Text style={styles.teamEmoji}>{tm.avatarEmoji}</Text>
-              <Text style={styles.teamName}>{tm.name}</Text>
+              <Text className="text-[22px]">{tm.avatarEmoji}</Text>
+              <Text className="text-[16px] font-bold text-fg">{tm.name}</Text>
             </Pressable>
           ))}
         </>
       )}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text className="mt-[16px] text-center text-danger">{error}</Text>
+      ) : null}
     </ScrollView>
   );
 }
@@ -305,35 +331,39 @@ function Lobby({
 
   return (
     <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ paddingBottom: spacing.xl }}
+      className="flex-1 bg-bg p-[24px]"
+      contentContainerStyle={{ paddingBottom: 40 }}
     >
-      <Text style={styles.kicker}>Твоят отбор</Text>
-      <View style={styles.teamCard}>
-        <Text style={styles.teamEmojiBig}>{team.avatarEmoji}</Text>
-        <Text style={styles.teamNameBig}>{team.name}</Text>
-        <Text style={styles.muted}>
+      <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
+        Твоят отбор
+      </Text>
+      <View className="items-center rounded-[14px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[24px]">
+        <Text className="text-[48px]">{team.avatarEmoji}</Text>
+        <Text className="mt-[8px] text-[26px] font-black text-fg">
+          {team.name}
+        </Text>
+        <Text className={MUTED}>
           {team.isCaptain ? "Ти си капитан" : "Член"}
         </Text>
       </View>
 
       {state.status === "lobby" && (
-        <Text style={styles.notice}>
+        <Text className="mt-[24px] rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px] text-fg">
           Изчакай водещия да започне. Само капитанът изпраща отговори.
         </Text>
       )}
       {state.status === "paused" && (
-        <Text style={styles.notice}>
+        <Text className="mt-[24px] rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px] text-fg">
           ⏸ Пауза. Изчакай водещия да продължи.
         </Text>
       )}
       {state.status === "finished" && (
-        <Text style={styles.notice}>
+        <Text className="mt-[24px] rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px] text-fg">
           Куизът приключи. Гледай екрана за класирането.
         </Text>
       )}
       {state.isEliminated && state.status !== "finished" && (
-        <Text style={styles.notice}>
+        <Text className="mt-[24px] rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px] text-fg">
           Отборът не продължи в този кръг — само наблюдавате.
         </Text>
       )}
@@ -341,34 +371,41 @@ function Lobby({
       {(state.status === "between_rounds" ||
         (state.status === "finished" && state.teams.length > 0)) && (
         <View>
-          <Text style={styles.h2}>Класиране</Text>
+          <Text className="mb-[8px] mt-[24px] text-[20px] font-extrabold text-fg">
+            Класиране
+          </Text>
           {state.teams.map((tm, i) => (
-            <View key={tm.id} style={styles.lbRow}>
-              <Text style={styles.lbRank}>{i + 1}</Text>
-              <Text style={styles.teamEmoji}>{tm.avatarEmoji}</Text>
-              <Text style={styles.lbName}>{tm.name}</Text>
-              <Text style={styles.lbScore}>{tm.totalScore}</Text>
+            <View
+              key={tm.id}
+              className="mt-[8px] flex-row items-center gap-[16px] rounded-[12px] border border-border-strong bg-card p-[16px]"
+            >
+              <Text className="w-[22px] font-black text-muted">{i + 1}</Text>
+              <Text className="text-[22px]">{tm.avatarEmoji}</Text>
+              <Text className="flex-1 font-bold text-fg">{tm.name}</Text>
+              <Text className="font-black text-accent">{tm.totalScore}</Text>
             </View>
           ))}
         </View>
       )}
 
       {q && (state.status === "active" || state.status === "reveal") && (
-        <View style={styles.qCard}>
-          <View style={styles.qHead}>
-            <Text style={styles.qKicker}>
+        <View className="mt-[24px] gap-[16px] rounded-[14px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[24px]">
+          <View className="flex-row justify-between">
+            <Text className="text-[12px] font-bold uppercase tracking-[2px] text-accent">
               {state.status === "active" ? "Въпрос" : "Отговор"}
             </Text>
-            <Text style={styles.muted}>
+            <Text className={MUTED}>
               {seconds !== null ? `${seconds}s` : `${q.maxPoints} т.`}
             </Text>
           </View>
-          <Text style={styles.qText}>{q.questionText}</Text>
+          <Text className="text-[24px] font-black text-fg">
+            {q.questionText}
+          </Text>
 
           {q.questionType === "image_reveal" && q.signedImageUrl && (
             <Image
               source={{ uri: q.signedImageUrl }}
-              style={styles.qImage}
+              className="aspect-square w-full rounded-[12px]"
               blurRadius={state.status === "reveal" ? 0 : 28}
               contentFit="cover"
             />
@@ -398,24 +435,27 @@ function Lobby({
             ))}
 
           {state.status === "active" && !team.isCaptain && (
-            <Text style={styles.muted}>
+            <Text className={MUTED}>
               Само капитанът може да изпрати отговор.
             </Text>
           )}
           {state.status === "active" &&
             state.hasSubmitted &&
             team.isCaptain && (
-              <Text style={styles.okBanner}>Отговорът е изпратен ✓</Text>
+              <Text className="overflow-hidden rounded-[12px] bg-[#4ADE80] p-[16px] text-center font-extrabold text-[#0c1f12]">
+                Отговорът е изпратен ✓
+              </Text>
             )}
 
           {state.status === "reveal" && (
             <View>
               {state.teamResult ? (
                 <Text
-                  style={
-                    state.teamResult.isCorrect || state.teamResult.pointsAwarded > 0
-                      ? styles.okBanner
-                      : styles.wrongBanner
+                  className={
+                    state.teamResult.isCorrect ||
+                    state.teamResult.pointsAwarded > 0
+                      ? "overflow-hidden rounded-[12px] bg-[#4ADE80] p-[16px] text-center font-extrabold text-[#0c1f12]"
+                      : "overflow-hidden rounded-[12px] bg-danger p-[16px] text-center font-extrabold text-fg"
                   }
                 >
                   {state.teamResult.isCorrect
@@ -427,7 +467,7 @@ function Lobby({
                 </Text>
               ) : null}
               {q.correctAnswerLabel ? (
-                <Text style={styles.correct}>
+                <Text className="mt-[8px] text-center font-bold text-fg">
                   Верен отговор: {q.correctAnswerLabel}
                 </Text>
               ) : null}
@@ -436,7 +476,9 @@ function Lobby({
         </View>
       )}
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text className="mt-[16px] text-center text-danger">{error}</Text>
+      ) : null}
     </ScrollView>
   );
 }
@@ -451,15 +493,17 @@ function MultipleChoice({
   busy: boolean;
 }) {
   return (
-    <View style={{ gap: spacing.sm }}>
+    <View className="gap-[8px]">
       {options.map((opt, i) => (
         <Pressable
           key={`${opt}-${i}`}
-          style={[styles.optionBtn, busy && styles.disabled]}
+          className={`rounded-[12px] border border-border-strong p-[16px] ${
+            busy ? "opacity-50" : ""
+          }`}
           disabled={busy}
           onPress={() => onPick(i)}
         >
-          <Text style={styles.optionText}>{opt}</Text>
+          <Text className="text-[16px] font-semibold text-fg">{opt}</Text>
         </Pressable>
       ))}
     </View>
@@ -475,21 +519,21 @@ function TextAnswer({
 }) {
   const [v, setV] = useState("");
   return (
-    <View style={{ gap: spacing.sm }}>
+    <View className="gap-[8px]">
       <TextInput
         value={v}
         onChangeText={setV}
         placeholder="Твоят отговор"
         placeholderTextColor={colors.dim}
-        style={styles.input}
+        className={FIELD}
         autoCapitalize="none"
       />
       <Pressable
-        style={[styles.primaryBtn, busy && styles.disabled]}
+        className={`${BTN_PRIMARY} ${busy ? "opacity-50" : ""}`}
         disabled={busy}
         onPress={() => v.trim() && onSubmit(v.trim())}
       >
-        <Text style={styles.primaryText}>Изпрати</Text>
+        <Text className={TXT_PRIMARY}>Изпрати</Text>
       </Pressable>
     </View>
   );
@@ -508,7 +552,7 @@ function LyricBlanks({
     Array.from({ length: Math.max(1, count) }, () => "")
   );
   return (
-    <View style={{ gap: spacing.sm }}>
+    <View className="gap-[8px]">
       {vals.map((val, i) => (
         <TextInput
           key={i}
@@ -518,16 +562,16 @@ function LyricBlanks({
           }
           placeholder={`Дума ${i + 1}`}
           placeholderTextColor={colors.dim}
-          style={styles.input}
+          className={FIELD}
           autoCapitalize="none"
         />
       ))}
       <Pressable
-        style={[styles.primaryBtn, busy && styles.disabled]}
+        className={`${BTN_PRIMARY} ${busy ? "opacity-50" : ""}`}
         disabled={busy}
         onPress={() => vals.every((v) => v.trim()) && onSubmit(vals.map((v) => v.trim()))}
       >
-        <Text style={styles.primaryText}>Изпрати</Text>
+        <Text className={TXT_PRIMARY}>Изпрати</Text>
       </Pressable>
     </View>
   );
@@ -543,14 +587,14 @@ function DecadeInput({
   const [decade, setDecade] = useState("");
   const [year, setYear] = useState("");
   return (
-    <View style={{ gap: spacing.sm }}>
+    <View className="gap-[8px]">
       <TextInput
         value={decade}
         onChangeText={setDecade}
         placeholder="Десетилетие (напр. 1980)"
         placeholderTextColor={colors.dim}
         keyboardType="number-pad"
-        style={styles.input}
+        className={FIELD}
       />
       <TextInput
         value={year}
@@ -558,10 +602,10 @@ function DecadeInput({
         placeholder="Точна година"
         placeholderTextColor={colors.dim}
         keyboardType="number-pad"
-        style={styles.input}
+        className={FIELD}
       />
       <Pressable
-        style={[styles.primaryBtn, busy && styles.disabled]}
+        className={`${BTN_PRIMARY} ${busy ? "opacity-50" : ""}`}
         disabled={busy}
         onPress={() => {
           const d = Number(decade);
@@ -571,174 +615,8 @@ function DecadeInput({
           }
         }}
       >
-        <Text style={styles.primaryText}>Изпрати</Text>
+        <Text className={TXT_PRIMARY}>Изпрати</Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg, padding: spacing.lg },
-  center: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  kicker: {
-    color: colors.accent,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 3,
-    textTransform: "uppercase",
-    marginBottom: spacing.sm,
-  },
-  h1: { color: colors.fg, fontSize: 32, fontWeight: "900" },
-  h2: {
-    color: colors.fg,
-    fontSize: 20,
-    fontWeight: "800",
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  muted: { color: colors.muted, fontSize: 15, marginTop: 4 },
-  notice: {
-    color: colors.fg,
-    backgroundColor: colors.card,
-    borderColor: colors.borderStrong,
-    borderWidth: 1,
-    borderLeftColor: colors.accent,
-    borderLeftWidth: 3,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginTop: spacing.lg,
-  },
-  codeInput: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: 12,
-    padding: 15,
-    color: colors.fg,
-    fontSize: 22,
-    letterSpacing: 6,
-    textAlign: "center",
-    marginTop: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: 12,
-    padding: 14,
-    color: colors.fg,
-    fontSize: 16,
-  },
-  primaryBtn: {
-    backgroundColor: colors.accent,
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: spacing.sm,
-  },
-  primaryText: { color: colors.bg, fontWeight: "800", fontSize: 16 },
-  disabled: { opacity: 0.5 },
-  error: { color: colors.danger, marginTop: spacing.md, textAlign: "center" },
-  teamRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.card,
-    borderColor: colors.borderStrong,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginTop: spacing.sm,
-  },
-  teamEmoji: { fontSize: 22 },
-  teamName: { color: colors.fg, fontSize: 16, fontWeight: "700" },
-  teamCard: {
-    backgroundColor: colors.card,
-    borderColor: colors.borderStrong,
-    borderWidth: 1,
-    borderLeftColor: colors.accent,
-    borderLeftWidth: 3,
-    borderRadius: 14,
-    padding: spacing.lg,
-    alignItems: "center",
-  },
-  teamEmojiBig: { fontSize: 48 },
-  teamNameBig: {
-    color: colors.fg,
-    fontSize: 26,
-    fontWeight: "900",
-    marginTop: spacing.sm,
-  },
-  qCard: {
-    backgroundColor: colors.card,
-    borderColor: colors.borderStrong,
-    borderWidth: 1,
-    borderLeftColor: colors.accent,
-    borderLeftWidth: 3,
-    borderRadius: 14,
-    padding: spacing.lg,
-    marginTop: spacing.lg,
-    gap: spacing.md,
-  },
-  qHead: { flexDirection: "row", justifyContent: "space-between" },
-  qKicker: {
-    color: colors.accent,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 2,
-    textTransform: "uppercase",
-  },
-  qText: { color: colors.fg, fontSize: 24, fontWeight: "900" },
-  qImage: { width: "100%", aspectRatio: 1, borderRadius: 12 },
-  optionBtn: {
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: 12,
-    padding: spacing.md,
-  },
-  optionText: { color: colors.fg, fontSize: 16, fontWeight: "600" },
-  okBanner: {
-    color: "#0c1f12",
-    backgroundColor: "#4ADE80",
-    fontWeight: "800",
-    textAlign: "center",
-    padding: spacing.md,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  wrongBanner: {
-    color: colors.fg,
-    backgroundColor: colors.danger,
-    fontWeight: "800",
-    textAlign: "center",
-    padding: spacing.md,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  correct: {
-    color: colors.fg,
-    marginTop: spacing.sm,
-    textAlign: "center",
-    fontWeight: "700",
-  },
-  lbRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.card,
-    borderColor: colors.borderStrong,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginTop: spacing.sm,
-  },
-  lbRank: { color: colors.muted, fontWeight: "900", width: 22 },
-  lbName: { color: colors.fg, flex: 1, fontWeight: "700" },
-  lbScore: { color: colors.accent, fontWeight: "900" },
-});

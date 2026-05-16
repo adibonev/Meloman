@@ -1,15 +1,9 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { getProgress, type Progress } from "@/lib/api";
 import { getToken, clearToken } from "@/lib/auth";
-import { colors, spacing } from "@/lib/theme";
+import { colors } from "@/lib/theme";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -47,7 +41,7 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center bg-bg">
         <ActivityIndicator color={colors.fg} />
       </View>
     );
@@ -55,107 +49,58 @@ export default function ProfileScreen() {
 
   if (!signedIn) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.muted}>Влез, за да видиш профила си.</Text>
+      <View className="flex-1 items-center justify-center gap-[16px] bg-bg p-[24px] pb-[120px]">
+        <Text className="text-[14px] text-muted">
+          Влез, за да видиш профила си.
+        </Text>
         <Pressable
-          style={styles.btn}
+          className="rounded-[14px] bg-accent px-[24px] py-[14px]"
           onPress={() => router.push("/login")}
         >
-          <Text style={styles.btnText}>Вход</Text>
+          <Text className="font-extrabold text-bg">Вход</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.screen}>
-      <Text style={styles.h1}>Профил</Text>
-      <View style={styles.row}>
-        <View style={styles.stat}>
-          <Text style={styles.statNum}>{state?.streak ?? 0}</Text>
-          <Text style={styles.muted}>Поредица</Text>
+    <View className="flex-1 bg-bg p-[24px] pb-[120px]">
+      <Text className="text-[32px] font-black text-fg">Профил</Text>
+      <View className="mt-[24px] flex-row gap-[16px]">
+        <View className="flex-1 items-center rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px]">
+          <Text className="text-[36px] font-black text-fg">
+            {state?.streak ?? 0}
+          </Text>
+          <Text className="text-[14px] text-muted">Поредица</Text>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNum}>{state?.totalXp ?? 0}</Text>
-          <Text style={styles.muted}>Общо XP</Text>
+        <View className="flex-1 items-center rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px]">
+          <Text className="text-[36px] font-black text-fg">
+            {state?.totalXp ?? 0}
+          </Text>
+          <Text className="text-[14px] text-muted">Общо XP</Text>
         </View>
       </View>
-      <Text style={styles.h2}>Значки</Text>
+      <Text className="mb-[8px] mt-[40px] text-[20px] font-extrabold text-fg">
+        Значки
+      </Text>
       {state && state.badges.length > 0 ? (
         state.badges.map((b) => (
-          <Text key={b.slug} style={styles.badge}>
+          <Text key={b.slug} className="mt-[4px] text-[15px] text-fg">
             • {b.name}
           </Text>
         ))
       ) : (
-        <Text style={styles.muted}>Все още нямаш значки.</Text>
+        <Text className="text-[14px] text-muted">Все още нямаш значки.</Text>
       )}
       <Pressable
-        style={styles.signOut}
+        className="mt-[40px] items-center rounded-[14px] border border-border-strong py-[14px]"
         onPress={async () => {
           await clearToken();
           router.replace("/(tabs)");
         }}
       >
-        <Text style={styles.signOutText}>Изход</Text>
+        <Text className="font-semibold text-fg">Изход</Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    padding: spacing.lg,
-    paddingBottom: 120,
-  },
-  center: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.md,
-    padding: spacing.lg,
-    paddingBottom: 120,
-  },
-  h1: { color: colors.fg, fontSize: 32, fontWeight: "900" },
-  h2: {
-    color: colors.fg,
-    fontSize: 20,
-    fontWeight: "800",
-    marginTop: spacing.xl,
-    marginBottom: spacing.sm,
-  },
-  row: { flexDirection: "row", gap: spacing.md, marginTop: spacing.lg },
-  stat: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderLeftColor: colors.accent,
-    borderLeftWidth: 3,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: "center",
-  },
-  statNum: { color: colors.fg, fontSize: 36, fontWeight: "900" },
-  muted: { color: colors.muted, fontSize: 14 },
-  badge: { color: colors.fg, fontSize: 15, marginTop: 4 },
-  btn: {
-    backgroundColor: colors.accent,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 14,
-  },
-  btnText: { color: colors.bg, fontWeight: "800" },
-  signOut: {
-    marginTop: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  signOutText: { color: colors.fg, fontWeight: "600" },
-});

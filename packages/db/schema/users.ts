@@ -22,6 +22,10 @@ export const users = pgTable("users", {
   avatarUrl: text("avatar_url"),
   role: userRoleEnum("role").notNull().default("player"),
   emailVerified: boolean("email_verified").notNull().default(false),
+  // Set by a super_admin from the user management panel. Login/middleware
+  // can later reject banned users; for now it gates the admin UI and is
+  // surfaced in the user list.
+  bannedAt: timestamp("banned_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

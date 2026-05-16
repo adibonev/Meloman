@@ -64,6 +64,20 @@
       "when": 1778305093657,
       "tag": "0008_mighty_phantom_reporter",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778931715868,
+      "tag": "0009_yummy_kid_colt",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778933787052,
+      "tag": "0010_faithful_mandroid",
+      "breakpoints": true
     }
   ]
 }

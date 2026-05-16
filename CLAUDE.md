@@ -590,7 +590,12 @@ Current Sprint 3 web implementation uses Server Actions for the lobby flow:
 9. Host clicks Next question → `nextQuestionAction(code)`
 
 #### Fallback polling
-Fallback polling is planned but not implemented yet. Current resilience comes from DB as source of truth plus page refresh/reconnect.
+Implemented (2026-05-16). The shared `useLiveSync` hook
+(`apps/web/lib/use-live-sync.ts`) keeps the Pusher subscription as the
+primary path but polls the server every 5s whenever the websocket is not
+`connected`, and resyncs on tab/network return. The DB stays the source
+of truth, so a Pusher outage degrades to a few seconds of lag instead of
+a stuck screen. The native mobile client polls unconditionally.
 
 ### 5.3 State machine
 
@@ -602,7 +607,7 @@ See section 4.2 above.
 |---|---|
 | Host loses internet | Session state in DB. On reconnect → re-fetch state → resume from current question. UI shows "Reconnecting..." overlay. |
 | Player loses internet | Same as host. Missed questions = 0 points. Auto re-join when reconnected. |
-| Pusher service down | Planned fallback polling. Current DB state remains authoritative, but clients may need refresh/reconnect. |
+| Pusher service down | `useLiveSync` polls the server every 5s while the socket is down (web) and the mobile client polls unconditionally. DB stays authoritative; screens degrade to a few seconds of lag, not a stall. |
 | Host closes laptop | Session stays in current state. When host returns → resumes. Players see "Host disconnected, waiting..." |
 | Two hosts on same quiz | First to open `/host/[id]/present` gets write permissions. Others see read-only with notice. |
 | Player cheats with second device | Device fingerprint + UNIQUE(team_id, device_fp). Captain-only submit. |

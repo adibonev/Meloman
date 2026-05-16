@@ -550,3 +550,71 @@ export async function overrideAnswerAction(
 
   return { ok: true };
 }
+
+// Manual score correction between rounds. Real trivia nights have
+// disputes the auto-grader can't settle (a half-right open answer the
+// host accepts verbally, a bonus for the table that got the obscure
+// reference). The host adjudicates on the between-rounds leaderboard
+// slide; this writes the denormalized team total directly. Bounded to
+// ±100 so a fat-finger can't wipe the board, and clamped at 0 so a
+// team never shows a negative score.
+const MAX_SCORE_DELTA = 100;
+
+// Dedicated result type so the extra "invalidAmount" key stays local to
+// this action. Widening the shared HostActionErrorKey would force every
+// other host action's consumers (override panel, host controls) to
+// handle a key they can never receive.
+type AdjustScoreResult =
+  | { errorKey: HostActionErrorKey | "invalidAmount" }
+  | { ok: true };
+
+export async function adjustTeamScoreAction(
+  code: string,
+  teamId: string,
+  delta: number
+): Promise<AdjustScoreResult> {
+  const loaded = await loadHostSession(code);
+  if ("errorKey" in loaded) return loaded;
+
+  const { session, upperCode } = loaded;
+
+  // Only between rounds — that's when the host reviews the leaderboard
+  // and settles disputes. Mid-question editing would race the grader;
+  // post-finish editing would rewrite a result players already saw.
+  if (session.status !== "between_rounds") {
+    return { errorKey: "invalidState" };
+  }
+
+  if (
+    !Number.isInteger(delta) ||
+    delta === 0 ||
+    Math.abs(delta) > MAX_SCORE_DELTA
+  ) {
+    return { errorKey: "invalidAmount" };
+  }
+
+  // The team must belong to this session — otherwise a host could move
+  // scores in someone else's quiz by guessing team ids.
+  const [team] = await db
+    .select({ id: teams.id })
+    .from(teams)
+    .where(and(eq(teams.id, teamId), eq(teams.sessionId, session.id)))
+    .limit(1);
+
+  if (!team) {
+    return { errorKey: "notFound" };
+  }
+
+  await db
+    .update(teams)
+    .set({
+      totalScore: sql`GREATEST(0, ${teams.totalScore} + ${delta})`,
+    })
+    .where(eq(teams.id, team.id));
+
+  await broadcast(quizChannel(upperCode), PUSHER_EVENTS.scoresUpdated, {
+    reason: "host-adjust",
+  });
+
+  return { ok: true };
+}

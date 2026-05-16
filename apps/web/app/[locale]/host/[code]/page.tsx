@@ -23,6 +23,7 @@ import {
 import { AutoRevealOnTimeout } from "./auto-reveal-on-timeout";
 import { LiveHost } from "./live-host";
 import { HostControls } from "./host-controls";
+import { ScoreAdjustPanel } from "./score-adjust-panel";
 
 function getStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -333,6 +334,19 @@ export default async function HostLobbyPage({
             </p>
           </div>
         </section>
+      )}
+
+      {isHost && row.status === "between_rounds" && sessionTeams.length > 0 && (
+        <ScoreAdjustPanel
+          code={upper}
+          teams={sessionTeams.map((tm) => ({
+            id: tm.id,
+            name: tm.name,
+            color: tm.color,
+            avatarEmoji: tm.avatarEmoji,
+            totalScore: tm.totalScore,
+          }))}
+        />
       )}
 
       {currentQuestion && row.status !== "between_rounds" && (

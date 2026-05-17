@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FontAwesome } from "@expo/vector-icons";
+import { SpotifyIcon, YouTubeIcon } from "@/components/brand-icons";
 import {
   ActivityIndicator,
   Image,
@@ -95,7 +95,7 @@ export default function DailyScreen() {
                   onPress={() => Linking.openURL(payload.spotifyUri)}
                   className="flex-row items-center gap-[8px] rounded-[10px] border border-border-strong px-[16px] py-[10px]"
                 >
-                  <FontAwesome name="spotify" size={18} color="#1DB954" />
+                  <SpotifyIcon size={18} />
                   <Text className="text-[14px] font-semibold text-fg">
                     Spotify
                   </Text>
@@ -106,7 +106,7 @@ export default function DailyScreen() {
                   onPress={() => Linking.openURL(payload.youtubeUrl)}
                   className="flex-row items-center gap-[8px] rounded-[10px] border border-border-strong px-[16px] py-[10px]"
                 >
-                  <FontAwesome name="youtube-play" size={18} color="#FF0000" />
+                  <YouTubeIcon size={18} />
                   <Text className="text-[14px] font-semibold text-fg">
                     YouTube
                   </Text>

@@ -1,9 +1,10 @@
-import * as SecureStore from "expo-secure-store";
+import { getItem, setItem } from "./secure-storage";
 
 // Stable per-device id for the live-quiz anti-cheat
 // (UNIQUE(team_id, device_fingerprint) — CLAUDE.md §4.9). Not a secret,
-// just a device tag, so a plain random hex is fine. Persisted in
-// secure-store so it survives app restarts within the same install.
+// just a device tag, so a plain random hex is fine. Persisted via
+// ./secure-storage (keychain on native, localStorage on web) so it
+// survives app restarts / reloads within the same install.
 const DEVICE_KEY = "meloman.deviceId";
 
 function randomHex(length: number): string {
@@ -15,9 +16,9 @@ function randomHex(length: number): string {
 }
 
 export async function getDeviceId(): Promise<string> {
-  const existing = await SecureStore.getItemAsync(DEVICE_KEY);
+  const existing = await getItem(DEVICE_KEY);
   if (existing && existing.length >= 8) return existing;
   const id = randomHex(32);
-  await SecureStore.setItemAsync(DEVICE_KEY, id);
+  await setItem(DEVICE_KEY, id);
   return id;
 }

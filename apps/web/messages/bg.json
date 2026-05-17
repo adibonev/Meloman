@@ -781,6 +781,8 @@
     "correct": "Позна! 🎉",
     "wrong": "Не е вярно. Опитай пак.",
     "revealAnswer": "Отговор",
+    "guessForXp": "Познай сега: {xp} XP",
+    "answerLockedUntil": "пълно разкриване в 22:00",
     "hint": "Подсказка",
     "story": "Историята",
     "openSpotify": "Отвори в Spotify",

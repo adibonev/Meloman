@@ -781,6 +781,8 @@
     "correct": "Correct! 🎉",
     "wrong": "Not right. Try again.",
     "revealAnswer": "Answer",
+    "guessForXp": "Guess now: {xp} XP",
+    "answerLockedUntil": "full reveal at 22:00",
     "hint": "Hint",
     "story": "The story",
     "openSpotify": "Open in Spotify",

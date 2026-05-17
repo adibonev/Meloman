@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { dailyContent } from "@meloman/db/schema";
+import { mysteryStageNow } from "@/lib/daily-stage";
 
 type SongPayload = {
   title?: string;
@@ -163,28 +164,43 @@ function MysteryCard({
           <p className="text-xs font-semibold tracking-[0.25em] uppercase text-primary">
             {t("mysteryArtist")}
           </p>
-          {payload.hints && payload.hints.length > 0 && (
-            <ul className="mt-4 space-y-2">
-              {payload.hints.map((hint, i) => (
-                <li key={i} className="text-muted-foreground">
-                  {t("hint")} {i + 1}: {hint}
-                </li>
-              ))}
-            </ul>
-          )}
-          <details className="mt-6">
-            <summary className="cursor-pointer text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              {t("revealAnswer")}
-            </summary>
-            <p className="mt-4 font-heading text-3xl font-black uppercase">
-              {payload.name ?? "—"}
-            </p>
-            {payload.story && (
-              <p className="mt-4 leading-relaxed whitespace-pre-line text-foreground/90">
-                {payload.story}
-              </p>
-            )}
-          </details>
+          {(() => {
+            const hints = payload.hints ?? [];
+            const stage = mysteryStageNow(new Date(), hints.length);
+            const shown = hints.slice(0, stage.revealedHints);
+            return (
+              <>
+                {shown.length > 0 && (
+                  <ul className="mt-4 space-y-2">
+                    {shown.map((hint, i) => (
+                      <li key={i} className="text-muted-foreground">
+                        {t("hint")} {i + 1}: {hint}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {stage.answerRevealed ? (
+                  <div className="mt-6">
+                    <p className="font-heading text-3xl font-black uppercase">
+                      {payload.name ?? "—"}
+                    </p>
+                    {payload.story && (
+                      <p className="mt-4 leading-relaxed whitespace-pre-line text-foreground/90">
+                        {payload.story}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-6 rounded-md bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
+                    {t("guessForXp", { xp: stage.xp })}
+                    {" · "}
+                    {t("answerLockedUntil")}
+                  </p>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </section>

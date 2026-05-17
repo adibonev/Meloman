@@ -1,5 +1,10 @@
 import { Link } from "expo-router";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Linking, Pressable, Text, View } from "react-native";
+
+// Same official Meloman pages the web footer links to — keep them 1:1.
+const INSTAGRAM_URL = "https://www.instagram.com/meloman.offc/";
+const FACEBOOK_URL =
+  "https://www.facebook.com/profile.php?id=61566868535472&locale=bg_BG";
 
 export default function HomeScreen() {
   return (
@@ -29,6 +34,19 @@ export default function HomeScreen() {
             <Text className="text-[16px] font-semibold text-fg">Вход</Text>
           </Pressable>
         </Link>
+      </View>
+
+      <View className="mt-[40px] flex-row gap-[24px]">
+        <Pressable onPress={() => Linking.openURL(INSTAGRAM_URL)}>
+          <Text className="text-[15px] font-semibold text-accent">
+            Instagram
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => Linking.openURL(FACEBOOK_URL)}>
+          <Text className="text-[15px] font-semibold text-accent">
+            Facebook
+          </Text>
+        </Pressable>
       </View>
     </View>
   );

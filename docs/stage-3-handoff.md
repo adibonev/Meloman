@@ -1,10 +1,14 @@
 # Stage 3 Handoff: Live Quiz Engine
 
-Last updated: 2026-05-09
+Last updated: 2026-05-17
 
 ## Current Status
 
-Stage 3 is partially implemented and playable through the web app.
+Stage 3 is **complete** and fully playable through the web app
+(historical handoff notes below kept for context). The live engine,
+host presentation, grading + override, pause/resume, per-round
+elimination, between-rounds score adjust, and podium all shipped; see
+`docs/backlog.md` for the e2e coverage map.
 
 Completed core pieces:
 

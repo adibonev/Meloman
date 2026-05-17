@@ -2,6 +2,10 @@
 
 Last updated: 2026-05-08
 
+> **OBSOLETE (historical).** Everything in the "Still queued" list below
+> shipped (host override, pause/resume, podium, final round). Kept for
+> the audit trail; the live planning doc is now `docs/backlog.md`.
+
 This is a short working list for the days before Friday, 2026-05-08. It separates safe repo-hardening work from Stage 3 product work that should stay with Claude Code.
 
 ## Safe For Codex

@@ -33,8 +33,9 @@ Current apps:
 - `apps/mobile` - Expo (SDK 55) + expo-router mobile app. Screens: Home,
   Stories list/detail, Daily, Profile, Join Quiz, Login. Consumes the
   `apps/web` REST API; auth via `/api/auth/mobile-login` bearer JWT stored
-  in expo-secure-store. Styling uses RN StyleSheet (see backlog: NativeWind
-  swap deferred).
+  in expo-secure-store. Styling uses NativeWind (Tailwind classes,
+  shared design tokens). A static web export (`pnpm --filter mobile
+  build:web`) is the deployed Expo client surface.
 
 Rules:
 

@@ -530,7 +530,7 @@ meloman/
 │   │   │   ├── auth.ts               # Auth.js config
 │   │   │   ├── pusher.ts             # Pusher helpers
 │   │   │   └── r2.ts                 # Cloudflare R2 client
-│   │   └── middleware.ts             # JWT + role checks
+│   │   └── proxy.ts                  # JWT + role checks (Next 16 middleware)
 │   └── mobile/                       # Expo React Native
 │       └── app/
 │           ├── (tabs)/               # Home, Daily, Profile
@@ -616,7 +616,7 @@ See section 4.2 above.
 
 ---
 
-## 6. Database Schema (13 tables)
+## 6. Database Schema (15 tables)
 
 All tables use:
 - `id: uuid` PK with `defaultRandom()`
@@ -758,9 +758,13 @@ All tables use:
 - `linked_question_id` (FK → questions, nullable)
 - `linked_story_id` (FK → stories, nullable)
 
-### 6.5 Meta (1 table — wait, that's only 12. Let me recount.)
+### 6.5 Meta tables
 
-Actually, recounting: users, user_progress, user_badges (3) + quizzes, rounds, questions (3) + game_sessions, teams, team_members, answers (4) + stories, daily_content (2) + badges, sponsors (2) = **14 tables**. Even better — exceeds requirements.
+Full count (matches `packages/db/schema/`): users, user_progress,
+user_badges (3) + quizzes, rounds, questions (3) + game_sessions, teams,
+team_members, answers (4) + stories, daily_content (2) + badges,
+sponsors, quiz_sponsors (3) = **15 tables**. Source of truth is the
+schema directory; `docs/database-schema.md` mirrors it.
 
 #### `badges`
 - `id` (uuid, PK)
@@ -1205,7 +1209,7 @@ Demo Host: created when starting quiz session
 | Commit Days | 15/15 | 30+ active days (5 pt/day, max 15) |
 | Architecture | 5/5 | Turborepo monorepo, REST between web/mobile and backend |
 | Backend API | 7/7 | 30+ REST endpoints with JWT middleware |
-| Database | 8/8 | 14 tables with Drizzle (3× requirement of 4) |
+| Database | 8/8 | 15 tables with Drizzle (3× requirement of 4) |
 | Auth and Security | 5/5 | Auth.js v5, JWT, 3 roles, bcrypt, role middleware |
 | Web App Screens | 10/10 | 12+ screens (login, register, home, stories, quiz builder, host presentation, player game, daily, profile, admin, artists) |
 | Admin Panel | 10/10 | Full admin: users, content, daily, sponsors, analytics |
@@ -1270,7 +1274,7 @@ Deferred-by-design trade-offs for the deadline are logged honestly in
 - Check section 7 (API) for endpoint patterns
 
 **"Should I add a new table?"**
-- Probably not — section 6 has 14 tables covering everything
+- Probably not — section 6 has 15 tables covering everything
 - If new entity is needed, document why in PR description
 - Update DB schema diagram
 

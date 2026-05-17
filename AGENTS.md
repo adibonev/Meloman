@@ -24,7 +24,7 @@ No other agents (no auto-merge bots, no autonomous deploy agents, no LLM-driven 
 - Developer profile (skill level, communication preferences)
 - Product specification (live quiz + daily engagement + stories)
 - Tech stack (mandated by SoftUni curriculum, locked)
-- Database schema (14 tables)
+- Database schema (15 tables)
 - API surface (30+ REST endpoints)
 - Coding conventions (TypeScript strict, Drizzle, Server Components by default, etc.)
 - Product invariants that AI must respect (captain-only submit, server-authoritative timing, audio clip legal limits, image source tracking)
@@ -115,4 +115,4 @@ Where AI assistance was substantial (e.g., generating an entire schema or migrat
 - AI is a tool. It does not own the project.
 - AI cannot guarantee correctness — every generated piece is read, run, and tested before merge.
 - When AI produces code that violates `CLAUDE.md` (it happens), the human catches it on review.
-- This document evolves alongside the project. Last updated at Sprint 1 close.
+- This document evolves alongside the project. Last updated at capstone submission state (Sprints 1–3 + Stories/Daily/Admin/Mobile shipped).

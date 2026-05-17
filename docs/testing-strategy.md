@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Last updated: 2026-05-08
+Last updated: 2026-05-17
 
 Meloman uses layered testing. The goal is not to test every implementation detail, but to protect the flows that would hurt a live quiz night if they broke.
 
@@ -40,31 +40,34 @@ Use `docs/live-quiz-test-plan.md` for the current manual checklist.
 
 ## Playwright Coverage
 
-Playwright covers browser-level regression tests that click through the UI like a user. The current suite starts with public/auth smoke coverage and should grow as Stage 3 stabilizes.
+Playwright clicks through the UI like a user. The suite is split into
+two projects:
 
-Run it with:
+- **`smoke`** — DB-safe, no auth (public/auth pages, protected-route
+  redirects, reset-password rejection). Runs in CI:
 
-```bash
-pnpm --filter @meloman/web test:e2e
-```
+  ```bash
+  pnpm --filter @meloman/web test:e2e
+  ```
 
-Current Playwright coverage:
+- **`full`** — authed, writes throwaway timestamped data to the dev DB.
+  Local only:
 
-- Home page CTAs navigate to login/register.
-- Login and register forms show client-side validation.
-- Anonymous users are redirected away from protected admin routes.
+  ```bash
+  pnpm --filter @meloman/web test:e2e:full
+  ```
 
-Next Playwright targets:
+Coverage is comprehensive (~40 tests): admin authoring (all 6 question
+types, edit/delete, quiz edit, reorder, guest-video boundary), admin
+content (daily, users, stories publish, analytics), auth
+(register/login/logout), the full two-actor live game loop +
+pause/resume + score-adjust + existing-team join + captain lock + host
+override, and public content. The authoritative, always-current map
+(and the deliberate exclusions: real R2/email uploads, 2-team cutoff
+flake, Expo) lives in **`docs/backlog.md`**.
 
-- Host creates/opens a session.
-- Player joins a team.
-- Host starts question.
-- Captain submits answer.
-- Timer expires.
-- Answer is revealed.
-- Host moves to next question.
-
-This is the right tool for "does the important button work in the browser?" checks.
+This is the right tool for "does the important button work in the
+browser?" checks.
 
 ## Quality Gates
 

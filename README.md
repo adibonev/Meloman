@@ -79,7 +79,7 @@ flowchart TD
 | Auth | Auth.js v5 + JWT roles (web cookie / mobile bearer) |
 | Real-time | Pusher Channels |
 | Storage | Cloudflare R2 |
-| Styling | Tailwind CSS + shadcn/ui (web), StyleSheet (mobile) |
+| Styling | Tailwind CSS + shadcn/ui (web), Tailwind via NativeWind (mobile) |
 | Validation | Zod |
 | i18n | next-intl, Bulgarian default, English under `/en` |
 | Testing | Jest + Playwright |

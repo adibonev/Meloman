@@ -2,6 +2,12 @@
 
 Created: 2026-05-16. Deadline: ~2026-05-26. Strategy: **rubric-maximum** (SoftUni §14, target 100/100).
 
+> **Status (2026-05-17): Phases 1–6 SHIPPED**, plus Phase 7 restored
+> items (manual point adjustment, Framer polish) and Scalability
+> (server-side paging + 10k seed). Unchecked boxes below are historical
+> planning, not open work. Remaining = owner tasks only: Loom
+> walkthrough, real Vidin dry-run, Expo web live URL after first deploy.
+
 ## Status snapshot (2026-05-16)
 
 - Stage 1/2/3 core (auth, quiz builder, live quiz engine) shipped and stable.

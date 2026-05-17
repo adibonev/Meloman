@@ -15,6 +15,13 @@ Jest currently covers:
 - Live presentation media components: blurred image reveal switching and audio clip player timer-bounded pause.
 - Zod validation schemas for player answer inputs and question creation inputs.
 - Translation key consistency between Bulgarian and English message files.
+- Bilingual question overlay resolver + Mystery Artist daily-stage logic.
+
+The **mobile** app has its own dependency-light ts-jest setup
+(`pnpm --filter mobile test`, also in CI) for pure logic only —
+`quizPalette` parity guard and the QR `parseJoinCode`. Component /
+navigation tests need a device (Detox/Maestro) and are a documented
+follow-up; Playwright stays web-only.
 
 ## What Jest Is For
 

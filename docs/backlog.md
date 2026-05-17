@@ -107,24 +107,24 @@ Each item lists:
   The Expo app is out of scope (Playwright is web-only).
   `docs/live-quiz-test-plan.md` remains the manual map.
 
-### Themed admin panel matching quiz theme
+### Per-quiz theme on the quiz experience (LANDED 2026-05-17)
 
-- **What**: Admin chrome (sidebar / header / form styling) inherits the
-  active quiz's theme (modern monochrome / vintage 70s / neon 80s).
-  Today admin is locked to the dark monochrome shell, but the host
-  presents from there, so the visual jump from admin → /present is
-  jarring on a real venue setup.
-- **Why**: the admin panel is part of the live presentation flow, not
-  just a backstage tool. It should feel like the quiz it's about to
-  run.
-- **Sprint**: post-MVP polish. Don't gate the SoftUni defense on this.
-- **Effort**: medium. Needs theme tokens decoupled from
-  components, theme switching at the admin route level, and probably a
-  brand asset pack per theme.
-- **Notes**: Tailwind v4 + shadcn already supports a tokens approach;
-  the work is mostly defining the three tokens sets and gating the
-  admin layout on the active quiz's `theme` field. CLAUDE.md §3.1
-  describes the three themes.
+- **What**: SHIPPED — but **scoped to the quiz surfaces, not the admin
+  panel** (owner decision 2026-05-17). `quizzes.theme`
+  (modern/vintage/neon) was a dead field; it now re-skins the host
+  `/present`, host lobby, the player live screen, and the mobile play
+  screen. `modern` = the warm design-tokens default (untouched);
+  `vintage`/`neon` are additive scoped `[data-quiz-theme]` CSS-var
+  blocks in `globals.css` + a `QuizTheme` wrapper. Mobile mirrors it
+  via `quizPalette()`.
+- **Why**: the original idea was "theme the admin chrome too" so
+  admin→/present isn't jarring; the owner decided the theme belongs to
+  the quiz/presentation only, keeping the warm app/admin shell intact
+  (consistent with the design-tokens single-source decision).
+- **Sprint**: SHIPPED (commit `b642cbd`).
+- **Notes**: admin chrome intentionally stays warm — not a gap.
+  Full mobile NativeWind re-skin + on-device visual QA is the only
+  documented follow-up (verified via tsc + expo export, no emulator).
 
 ### Daily song by mood (player-facing)
 
@@ -167,22 +167,17 @@ Each item lists:
   browser? Different browsers? Are there console errors? See conversation
   notes 2026-05-08.
 
-### Captain election before the quiz (post-MVP, REMINDER)
+### Captain transfer before the quiz (LANDED 2026-05-17)
 
-- **What**: Team members can collectively choose / change captain before
-  the quiz starts. Once locked in, only the captain submits answers and
-  other phones go to view-only mode.
-- **Why**: today the team creator is automatically the captain forever.
-  In real life the loudest team member often makes the team, but a
-  different member is the music expert.
-- **Sprint**: post-release. NOT in MVP per Adi's call (2026-05-08).
-- **Effort**: medium.
-- **Notes**: REMINDER — pull this back up after MVP launch. Must
-  preserve the captain-only-submit invariant (CLAUDE.md §4.3). Decide
-  at implementation time whether captaincy is locked at quiz start or
-  stays mutable mid-quiz, and whether it's a vote vs. a one-tap
-  transfer by the current captain. Memory file:
-  `project_captain_election.md`.
+- **What**: SHIPPED. The sitting captain can hand the role to any
+  teammate from the team lobby (one-tap transfer, not a vote).
+- **Sprint**: SHIPPED (commit `7c13a81`).
+- **Notes**: Decision taken — captaincy is **locked at quiz start**
+  (mutable only while session status is `lobby`); server enforces
+  lobby-only + caller-is-captain + target-is-member, preserving the
+  captain-only-submit invariant (CLAUDE.md §4.3). `transferCaptain` in
+  play-service, `CaptainControls` client component, e2e in
+  `live-depth.spec.ts`.
 
 ### Admin sets per-round advancement criteria (LANDED 2026-05-08)
 
@@ -203,31 +198,22 @@ Each item lists:
   `teams.is_finalist` remain in the DB but are dormant; drop them once
   we've confirmed nothing in production reads them.
 
-### Bilingual quiz authoring (post-release, REMINDER)
+### Bilingual quiz authoring (LANDED 2026-05-17)
 
-- **What**: Admin types every question text, options, and answer
-  variants in BOTH BG and EN. Player UI shows the version matching the
-  active locale; switching locale switches questions too. Replaces the
-  current "language is just metadata" model.
-- **Why**: an English-marked quiz currently still shows BG question text
-  if the admin typed BG (the language flag is metadata only). Adi wants
-  one quiz to actually serve both audiences.
-- **Sprint**: post-release. NOT in MVP.
-- **Effort**: large. Needs:
-  - schema change: `questions.questionText` → `questionTextBg` +
-    `questionTextEn`; same shape for `acceptableAnswers`, `options`,
-    and any text fragment of `correctAnswer`. Migration must backfill
-    EN columns from existing BG values (or leave null so admin fills).
-  - admin form: parallel BG/EN inputs on every question type; validation
-    requires both filled before publish.
-  - read path: server picks BG or EN based on locale (or quiz's primary
-    language as fallback if EN is missing).
-  - grading: fuzzy matching needs to consider both language sets so a
-    BG player typing "Куин" against an EN-authored quiz still works.
-- **Notes**: REMINDER — pull this back up after MVP launch. We tried a
-  smaller "language hint link" in Stage 3 (2026-05-08) but reverted it
-  because it implied translation we don't do. The hint only made sense
-  alongside actual translated content.
+- **What**: SHIPPED — per-question **EN overlay** (not the originally
+  proposed dual columns). Base question columns stay canonical
+  (primary language); a nullable `questions.translations` jsonb holds
+  an optional `{ en: { questionText?, options?, acceptableAnswers? } }`
+  overlay (migration `0012`). Player live screen + host `/present`
+  resolve by locale with base fallback; grading unions base ∪ EN
+  accepted answers; admin has a collapsible per-question English editor
+  on the round detail.
+- **Sprint**: SHIPPED (commit `9413f76`).
+- **Notes**: chose the overlay over dual columns to avoid a
+  destructive migration and keep every existing row working untouched.
+  Pure resolver `lib/question-content.ts` is unit-tested; only an `en`
+  overlay key is supported (BG base + EN overlay). The earlier reverted
+  "language hint link" is now backed by real translated content.
 
 ## Deferred during 10-day sprint
 
@@ -255,14 +241,23 @@ Each item lists:
   `expo start --web` or an Android EAS build: Expo Go can't run SDK 55
   (App Store Expo Go only supports the latest stable SDK), which is
   unrelated to NativeWind.
-- **In-app expo-camera QR scanner (mobile)** — CLAUDE.md §3.1/§2.2 want an
-  expo-camera scan inside the Meloman app. The host now shows a scannable
-  join QR on the web TV view (`host/[code]` + presentation lobby), so any
-  phone's native camera opens `/play/[code]` — the scan-to-join need is
-  covered. The in-app scanner stays manual code entry: adding expo-camera
-  touches `app.json` native permissions and needs a fresh EAS build to
-  validate, which risks the graded Android APK before the capstone
-  deadline. Owner decision 2026-05-16: defer to post-deadline (Phase 7).
+- ~~**In-app expo-camera QR scanner (mobile)**~~ — DONE 2026-05-17
+  (commit `1be8536`). The join screen has a "Сканирай QR код" path:
+  `expo-camera` `CameraView` reads the host /present QR,
+  `parseJoinCode()` extracts the code from the join URL (or a pasted
+  raw code), then joins. All three permission states handled. The pure
+  parser is unit-tested; the camera itself needs a real device / dev
+  build (Expo Go on SDK 55 and `expo export` can't exercise it) —
+  on-device QA is the only owner-side follow-up.
+- ~~**Mobile automated tests**~~ — DONE 2026-05-17 (commit `dd1b468`).
+  Was zero; added a dependency-light ts-jest setup (no jest-expo/RN
+  renderer — component/Detox tests need a device, documented
+  follow-up) covering the pure logic (`quizPalette` parity guard,
+  `parseJoinCode`). CI runs mobile typecheck + these tests.
+- ~~**Mystery Artist 4-stage daily reveal**~~ — DONE 2026-05-17
+  (commit `20054f3`). Hints + answer unlock by Europe/Sofia wall clock
+  (10/14/18/22), server-time computed (pure, DST-aware, unit-tested),
+  with a secured Vercel Cron busting cached HTML at the boundaries.
 
 ## Closed
 

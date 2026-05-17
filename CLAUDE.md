@@ -448,7 +448,10 @@ Open text answers matched against `acceptable_answers: string[]`:
 
 Example acceptable answers for "Queen": `["Queen", "Queens", "Куин", "Queen band"]`
 
-Host override is planned for Stage 3 and is not implemented yet in the current web flow.
+Host override is implemented: the host reveal screen shows a Manual
+Review panel (`AnswerOverridePanel` + `overrideAnswerAction`) to
+accept/reject open-text/audio/image answers; the team score adjusts by
+the delta. e2e in `e2e/full/live-depth.spec.ts`.
 
 ### 4.6 Audio clips legal compliance
 
@@ -1247,12 +1250,26 @@ Friend is providing seed content. Status:
 - ✅ Docs: README (architecture + demo creds), `docs/api.md`,
   `docs/database-schema.md`, CI green.
 
-**Remaining (Phase 6 / 7):** Loom walkthrough (owner-recorded). The
-deferred items have since shipped (TipTap editor, password reset, Framer
-Motion polish, host join QR, fallback polling, NativeWind migration —
-see `docs/backlog.md`). Still deliberately deferred: only the in-app
-expo-camera QR scanner (EAS-build risk; the web host QR already covers
-scan-to-join).
+- ✅ Scalability: server-side pagination on the list APIs + admin/
+  public list pages; 10k-row bulk seed (`db:seed:bulk`); DB indexes.
+- ✅ Per-quiz themes (modern/vintage/neon) re-skin the quiz surfaces
+  (host /present, host lobby, player live, mobile play); admin/app
+  shell stays warm by design.
+- ✅ Bilingual quizzes: per-question EN overlay
+  (`questions.translations`, migration 0012) with locale-aware render
+  + grading.
+- ✅ Captain transfer in the lobby; Mystery Artist 4-stage timed
+  reveal + cron; in-app expo-camera QR scanner; mobile jest in CI;
+  Expo web static export + Vercel deploy config.
+
+**Remaining (Phase 6 / 7):** Loom walkthrough (owner-recorded), real
+Vidin dry-run, Expo web live URL after first deploy, friend's seed
+content. **Only deliberately deferred now: Weekly Clash** (out of
+rubric, post-defense — owner decision 2026-05-17). All other
+previously-deferred items have shipped (TipTap, password reset, Framer
+polish, host QR, fallback polling, NativeWind, captain transfer,
+themes, bilingual, Mystery 4-stage, expo-camera scanner — see
+`docs/backlog.md`).
 
 Deferred-by-design trade-offs for the deadline are logged honestly in
 `docs/backlog.md` and `docs/final-10-day-plan.md`.

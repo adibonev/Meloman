@@ -46,27 +46,23 @@ Created: 2026-05-16. Deadline: ~2026-05-26. Strategy: **rubric-maximum** (SoftUn
 ### Phase 6 — Buffer / Loom / fixes (Day 10)
 - [ ] Final docs, screenshots, Loom walkthrough, bug fixes.
 
-## Cut (not rubric-blocking)
-Framer Motion polish, Weekly Clash, real venue dry-run, manual points between rounds,
-bilingual quizzes, Mystery Artist 4-stage cron (minimal daily version only).
+## Cut (not rubric-blocking) — STATUS 2026-05-17
 
-## Phase 7 — Restore cut items (only if Phases 1–6 finish early)
+Originally cut, **now all shipped** except Weekly Clash:
+- ✅ Manual points between rounds · ✅ Mystery Artist 4-stage (+cron)
+- ✅ Framer Motion polish · ✅ Bilingual quizzes · ✅ Captain transfer
+- 🅿️ **Weekly Clash** — stays cut, post-defense (owner decision)
+- 👤 Real venue dry-run — owner-side, not code
 
-Priority order = product value × low risk. Each is independent; do top-down,
-test each before the next (methodical pacing).
+## Phase 7 — Restore cut items — DONE
 
-1. **Manual point adjustment between rounds** — highest real-quiz-night value
-   (host fixes disputed scores before the cutoff). Builds on existing override
-   panel + applyRoundCutoff. ~0.5 day.
-2. **Mystery Artist 4-stage daily cron** — Vercel Cron flips reveal stage at
-   10/14/18/22h; upgrades the minimal daily version. ~0.5 day.
-3. **Framer Motion polish** — reveal / podium / between-rounds slide
-   animations. Pure presentation, zero logic risk. ~0.5 day.
-4. **Bilingual quizzes (BG+EN per question)** — deferred per memory; schema +
-   admin form + player render. ~1 day. Larger surface, do last.
-5. **Captain election / transfer in team lobby** — deferred per memory.
-   ~0.5 day.
-6. **Real venue dry-run** — needs scheduling with the friend; not code, but
-   the most valuable validation if a date fits before the deadline.
+All Phase 7 items below shipped (commits in `docs/backlog.md`); kept
+for the audit trail. Only Weekly Clash remains out of scope
+(not rubric-relevant, large surface, post-defense).
 
-Weekly Clash stays out of scope (not rubric-relevant, large surface).
+1. ✅ **Manual point adjustment between rounds** (`docs/backlog.md`).
+2. ✅ **Mystery Artist 4-stage daily reveal + cron** (`20054f3`).
+3. ✅ **Framer Motion polish**.
+4. ✅ **Bilingual quizzes (per-question EN overlay)** (`9413f76`).
+5. ✅ **Captain transfer in team lobby** (`7c13a81`).
+6. 👤 **Real venue dry-run** — owner scheduling, not code.

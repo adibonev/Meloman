@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Linking,
+  Pressable,
   ScrollView,
   Text,
   View,
@@ -84,6 +86,30 @@ export default function DailyScreen() {
             <Text className="mt-[16px] text-[15px] leading-[22px] text-fg">
               {payload.story}
             </Text>
+          ) : null}
+          {payload.spotifyUri || payload.youtubeUrl ? (
+            <View className="mt-[16px] flex-row flex-wrap gap-[12px]">
+              {payload.spotifyUri ? (
+                <Pressable
+                  onPress={() => Linking.openURL(payload.spotifyUri)}
+                  className="rounded-[10px] border border-border-strong px-[16px] py-[10px]"
+                >
+                  <Text className="text-[14px] font-semibold text-fg">
+                    Отвори в Spotify
+                  </Text>
+                </Pressable>
+              ) : null}
+              {payload.youtubeUrl ? (
+                <Pressable
+                  onPress={() => Linking.openURL(payload.youtubeUrl)}
+                  className="rounded-[10px] border border-border-strong px-[16px] py-[10px]"
+                >
+                  <Text className="text-[14px] font-semibold text-fg">
+                    Отвори в YouTube
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
           ) : null}
         </View>
       )}

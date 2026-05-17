@@ -1,29 +1,40 @@
-import { desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { PaginationNav } from "@/components/pagination-nav";
+import { getPageParams, pageMeta } from "@/lib/pagination";
 
 export default async function AdminStoriesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("AdminStories");
 
-  const rows = await db
-    .select({
-      id: stories.id,
-      slug: stories.slug,
-      title: stories.title,
-      publishedAt: stories.publishedAt,
-      viewCount: stories.viewCount,
-    })
-    .from(stories)
-    .orderBy(desc(stories.createdAt));
+  const pageParams = getPageParams(await searchParams);
+  const [[{ total }], rows] = await Promise.all([
+    db.select({ total: sql<number>`count(*)` }).from(stories),
+    db
+      .select({
+        id: stories.id,
+        slug: stories.slug,
+        title: stories.title,
+        publishedAt: stories.publishedAt,
+        viewCount: stories.viewCount,
+      })
+      .from(stories)
+      .orderBy(desc(stories.createdAt))
+      .limit(pageParams.limit)
+      .offset(pageParams.offset),
+  ]);
+  const meta = pageMeta(pageParams, Number(total));
 
   return (
     <div className="space-y-6">
@@ -76,6 +87,12 @@ export default async function AdminStoriesPage({
           </table>
         </div>
       )}
+
+      <PaginationNav
+        basePath="/admin/stories"
+        page={meta.page}
+        totalPages={meta.totalPages}
+      />
     </div>
   );
 }

@@ -878,5 +878,10 @@
     "sponsors": "Sponsors",
     "publishedStories": "Published stories",
     "totalViews": "Total views"
+  },
+  "Pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}"
   }
 }

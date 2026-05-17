@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { desc, isNull } from "drizzle-orm";
+import { desc, isNull, sql } from "drizzle-orm";
 import { db } from "@meloman/db";
 import { quizzes } from "@meloman/db/schema";
 import { apiError, requireAdmin } from "@/lib/api/guard";
+import { getPageParams, pageMeta } from "@/lib/pagination";
 import { createQuizSchema } from "@/lib/schemas/quiz";
 
 /**
@@ -12,25 +13,38 @@ import { createQuizSchema } from "@/lib/schemas/quiz";
  * Mirrors the data the admin Server Actions use so the REST surface and the
  * UI stay in sync; DB remains the single source of truth.
  */
-export async function GET() {
+export async function GET(request: Request) {
   const guard = await requireAdmin();
   if (!guard.ok) return guard.response;
 
-  const rows = await db
-    .select({
-      id: quizzes.id,
-      title: quizzes.title,
-      description: quizzes.description,
-      status: quizzes.status,
-      theme: quizzes.theme,
-      language: quizzes.language,
-      createdAt: quizzes.createdAt,
-    })
-    .from(quizzes)
-    .where(isNull(quizzes.deletedAt))
-    .orderBy(desc(quizzes.createdAt));
+  const params = getPageParams(new URL(request.url).searchParams);
 
-  return NextResponse.json({ quizzes: rows });
+  const [[{ total }], rows] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(quizzes)
+      .where(isNull(quizzes.deletedAt)),
+    db
+      .select({
+        id: quizzes.id,
+        title: quizzes.title,
+        description: quizzes.description,
+        status: quizzes.status,
+        theme: quizzes.theme,
+        language: quizzes.language,
+        createdAt: quizzes.createdAt,
+      })
+      .from(quizzes)
+      .where(isNull(quizzes.deletedAt))
+      .orderBy(desc(quizzes.createdAt))
+      .limit(params.limit)
+      .offset(params.offset),
+  ]);
+
+  return NextResponse.json({
+    quizzes: rows,
+    ...pageMeta(params, Number(total)),
+  });
 }
 
 export async function POST(request: Request) {

@@ -878,5 +878,10 @@
     "sponsors": "Спонсори",
     "publishedStories": "Публикувани истории",
     "totalViews": "Общо прегледи"
+  },
+  "Pagination": {
+    "previous": "Назад",
+    "next": "Напред",
+    "pageOf": "Страница {page} от {total}"
   }
 }

@@ -1,30 +1,44 @@
-import { desc, isNull } from "drizzle-orm";
+import { desc, isNull, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { quizzes } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { PaginationNav } from "@/components/pagination-nav";
+import { getPageParams, pageMeta } from "@/lib/pagination";
 
 export default async function AdminQuizzesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("AdminQuizzes");
 
-  const rows = await db
-    .select({
-      id: quizzes.id,
-      title: quizzes.title,
-      status: quizzes.status,
-      theme: quizzes.theme,
-      createdAt: quizzes.createdAt,
-    })
-    .from(quizzes)
-    .where(isNull(quizzes.deletedAt))
-    .orderBy(desc(quizzes.createdAt));
+  const pageParams = getPageParams(await searchParams);
+  const [[{ total }], rows] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(quizzes)
+      .where(isNull(quizzes.deletedAt)),
+    db
+      .select({
+        id: quizzes.id,
+        title: quizzes.title,
+        status: quizzes.status,
+        theme: quizzes.theme,
+        createdAt: quizzes.createdAt,
+      })
+      .from(quizzes)
+      .where(isNull(quizzes.deletedAt))
+      .orderBy(desc(quizzes.createdAt))
+      .limit(pageParams.limit)
+      .offset(pageParams.offset),
+  ]);
+  const meta = pageMeta(pageParams, Number(total));
 
   return (
     <div className="space-y-6">
@@ -81,6 +95,12 @@ export default async function AdminQuizzesPage({
           </table>
         </div>
       )}
+
+      <PaginationNav
+        basePath="/admin/quizzes"
+        page={meta.page}
+        totalPages={meta.totalPages}
+      />
     </div>
   );
 }

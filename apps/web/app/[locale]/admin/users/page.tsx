@@ -1,9 +1,11 @@
-import { desc } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { users } from "@meloman/db/schema";
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { PaginationNav } from "@/components/pagination-nav";
+import { getPageParams, pageMeta } from "@/lib/pagination";
 import {
   changeUserRoleAction,
   sendPasswordResetEmailAction,
@@ -12,8 +14,10 @@ import {
 
 export default async function AdminUsersPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -29,17 +33,26 @@ export default async function AdminUsersPage({
   }
   const currentUserId = session.user.id;
 
-  const rows = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      displayName: users.displayName,
-      role: users.role,
-      bannedAt: users.bannedAt,
-      createdAt: users.createdAt,
-    })
-    .from(users)
-    .orderBy(desc(users.createdAt));
+  // Server-side paging — the users table can hold 10k+ rows; never
+  // select them all (SoftUni Scalability).
+  const pageParams = getPageParams(await searchParams);
+  const [[{ total }], rows] = await Promise.all([
+    db.select({ total: sql<number>`count(*)` }).from(users),
+    db
+      .select({
+        id: users.id,
+        email: users.email,
+        displayName: users.displayName,
+        role: users.role,
+        bannedAt: users.bannedAt,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .orderBy(desc(users.createdAt))
+      .limit(pageParams.limit)
+      .offset(pageParams.offset),
+  ]);
+  const meta = pageMeta(pageParams, Number(total));
 
   return (
     <div className="space-y-6">
@@ -162,6 +175,12 @@ export default async function AdminUsersPage({
           </table>
         </div>
       )}
+
+      <PaginationNav
+        basePath="/admin/users"
+        page={meta.page}
+        totalPages={meta.totalPages}
+      />
     </div>
   );
 }

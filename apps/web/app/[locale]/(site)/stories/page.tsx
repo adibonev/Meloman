@@ -1,31 +1,48 @@
-import { desc, isNotNull } from "drizzle-orm";
+import { desc, isNotNull, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
+import { PaginationNav } from "@/components/pagination-nav";
+import { getPageParams, pageMeta } from "@/lib/pagination";
 
 export default async function StoriesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Stories");
 
-  const rows = await db
-    .select({
-      slug: stories.slug,
-      title: stories.title,
-      subtitle: stories.subtitle,
-      coverImageUrl: stories.coverImageUrl,
-      artistName: stories.artistName,
-      readingTimeMinutes: stories.readingTimeMinutes,
-    })
-    .from(stories)
-    .where(isNotNull(stories.publishedAt))
-    .orderBy(desc(stories.publishedAt));
+  // Paginated server-side — the public catalogue can grow unbounded.
+  const pageParams = getPageParams(await searchParams);
+  const [[{ total }], rows] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(stories)
+      .where(isNotNull(stories.publishedAt)),
+    db
+      .select({
+        slug: stories.slug,
+        title: stories.title,
+        subtitle: stories.subtitle,
+        coverImageUrl: stories.coverImageUrl,
+        artistName: stories.artistName,
+        readingTimeMinutes: stories.readingTimeMinutes,
+      })
+      .from(stories)
+      .where(isNotNull(stories.publishedAt))
+      .orderBy(desc(stories.publishedAt))
+      .limit(pageParams.limit)
+      .offset(pageParams.offset),
+  ]);
+  const meta = pageMeta(pageParams, Number(total));
 
+  // First card of the current page reads as the "featured" block; it
+  // stays a valid layout on any page.
   const [featured, ...rest] = rows;
 
   return (
@@ -113,6 +130,12 @@ export default async function StoriesPage({
           )}
         </div>
       )}
+
+      <PaginationNav
+        basePath="/stories"
+        page={meta.page}
+        totalPages={meta.totalPages}
+      />
     </main>
   );
 }

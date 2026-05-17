@@ -70,23 +70,42 @@ Each item lists:
   + content nav.
 - **Why**: pre-defense the manual QA load is real, and SoftUni grading
   rewards observable test coverage.
-- **Sprint**: SHIPPED in Stage 3 polish.
-- **Effort**: large (delivered).
-- **Notes**: 23 tests total, all green. Project split — `pnpm
-  test:e2e` runs the DB-safe `smoke` set (public-auth +
-  live-quiz-entry + reset-password, 10 tests) so CI stays fast/green;
-  `pnpm test:e2e:full` runs the authed suite locally vs the dev DB
-  (setup + 11): admin quiz authoring, **all 6 question type forms**,
-  edit/delete (quiz title, question, round), sponsor CRUD, TipTap
-  story, player surface, and the **full two-actor live game loop**
-  (host authors/starts → player joins, answers → reveal → finish, in
-  two browser contexts; cross-context via Pusher or the §5.4 poll
-  fallback). Mutating specs use timestamped names so runs are
-  isolated/re-runnable; session state is gitignored. Remaining gaps
-  (small): real R2 media upload for audio/image questions, host
-  pause/resume + score-adjust + guest-video specifics, and the Expo
-  app (Playwright is web-only). `docs/live-quiz-test-plan.md` remains
-  the manual map.
+- **Sprint**: SHIPPED in Stage 3 polish; **coverage completed
+  2026-05-17** (40 tests: 10 smoke + 2 setup + 28 full).
+- **Notes**: all green (`smoke` 10, `full` 30 incl. setup). Project
+  split — `pnpm test:e2e` runs the DB-safe `smoke` set (public-auth +
+  live-quiz-entry + reset-password) so CI stays fast/green; `pnpm
+  test:e2e:full` runs the full authed suite locally vs the dev DB.
+  **Full coverage map:**
+  - Admin authoring: quiz create/publish, all 6 question type forms,
+    edit/delete (quiz title, question, round), quiz edit
+    (theme/language/team-size + sponsor assignment), round + question
+    reorder, round-type edit, sponsor CRUD, TipTap story create.
+  - Admin content: daily Song-of-Day + Mystery-Artist create/delete,
+    user role change + ban/unban + send-reset (throwaway account),
+    story edit + publish/unpublish, analytics dashboard.
+  - Auth: register → login → logout round-trip, wrong-password error
+    (plus the smoke client-validation set).
+  - Live game: full two-actor loop (join → answer → reveal → finish),
+    host pause/resume, between-rounds score adjust, existing-team join
+    via anonymous path, captain-only submit lock, wrong-answer reveal,
+    host manual override accepting a fuzzy-missed open answer.
+  - Public: stories index → magazine detail, artist spotlight, daily
+    render.
+  Mutating specs use timestamped names so runs are isolated/
+  re-runnable; session state is gitignored; anonymous specs pass an
+  explicit empty storageState (the full project's default admin state
+  would otherwise leak in).
+- **Deliberately excluded (honest, low marginal value / high flake):**
+  real R2 media uploads for audio/image/guest-video questions and
+  real email-token extraction — asserted at the validation boundary
+  instead (missing-file / generic-confirm guards), no flaky external
+  dependency. The 2-team per-round cutoff → eliminated-spectator path
+  needs ≥2 parallel player contexts in separate teams plus
+  advancement timing across Pusher (high flake); `between_rounds` and
+  the inter-round leaderboard are already covered by host-controls.
+  The Expo app is out of scope (Playwright is web-only).
+  `docs/live-quiz-test-plan.md` remains the manual map.
 
 ### Themed admin panel matching quiz theme
 

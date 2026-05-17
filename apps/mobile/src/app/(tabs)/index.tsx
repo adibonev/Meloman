@@ -5,13 +5,10 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-bg p-[24px] pb-[120px]">
       <Image
-        source={require("../../../assets/images/meloman-logo.png")}
+        source={require("../../../assets/images/meloman-logo-white.png")}
         resizeMode="contain"
         style={{ width: 140, height: 140, marginBottom: 8 }}
       />
-      <Text className="mb-[16px] text-center text-[12px] font-bold uppercase tracking-[3px] text-accent">
-        Музикален куиз
-      </Text>
       <Text className="text-[52px] font-black tracking-[8px] text-fg">
         MELOMAN
       </Text>

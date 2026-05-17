@@ -193,6 +193,67 @@ export async function deleteRoundAction(quizId: string, roundId: string) {
   redirect({ href: `/admin/quizzes/${quizId}`, locale });
 }
 
+// Per-question English overlay (bilingual quizzes). Base columns stay
+// the canonical primary-language content; this writes only the optional
+// `{ en: {...} }` overlay. Empty fields are dropped; an all-empty
+// submit clears the overlay back to NULL.
+export async function updateQuestionTranslationsAction(
+  quizId: string,
+  roundId: string,
+  questionId: string,
+  formData: FormData
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { errorKey: "unauthorized" as const };
+  }
+  if (session.user.role !== "admin" && session.user.role !== "super_admin") {
+    return { errorKey: "forbidden" as const };
+  }
+
+  const [existing] = await db
+    .select({ id: questions.id })
+    .from(questions)
+    .where(
+      and(eq(questions.id, questionId), eq(questions.roundId, roundId))
+    )
+    .limit(1);
+  if (!existing) {
+    return { errorKey: "notFound" as const };
+  }
+
+  const text = String(formData.get("questionTextEn") ?? "").trim();
+  const options = formData
+    .getAll("optionEn")
+    .map((v) => String(v).trim());
+  const accepted = String(formData.get("acceptableAnswersEn") ?? "")
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const en: Record<string, unknown> = {};
+  if (text) en.questionText = text;
+  // Only store options if every slot is filled — a partial set would
+  // mis-map the multiple-choice correct index at render time.
+  if (options.length > 0 && options.every((o) => o.length > 0)) {
+    en.options = options;
+  }
+  if (accepted.length > 0) en.acceptableAnswers = accepted;
+
+  const translations = Object.keys(en).length > 0 ? { en } : null;
+
+  await db
+    .update(questions)
+    .set({ translations })
+    .where(eq(questions.id, questionId));
+
+  const locale = await getLocale();
+  redirect({
+    href: `/admin/quizzes/${quizId}/rounds/${roundId}`,
+    locale,
+  });
+}
+
 export async function deleteQuestionAction(
   quizId: string,
   roundId: string,

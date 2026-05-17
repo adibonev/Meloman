@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { EditRoundForm } from "./edit-form";
 import { GuestVideoForm } from "./guest-video-form";
 import { QuestionRowActions } from "./question-row-actions";
+import { QuestionTranslationEditor } from "./question-translation-editor";
 
 export default async function AdminRoundDetailPage({
   params,
@@ -39,6 +40,9 @@ export default async function AdminRoundDetailPage({
       id: questions.id,
       questionType: questions.questionType,
       questionText: questions.questionText,
+      options: questions.options,
+      acceptableAnswers: questions.acceptableAnswers,
+      translations: questions.translations,
       orderIndex: questions.orderIndex,
       pointsBase: questions.pointsBase,
       timeLimitSeconds: questions.timeLimitSeconds,
@@ -104,29 +108,57 @@ export default async function AdminRoundDetailPage({
             {roundQuestions.map((question, idx) => (
               <li
                 key={question.id}
-                className="flex items-center gap-3 rounded-md border border-border bg-card px-4 py-3"
+                className="rounded-md border border-border bg-card"
               >
-                <span className="font-heading text-lg text-muted-foreground tabular-nums">
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 font-medium">
-                    {question.questionText}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t(`questionTypes.${question.questionType}`)} ·{" "}
-                    {t("questionMeta", {
-                      seconds: question.timeLimitSeconds,
-                      points: question.pointsBase,
-                    })}
-                  </p>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <span className="font-heading text-lg text-muted-foreground tabular-nums">
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-2 font-medium">
+                      {question.questionText}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t(`questionTypes.${question.questionType}`)} ·{" "}
+                      {t("questionMeta", {
+                        seconds: question.timeLimitSeconds,
+                        points: question.pointsBase,
+                      })}
+                    </p>
+                  </div>
+                  <QuestionRowActions
+                    quizId={quiz.id}
+                    roundId={round.id}
+                    questionId={question.id}
+                    canMoveUp={idx > 0}
+                    canMoveDown={idx < roundQuestions.length - 1}
+                  />
                 </div>
-                <QuestionRowActions
+                <QuestionTranslationEditor
                   quizId={quiz.id}
                   roundId={round.id}
                   questionId={question.id}
-                  canMoveUp={idx > 0}
-                  canMoveDown={idx < roundQuestions.length - 1}
+                  baseOptionCount={
+                    Array.isArray(question.options)
+                      ? question.options.length
+                      : 0
+                  }
+                  hasAcceptable={
+                    Array.isArray(question.acceptableAnswers) &&
+                    question.acceptableAnswers.length > 0
+                  }
+                  initial={
+                    question.translations &&
+                    typeof question.translations === "object" &&
+                    "en" in question.translations
+                      ? ((question.translations as { en?: unknown })
+                          .en as {
+                          questionText?: string;
+                          options?: string[];
+                          acceptableAnswers?: string[];
+                        })
+                      : null
+                  }
                 />
               </li>
             ))}

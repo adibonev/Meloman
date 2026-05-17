@@ -28,6 +28,7 @@ import { Podium } from "@/components/live/podium";
 import { RevealBanner } from "@/components/live/reveal-banner";
 import { getDownloadUrl } from "@/lib/r2";
 import { getRequestOrigin } from "@/lib/origin";
+import { resolveQuestionContent } from "@/lib/question-content";
 import { AutoRevealOnTimeout } from "../auto-reveal-on-timeout";
 import { LiveHost } from "../live-host";
 import { PresentationShell } from "./presentation-shell";
@@ -197,6 +198,7 @@ export default async function HostPresentPage({
           mediaUrl: questions.mediaUrl,
           mediaAttribution: questions.mediaAttribution,
           mediaBlurPx: questions.mediaBlurPx,
+          translations: questions.translations,
           roundType: rounds.roundType,
           guestVideoUrl: rounds.guestVideoUrl,
         })
@@ -219,7 +221,24 @@ export default async function HostPresentPage({
         )
     : [{ value: 0 }];
 
-  const currentOptions = getStringArray(currentQuestion?.options);
+  const baseOptions = getStringArray(currentQuestion?.options);
+  // Per-question EN overlay for the active locale; base content is the
+  // fallback. Also feeds the correct-answer label so a translated MC
+  // option still maps to the right index.
+  const resolvedQuestion = currentQuestion
+    ? resolveQuestionContent(
+        {
+          questionText: currentQuestion.questionText,
+          options: baseOptions,
+          acceptableAnswers: [],
+        },
+        currentQuestion.translations,
+        locale
+      )
+    : null;
+  const currentOptions = resolvedQuestion?.options ?? baseOptions;
+  const questionText =
+    resolvedQuestion?.questionText ?? currentQuestion?.questionText ?? "";
   const correctAnswerLabel = currentQuestion
     ? getCorrectAnswerLabel(
         currentQuestion.questionType,
@@ -506,7 +525,7 @@ export default async function HostPresentPage({
                   perBlankPointsLabel={t("lyricBlankPointsEach", {
                     points: currentQuestion.pointsBase,
                   })}
-                  text={currentQuestion.questionText}
+                  text={questionText}
                 />
               ) : currentQuestion.questionType === "decade" ? (
                 <DecadeYearDisplay
@@ -520,12 +539,12 @@ export default async function HostPresentPage({
                     points: currentQuestion.pointsBase * 2,
                   })}
                   promptLabel={t("decadePrompt")}
-                  questionText={currentQuestion.questionText}
+                  questionText={questionText}
                   reveal={row.status === "reveal"}
                 />
               ) : (
                 <h2 className="font-heading text-5xl font-black uppercase tracking-wider md:text-6xl">
-                  {currentQuestion.questionText}
+                  {questionText}
                 </h2>
               )}
 
@@ -568,7 +587,7 @@ export default async function HostPresentPage({
               {currentQuestion.questionType === "image_reveal" &&
                 signedImageUrl && (
                   <BlurredImage
-                    alt={currentQuestion.questionText}
+                    alt={questionText}
                     attribution={currentQuestion.mediaAttribution ?? null}
                     blurPx={currentQuestion.mediaBlurPx ?? null}
                     reveal={row.status === "reveal"}

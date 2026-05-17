@@ -19,6 +19,7 @@ import {
   users,
 } from "@meloman/db/schema";
 import { gradeAnswer } from "@/lib/live-quiz/grading";
+import { getOverlay } from "@/lib/question-content";
 import { getDownloadUrl } from "@/lib/r2";
 import { broadcast, PUSHER_EVENTS, quizChannel } from "@/lib/pusher-server";
 import {
@@ -359,6 +360,7 @@ export async function submitTeamAnswer(
       questionType: questions.questionType,
       correctAnswer: questions.correctAnswer,
       acceptableAnswers: questions.acceptableAnswers,
+      translations: questions.translations,
       pointsBase: questions.pointsBase,
     })
     .from(questions)
@@ -369,7 +371,22 @@ export async function submitTeamAnswer(
     return { errorKey: "unsupportedQuestionType" };
   }
 
-  const grade = gradeAnswer(question, input);
+  // Bilingual: a player on the EN locale may type the English answer,
+  // so grade against base ∪ EN-overlay acceptable answers. Union only
+  // widens acceptance — never rejects a previously-correct answer.
+  const overlayAccept = getOverlay(question.translations, "en")
+    ?.acceptableAnswers;
+  const gradeQuestion = Array.isArray(overlayAccept)
+    ? {
+        ...question,
+        acceptableAnswers: [
+          ...getStringArray(question.acceptableAnswers),
+          ...overlayAccept.filter((a): a is string => typeof a === "string"),
+        ],
+      }
+    : question;
+
+  const grade = gradeAnswer(gradeQuestion, input);
   if (!grade) {
     return { errorKey: "unsupportedQuestionType" };
   }

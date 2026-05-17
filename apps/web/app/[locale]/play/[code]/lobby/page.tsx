@@ -15,6 +15,7 @@ import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { getDownloadUrl } from "@/lib/r2";
 import { QuizTheme } from "@/components/quiz-theme";
+import { resolveQuestionContent } from "@/lib/question-content";
 import { CaptainControls } from "./captain-controls";
 import { LiveLobby } from "./live-lobby";
 import { QuestionPanel } from "./question-panel";
@@ -171,6 +172,7 @@ export default async function PlayLobbyPage({
           mediaUrl: questions.mediaUrl,
           mediaAttribution: questions.mediaAttribution,
           mediaBlurPx: questions.mediaBlurPx,
+          translations: questions.translations,
           roundType: rounds.roundType,
         })
         .from(questions)
@@ -198,7 +200,21 @@ export default async function PlayLobbyPage({
           .limit(1)
       : [];
 
-  const options = getStringArray(currentQuestion?.options);
+  const baseOptions = getStringArray(currentQuestion?.options);
+  // Apply the per-question EN overlay for the active locale; base
+  // (primary-language) content is the fallback.
+  const resolved = currentQuestion
+    ? resolveQuestionContent(
+        {
+          questionText: currentQuestion.questionText,
+          options: baseOptions,
+          acceptableAnswers: [],
+        },
+        currentQuestion.translations,
+        locale
+      )
+    : null;
+  const options = resolved?.options ?? baseOptions;
 
   // Image-reveal questions get a signed URL so the player phone shows the
   // same blurred photo that the host TV does. Audio is intentionally NOT
@@ -237,7 +253,7 @@ export default async function PlayLobbyPage({
     ? {
         id: currentQuestion.id,
         questionType: currentQuestion.questionType,
-        questionText: currentQuestion.questionText,
+        questionText: resolved?.questionText ?? currentQuestion.questionText,
         options,
         maxPoints: getMaxPoints(
           currentQuestion.questionType,

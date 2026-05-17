@@ -42,6 +42,12 @@ export const questions = pgTable(
     options: jsonb("options"),
     correctAnswer: jsonb("correct_answer").notNull(),
     acceptableAnswers: jsonb("acceptable_answers"),
+    // Optional per-question localisation overlay. Base columns above
+    // stay canonical (authored in the quiz's primary language); this
+    // holds the *other* locale's text only. Shape:
+    //   { en?: { questionText?, options?: string[], acceptableAnswers?: string[] } }
+    // Nullable so every existing row keeps working untouched.
+    translations: jsonb("translations"),
     timeLimitSeconds: integer("time_limit_seconds").notNull().default(20),
     pointsBase: integer("points_base").notNull().default(1),
     // FK to stories.id will be added in Sprint 5 once the stories table exists.

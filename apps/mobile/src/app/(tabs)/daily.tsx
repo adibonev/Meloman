@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { getDailyToday, type DailyToday } from "@/lib/api";
 import { colors } from "@/lib/theme";
 
@@ -41,6 +47,26 @@ export default function DailyScreen() {
         </Text>
       ) : (
         <View className="rounded-[12px] border border-l-[3px] border-border-strong border-l-accent bg-card p-[16px]">
+          {(() => {
+            // song_of_day → albumCoverUrl, mystery_artist →
+            // blurredImageUrl (same fields the web daily page reads).
+            const imageUrl =
+              data.contentType === "song_of_day"
+                ? payload.albumCoverUrl
+                : payload.blurredImageUrl;
+            return imageUrl ? (
+              <Image
+                source={{ uri: imageUrl }}
+                resizeMode="cover"
+                style={{
+                  width: "100%",
+                  aspectRatio: 1,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                }}
+              />
+            ) : null;
+          })()}
           <Text className="text-[12px] font-bold uppercase tracking-[2px] text-accent">
             {data.contentType === "song_of_day"
               ? "Песен на деня"

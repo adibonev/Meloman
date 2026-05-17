@@ -1272,7 +1272,7 @@ themes, bilingual, Mystery 4-stage, expo-camera scanner — see
 `docs/backlog.md`).
 
 Deferred-by-design trade-offs for the deadline are logged honestly in
-`docs/backlog.md` and `docs/final-10-day-plan.md`.
+`docs/backlog.md` and `docs/process/final-10-day-plan.md`.
 
 ---
 

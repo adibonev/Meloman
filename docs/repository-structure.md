@@ -85,17 +85,21 @@ Rules:
 
 ## `docs/`
 
-Project documentation lives here.
+Project documentation lives here. `docs/README.md` is the index.
 
-Current docs:
+**Reference docs** (current, evaluator-facing) at `docs/` root:
 
-- `stage-3-handoff.md` - current live quiz state and next work for Claude or another AI agent.
-- `live-quiz-test-plan.md` - manual QA checklist for Stage 3.
-- `testing-strategy.md` - automated/manual testing strategy, including Jest and Playwright scope.
-- `claude-stage-3-prompt.md` - ready-to-use prompt for the next Claude Code Stage 3 session.
-- `pre-friday-backlog.md` - short safe-work vs Claude-owned-work list before Friday, 2026-05-08.
-- `backlog.md` - canonical queue of feedback items beyond the current Stage 3 slice.
+- `api.md` - REST endpoint reference.
+- `database-schema.md` - ER diagram + table reference (15 tables).
 - `repository-structure.md` - this document.
+- `testing-strategy.md` - automated/manual testing scope (Jest, Playwright, mobile jest).
+- `live-quiz-test-plan.md` - manual QA checklist for the live quiz.
+- `backlog.md` - canonical roadmap: shipped log + queued/deferred items.
+
+**Process docs** (historical AI-assisted-development trail) in
+`docs/process/` — kept for SoftUni transparency, not needed to run or
+review the product: `stage-3-handoff.md`, `final-10-day-plan.md`,
+`pre-friday-backlog.md`, `claude-stage-3-prompt.md`.
 
 Rules:
 

@@ -1,26 +1,69 @@
 # Meloman
 
-[![CI](https://github.com/adibonev/meloman/actions/workflows/ci.yml/badge.svg)](https://github.com/adibonev/meloman/actions/workflows/ci.yml)
+[![CI](https://github.com/adibonev/Meloman/actions/workflows/ci.yml/badge.svg)](https://github.com/adibonev/Meloman/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Meloman is a music quiz platform with two product surfaces:
+> A music quiz platform for in-person trivia nights and daily music
+> engagement — built as the SoftUni "Full Stack Apps with AI" capstone
+> and a real product for the Bulgarian music page **Meloman**.
 
-- **Live quiz system** for in-person trivia nights: fullscreen host
-  presentation, player phones, teams, real-time events, server-authoritative
-  timer, automated grading with host override, per-round elimination, and an
+Two product surfaces over one shared backend:
+
+- **Live quiz system** — fullscreen host presentation on a TV, players
+  join from their phones, real-time teams, server-authoritative timer,
+  automated grading with host override, per-round elimination, and an
   end-of-quiz podium.
-- **Daily engagement app** for music fans: Song of the Day, Mystery Artist,
-  streaks, badges, and editorial stories.
-
-Both surfaces share users, content, and a single REST API. The project is
-Adi Bonev's SoftUni "Full Stack Apps with AI" capstone and a real product
-for the Bulgarian music page Meloman.
+- **Daily engagement app** — Song of the Day, a 4-stage Mystery Artist
+  reveal, streaks, badges, and editorial stories.
 
 - 🌐 **Live web app:** https://meloman-web.vercel.app
-- 📱 **Android app:** Expo / EAS build — see [Mobile App](#mobile-app)
+- 📱 **Mobile:** Expo SDK 55 — Android APK via EAS, web export deployable
+  (see [Mobile App](#mobile-app))
 
----
+## Contents
 
-## Demo Credentials
+- [Features](#features)
+- [Demo credentials](#demo-credentials)
+- [Architecture](#architecture)
+- [Tech stack](#tech-stack)
+- [Repository layout](#repository-layout)
+- [Local setup](#local-setup)
+- [Mobile app](#mobile-app)
+- [Quality gates](#quality-gates)
+- [Roles](#roles)
+- [Documentation](#documentation)
+- [AI usage](#ai-usage)
+- [License](#license)
+
+## Features
+
+- **Live quiz engine** — lobby → active → reveal → between-rounds →
+  finished state machine; server-authoritative timer; captain-only
+  submit; pause/resume; per-round cutoff with spectators; podium.
+- **6 question types** — multiple choice, open text, audio clip (R2),
+  image reveal (progressive blur), lyric fill-in, decade/year.
+- **Host tools** — fullscreen presentation with keyboard controls,
+  QR join code, manual answer override, between-rounds score
+  adjustment, guest-host MP4 final round.
+- **Per-quiz themes** — modern / vintage / neon re-skin the quiz
+  surfaces (presentation, lobby, player, mobile) without touching the
+  warm app shell.
+- **Bilingual quizzes** — optional per-question English overlay with
+  locale-aware rendering and grading.
+- **Daily & editorial** — Song of the Day, 4-stage Mystery Artist
+  reveal (Sofia-time, cron-backed), magazine-style stories, artist
+  spotlight.
+- **Admin panel** — quizzes/rounds/questions, sponsors, stories
+  (TipTap), daily content, user management, analytics; server-side
+  pagination across list views.
+- **Mobile app** — Expo + NativeWind, 7 screens, in-app QR scanner,
+  bearer-JWT API client.
+- **i18n** — Bulgarian default, English under `/en` (next-intl,
+  enforced BG/EN message parity).
+- **Tested** — Jest (web + mobile pure logic) and a ~40-test
+  Playwright suite; CI on every push and PR.
+
+## Demo credentials
 
 All seeded accounts use the password `demo123`.
 
@@ -30,10 +73,9 @@ All seeded accounts use the password `demo123`.
 | Super admin | `friend@meloman.bg` | Everything incl. user management |
 | Player | `player@meloman.bg` | Play quizzes, read stories, daily |
 
-A host session is created from `/admin/quizzes` → open "Demo Music Quiz" →
-**Start session**. The demo quiz contains all six question types.
-
----
+A host session is created from `/admin/quizzes` → open "Demo Music
+Quiz" → **Start session**. The demo quiz contains all six question
+types.
 
 ## Architecture
 
@@ -58,18 +100,16 @@ flowchart TD
     PUSHER -->|question-started / revealed / scores| W
 ```
 
-- **Web** authenticates with the Auth.js v5 session cookie; **mobile** sends
-  a bearer JWT from `POST /api/auth/mobile-login`. The shared API guard
-  accepts either.
-- DB is the single source of truth; failed Pusher broadcasts never block a
-  write.
-- See [docs/api.md](docs/api.md) for the full endpoint reference and
+- **Web** authenticates with the Auth.js v5 session cookie; **mobile**
+  sends a bearer JWT from `POST /api/auth/mobile-login`. The shared API
+  guard accepts either.
+- The database is the single source of truth; a failed Pusher broadcast
+  never blocks a write, and clients fall back to polling.
+- See [docs/api.md](docs/api.md) for the endpoint reference and
   [docs/database-schema.md](docs/database-schema.md) for the ER diagram
   (15 tables).
 
----
-
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 | --- | --- |
@@ -81,45 +121,42 @@ flowchart TD
 | Storage | Cloudflare R2 |
 | Styling | Tailwind CSS + shadcn/ui (web), Tailwind via NativeWind (mobile) |
 | Validation | Zod |
-| i18n | next-intl, Bulgarian default, English under `/en` |
+| i18n | next-intl — Bulgarian default, English under `/en` |
 | Testing | Jest + Playwright |
 | Monorepo | Turborepo + pnpm workspaces |
 | Hosting | Vercel (web) + Expo EAS (mobile) |
 
-Technology choices are constrained by the SoftUni curriculum. See
-[CLAUDE.md](CLAUDE.md) for the full architecture notes.
+Technology choices are constrained by the SoftUni curriculum. Full
+architecture notes live in [CLAUDE.md](CLAUDE.md).
 
----
-
-## Repository Layout
+## Repository layout
 
 ```text
 meloman/
-|-- apps/
-|   |-- web/                  # Next.js web app, REST API, server actions, admin
-|   `-- mobile/               # Expo app (expo-router): 7 screens
-|-- packages/
-|   |-- db/                   # Drizzle schema, migrations, Neon client, seed
-|   |-- shared/               # Reserved for cross-app code
-|   `-- ui/                   # Reserved for shared UI primitives
-|-- docs/                     # API, DB schema, plans, handoff notes
-|-- .github/workflows/        # CI automation
-|-- CLAUDE.md                 # Master project context for AI-assisted work
-`-- turbo.json                # Turborepo task pipeline
+├── apps/
+│   ├── web/          # Next.js app: UI, REST API, server actions, admin
+│   └── mobile/       # Expo app (expo-router): 7 screens
+├── packages/
+│   ├── db/           # Drizzle schema, migrations, Neon client, seed
+│   ├── shared/       # Cross-app design tokens / shared code
+│   └── ui/           # Reserved for shared UI primitives
+├── docs/             # Reference docs (+ docs/process/ history) — see docs/README.md
+├── .github/          # CI workflow + PR template
+├── CLAUDE.md         # Master project context for AI-assisted work
+├── AGENTS.md         # AI-usage policy
+└── turbo.json        # Turborepo task pipeline
 ```
 
-See [docs/repository-structure.md](docs/repository-structure.md) for folder
-ownership and maintenance rules.
+See [docs/repository-structure.md](docs/repository-structure.md) for
+folder ownership and maintenance rules.
 
----
-
-## Local Setup
+## Local setup
 
 ### Prerequisites
 
 - Node.js 20+ · pnpm 10.33.2+
-- Neon PostgreSQL database, Auth.js secret
-- (Optional features) Cloudflare R2, Pusher, Spotify credentials
+- A Neon PostgreSQL database and an Auth.js secret
+- Optional: Cloudflare R2, Pusher, Spotify, Resend credentials
 
 ### Install & configure
 
@@ -129,15 +166,16 @@ cp .env.example .env.local
 cp .env.example apps/web/.env.local
 ```
 
-Fill at least `DATABASE_URL` and `AUTH_SECRET`. R2 / Pusher / Spotify
-variables are needed only for the features that use them. Never commit
-`.env.local` (gitignored).
+Fill at least `DATABASE_URL` and `AUTH_SECRET`. R2 / Pusher / Spotify /
+Resend variables are only needed for the features that use them.
+`.env.local` is gitignored — never commit secrets.
 
 ### Database & seed
 
 ```bash
 pnpm --filter @meloman/db db:migrate     # apply migrations
-pnpm --filter @meloman/db db:seed        # demo users, 5 stories, demo quiz, daily
+pnpm --filter @meloman/db db:seed        # demo users, stories, demo quiz, daily
+pnpm --filter @meloman/db db:seed:bulk   # optional: 10k load-test users
 ```
 
 The seed uploads demo audio/image to R2 and is idempotent.
@@ -148,38 +186,32 @@ The seed uploads demo audio/image to R2 and is idempotent.
 pnpm --filter @meloman/web dev           # http://localhost:3000
 ```
 
-Bulgarian routes are at `/...`; English at `/en/...`.
+Bulgarian routes are at `/…`; English at `/en/…`.
 
----
-
-## Mobile App
+## Mobile app
 
 ```bash
 pnpm --filter mobile start               # Expo dev server
 ```
 
-The mobile app talks to the deployed API (`https://meloman-web.vercel.app`)
-by default, so no LAN setup is needed.
+The mobile app talks to the deployed API
+(`https://meloman-web.vercel.app`) by default, so no LAN setup is
+needed.
 
-> **Expo Go note:** the app targets **Expo SDK 55**. The App Store / Play
-> Store **Expo Go** only runs the latest *stable* SDK, so it cannot open
-> this project — use a **development build** or the **EAS APK** below to
-> run it on a device.
+> **Expo Go note:** the app targets **Expo SDK 55**. Store Expo Go only
+> runs the latest *stable* SDK, so it cannot open this project — use a
+> **development build** or the **EAS APK** below to run it on a device.
 
-**Web build** (Expo Router static export — this is the deployed Expo
-client surface):
+Web build (Expo Router static export — the deployable Expo client):
 
 ```bash
-pnpm --filter mobile build:web          # → apps/mobile/dist (static)
+pnpm --filter mobile build:web           # → apps/mobile/dist (static)
 ```
 
 `apps/mobile/vercel.json` deploys that `dist/` as a static site on
 Vercel (set the project's Root Directory to `apps/mobile`).
 
-- 🌐 **Expo web app (live):** _set after first deploy_ — fill the
-  submission form's "Expo Project Live URL" with the Vercel URL.
-
-**Android APK** is built in the cloud with EAS:
+Android APK is built in the cloud with EAS:
 
 ```bash
 cd apps/mobile
@@ -189,40 +221,45 @@ npx eas-cli@latest build --platform android --profile preview
 Builds and the downloadable `.apk` are listed at
 `https://expo.dev/accounts/adibonevs-organization/projects/meloman/builds`.
 
----
-
-## Quality Gates
+## Quality gates
 
 ```bash
 pnpm --filter @meloman/web lint
 pnpm --filter @meloman/web exec tsc --noEmit
-pnpm --filter @meloman/web test
+pnpm --filter @meloman/web test          # Jest
+pnpm --filter @meloman/web test:e2e      # Playwright smoke (CI-safe)
+pnpm --filter @meloman/web test:e2e:full # Playwright full authed suite (local)
 pnpm --filter @meloman/web build
 pnpm --filter mobile typecheck
+pnpm --filter mobile test                # mobile Jest (pure logic)
 ```
 
-GitHub Actions runs lint, typecheck, tests, and build on `main` and PRs.
-
----
+GitHub Actions runs lint, typecheck, web + mobile tests, the smoke
+e2e suite, and the build on `main` and every PR.
 
 ## Roles
 
 - `player` — default; plays quizzes, reads content.
-- `admin` — manages quizzes, stories, daily content, sponsors, analytics.
+- `admin` — manages quizzes, stories, daily content, sponsors,
+  analytics.
 - `super_admin` — all of the above plus user management.
 
-Role-based route protection lives in [apps/web/proxy.ts](apps/web/proxy.ts).
+Role-based route protection lives in
+[apps/web/proxy.ts](apps/web/proxy.ts).
 
----
+## Documentation
 
-## AI Usage
+Start at [docs/README.md](docs/README.md) — it indexes the reference
+docs (API, schema, structure, testing) and the historical AI-process
+trail in `docs/process/`.
 
-AI assistance is documented for transparency in
-[AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md). Humans review all
-architecture decisions and commits.
+## AI usage
 
----
+This project was built with AI-assisted development. The policy and
+process are documented for transparency in [AGENTS.md](AGENTS.md) and
+[CLAUDE.md](CLAUDE.md); every architecture decision and merged commit
+is human-reviewed.
 
 ## License
 
-See [LICENSE](LICENSE).
+[MIT](LICENSE).

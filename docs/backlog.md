@@ -6,8 +6,8 @@ This is the canonical place for user-driven feedback that is too big or out
 of scope for the current Stage 3 slice. Items here are NOT promised — they
 are queued, prioritised, and pulled into a sprint when the time fits.
 
-For Stage 3 work-in-progress, see `docs/stage-3-handoff.md`.
-For pre-defense triage, see `docs/pre-friday-backlog.md`.
+For Stage 3 work-in-progress, see `docs/process/stage-3-handoff.md`.
+For pre-defense triage, see `docs/process/pre-friday-backlog.md`.
 
 ## Format
 

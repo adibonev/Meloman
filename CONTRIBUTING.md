@@ -13,7 +13,7 @@ Read these first:
 
 For Sprint 3 live quiz work, also read:
 
-- `docs/stage-3-handoff.md`
+- `docs/process/stage-3-handoff.md`
 - `docs/live-quiz-test-plan.md`
 - `docs/testing-strategy.md`
 
@@ -61,7 +61,7 @@ pnpm test:watch
 
 Update docs when a documented flow changes:
 
-- `docs/stage-3-handoff.md` for Sprint 3 live quiz state.
+- `docs/process/stage-3-handoff.md` for Sprint 3 live quiz state.
 - `docs/live-quiz-test-plan.md` for manual QA changes.
 - `docs/testing-strategy.md` when automated test coverage changes.
 - `docs/repository-structure.md` when adding meaningful folders or ownership boundaries.

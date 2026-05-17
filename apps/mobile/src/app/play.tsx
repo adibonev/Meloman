@@ -20,6 +20,7 @@ import {
 import { getToken } from "@/lib/auth";
 import { getDeviceId } from "@/lib/device";
 import { colors, quizPalette } from "@/lib/theme";
+import { QrScanner } from "@/components/qr-scanner";
 
 const POLL_MS = 2500;
 
@@ -44,6 +45,7 @@ export default function PlayScreen() {
   const [state, setState] = useState<PlayState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     getToken().then((t) => {
@@ -108,7 +110,21 @@ export default function PlayScreen() {
     );
   }
 
-  // Step 1 — enter the join code.
+  // Step 1 — scan the QR or enter the join code.
+  if (!joinedCode && scanning) {
+    return (
+      <QrScanner
+        onCancel={() => setScanning(false)}
+        onScanned={(scanned) => {
+          setScanning(false);
+          setError(null);
+          setState(null);
+          setJoinedCode(scanned);
+        }}
+      />
+    );
+  }
+
   if (!joinedCode) {
     return (
       <View className="flex-1 bg-bg p-[24px]">
@@ -140,6 +156,17 @@ export default function PlayScreen() {
           }}
         >
           <Text className={TXT_PRIMARY}>Влез</Text>
+        </Pressable>
+        <Pressable
+          className="mt-[12px] items-center rounded-[14px] border border-border-strong py-[16px]"
+          onPress={() => {
+            setError(null);
+            setScanning(true);
+          }}
+        >
+          <Text className="text-[16px] font-extrabold text-fg">
+            Сканирай QR код
+          </Text>
         </Pressable>
         {error ? (
           <Text className="mt-[16px] text-center text-danger">{error}</Text>

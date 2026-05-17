@@ -17,8 +17,8 @@ Two product surfaces over one shared backend:
   reveal, streaks, badges, and editorial stories.
 
 - 🌐 **Live web app:** https://meloman-web.vercel.app
-- 📱 **Mobile:** Expo SDK 55 — Android APK via EAS, web export deployable
-  (see [Mobile App](#mobile-app))
+- 📱 **Mobile (web client):** https://meloman-mobile.vercel.app
+- 📦 **Android APK:** Expo SDK 55 via EAS (see [Mobile App](#mobile-app))
 
 ## Contents
 
@@ -202,14 +202,16 @@ needed.
 > runs the latest *stable* SDK, so it cannot open this project — use a
 > **development build** or the **EAS APK** below to run it on a device.
 
-Web build (Expo Router static export — the deployable Expo client):
+The Expo Router static export is deployed as a browser-openable
+client at **https://meloman-mobile.vercel.app** — log in with the
+demo player to see it talk to the live API.
 
 ```bash
 pnpm --filter mobile build:web           # → apps/mobile/dist (static)
 ```
 
 `apps/mobile/vercel.json` deploys that `dist/` as a static site on
-Vercel (set the project's Root Directory to `apps/mobile`).
+Vercel (project Root Directory set to `apps/mobile`).
 
 Android APK is built in the cloud with EAS:
 

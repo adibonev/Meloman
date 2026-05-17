@@ -35,6 +35,51 @@ export async function createQuizWithRound(
   return page.url();
 }
 
+/** Create a quiz with two standard rounds, one MC question per round.
+ *  Needed to reach the `between_rounds` state — the round-1→round-2
+ *  transition is what triggers it. Leaves the page on the quiz detail
+ *  and returns its URL. */
+export async function createTwoRoundQuiz(
+  page: Page,
+  quizTitle: string,
+  q1Text: string,
+  q2Text: string
+): Promise<string> {
+  await page.goto("/en/admin/quizzes");
+  await page.getByRole("link", { name: "New quiz" }).click();
+  await page.getByLabel("Title").fill(quizTitle);
+  await page.getByRole("button", { name: "Create quiz" }).click();
+  await expect(page).toHaveURL(/\/en\/admin\/quizzes\/?$/);
+
+  await page.getByRole("link", { name: quizTitle }).click();
+  await expect(page).toHaveURL(/\/en\/admin\/quizzes\/[0-9a-f-]+$/);
+  const quizUrl = page.url();
+
+  for (const [roundTitle, qText] of [
+    ["Round 1", q1Text],
+    ["Round 2", q2Text],
+  ] as const) {
+    await page.goto(quizUrl);
+    await page.getByRole("link", { name: "+ Add round" }).click();
+    await page.getByLabel("Round title").fill(roundTitle);
+    await page
+      .getByLabel("How many teams advance after this round")
+      .fill("0");
+    await page.getByRole("button", { name: "Create round" }).click();
+    await expect(page).toHaveURL(/\/en\/admin\/quizzes\/[0-9a-f-]+$/);
+
+    // Non-exact: the round link's accessible name carries extra
+    // metadata ("Round 1 · …"), like createQuizWithRound relies on.
+    // "Round 1" / "Round 2" stay unambiguous against each other.
+    await page.getByRole("link", { name: roundTitle }).click();
+    await expect(page).toHaveURL(/\/rounds\/[0-9a-f-]+$/);
+    await addMcQuestion(page, page.url(), qText);
+  }
+
+  await page.goto(quizUrl);
+  return quizUrl;
+}
+
 /** Add one multiple-choice question from a round detail URL; leaves the
  *  page back on the round detail. */
 export async function addMcQuestion(

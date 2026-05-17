@@ -11,7 +11,9 @@ test.describe("auth flows", () => {
     const email = `e2e-auth-${stamp}@example.com`;
     const password = "Password123";
 
-    const ctx = await browser.newContext();
+    const ctx = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
     const page = await ctx.newPage();
     try {
       // --- Register ---
@@ -55,7 +57,9 @@ test.describe("auth flows", () => {
   });
 
   test("login rejects a wrong password", async ({ browser }) => {
-    const ctx = await browser.newContext();
+    const ctx = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
     const page = await ctx.newPage();
     try {
       await page.goto("/en/login");

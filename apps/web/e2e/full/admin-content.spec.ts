@@ -70,7 +70,11 @@ test.describe("admin content", () => {
     // Register the victim in a clean anonymous context so the
     // super-admin session on the main page is untouched. Register
     // doesn't sign in — it redirects to /login.
-    const anonCtx = await browser.newContext();
+    // Explicit empty state — the full project's default admin
+    // storageState would otherwise leak into a bare newContext().
+    const anonCtx = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
     const anon = await anonCtx.newPage();
     try {
       await anon.goto("/en/register");

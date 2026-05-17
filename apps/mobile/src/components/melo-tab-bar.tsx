@@ -44,7 +44,6 @@ export function MeloTabBar({ state, navigation }: BottomTabBarProps) {
               }`}
             >
               <Text
-                numberOfLines={1}
                 className={`text-[13px] font-bold ${
                   focused ? "text-bg" : "text-muted"
                 }`}

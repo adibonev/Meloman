@@ -155,11 +155,29 @@ Bulgarian routes are at `/...`; English at `/en/...`.
 ## Mobile App
 
 ```bash
-pnpm --filter mobile start               # Expo dev server (scan QR in Expo Go)
+pnpm --filter mobile start               # Expo dev server
 ```
 
 The mobile app talks to the deployed API (`https://meloman-web.vercel.app`)
-by default, so Expo Go works without LAN setup.
+by default, so no LAN setup is needed.
+
+> **Expo Go note:** the app targets **Expo SDK 55**. The App Store / Play
+> Store **Expo Go** only runs the latest *stable* SDK, so it cannot open
+> this project — use a **development build** or the **EAS APK** below to
+> run it on a device.
+
+**Web build** (Expo Router static export — this is the deployed Expo
+client surface):
+
+```bash
+pnpm --filter mobile build:web          # → apps/mobile/dist (static)
+```
+
+`apps/mobile/vercel.json` deploys that `dist/` as a static site on
+Vercel (set the project's Root Directory to `apps/mobile`).
+
+- 🌐 **Expo web app (live):** _set after first deploy_ — fill the
+  submission form's "Expo Project Live URL" with the Vercel URL.
 
 **Android APK** is built in the cloud with EAS:
 

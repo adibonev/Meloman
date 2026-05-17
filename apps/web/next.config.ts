@@ -23,6 +23,30 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "32mb",
     },
   },
+  // The Expo web client is deployed on its own origin
+  // (meloman-mobile.vercel.app) and reaches this REST API cross-origin,
+  // so the browser needs CORS. Mobile auth is a Bearer token (no
+  // cookies), so `*` is safe here and also covers local Expo web.
+  // The web app itself calls these routes same-origin and is unaffected.
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PATCH, DELETE, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
+          },
+          { key: "Access-Control-Max-Age", value: "86400" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

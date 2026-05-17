@@ -201,4 +201,78 @@ test.describe("live game depth", () => {
       await capCtx.close();
     }
   });
+
+  test("captain can transfer the role to a teammate in the lobby", async ({
+    browser,
+  }) => {
+    test.setTimeout(120_000);
+
+    const hostCtx = await browser.newContext({ storageState: ADMIN_STATE });
+    const capCtx = await browser.newContext({ storageState: PLAYER_STATE });
+    const memCtx = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
+    const host = await hostCtx.newPage();
+    const captain = await capCtx.newPage();
+    const member = await memCtx.newPage();
+
+    try {
+      const quizTitle = uniqueTitle("E2E Captain");
+      const roundUrl = await createQuizWithRound(host, quizTitle);
+      await addMcQuestion(host, roundUrl, "Captaincy question");
+      await publishQuiz(host, quizTitle);
+
+      await host.goto("/en/admin/quizzes");
+      await host.getByRole("link", { name: quizTitle }).click();
+      await host
+        .getByRole("button", { name: "Start live session" })
+        .click();
+      await expect(host).toHaveURL(/\/en\/host\/[A-Z0-9]+$/);
+      const code = host.url().split("/host/")[1];
+
+      // Captain creates the team.
+      await captain.goto(`/en/play/${code}`);
+      await captain
+        .getByPlaceholder("e.g. The Melomaniacs")
+        .fill("E2E CapTeam");
+      await captain.getByRole("button", { name: "Create team" }).click();
+      await expect(captain).toHaveURL(new RegExp(`/play/${code}/lobby`));
+
+      // Member joins the same team via the anonymous path.
+      await member.goto(`/en/play/${code}`);
+      await member.getByLabel("Your name").fill("Future Captain");
+      await member.getByRole("button", { name: "Join quiz" }).click();
+      await member
+        .getByRole("button")
+        .filter({ hasText: "E2E CapTeam" })
+        .click();
+      await expect(member).toHaveURL(new RegExp(`/play/${code}/lobby`));
+
+      // Captain sees a "Make captain" control for the new member and
+      // the Captain badge currently on their own row.
+      await captain.reload();
+      const memberRow = captain
+        .getByRole("listitem")
+        .filter({ hasText: "Future Captain" });
+      await expect(
+        memberRow.getByRole("button", { name: "Make captain" })
+      ).toBeVisible({ timeout: 15_000 });
+
+      // Transfer the role.
+      await memberRow.getByRole("button", { name: "Make captain" }).click();
+
+      // The badge moved: the member row now shows Captain, and the
+      // current user (no longer captain) has no transfer buttons left.
+      await expect(
+        memberRow.getByText("Captain", { exact: true })
+      ).toBeVisible({ timeout: 15_000 });
+      await expect(
+        captain.getByRole("button", { name: "Make captain" })
+      ).toHaveCount(0);
+    } finally {
+      await hostCtx.close();
+      await capCtx.close();
+      await memCtx.close();
+    }
+  });
 });

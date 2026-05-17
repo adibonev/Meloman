@@ -12,6 +12,8 @@ import {
   createTeam,
   joinTeam,
   submitTeamAnswer,
+  transferCaptain,
+  type CaptainTransferErrorKey,
   type SubmitAnswerErrorKey,
 } from "@/lib/live-quiz/play-service";
 import {
@@ -19,6 +21,7 @@ import {
   joinAsAnonymousSchema,
   joinTeamSchema,
   submitAnswerSchema,
+  transferCaptainSchema,
 } from "@/lib/schemas/play";
 
 // createTeamAction / joinTeamAction intentionally have no explicit return
@@ -28,6 +31,37 @@ import {
 type SubmitAnswerActionResult =
   | { errorKey: "unauthorized" | "invalidData" | SubmitAnswerErrorKey }
   | { ok: true };
+
+type TransferCaptainActionResult =
+  | { errorKey: "unauthorized" | "invalidData" | CaptainTransferErrorKey }
+  | { ok: true };
+
+/**
+ * Captain hands the role to a teammate from the lobby. Stays on the
+ * page (no redirect) — the client refreshes and the Pusher broadcast
+ * updates the other teammates' lobbies.
+ */
+export async function transferCaptainAction(
+  code: string,
+  formData: FormData
+): Promise<TransferCaptainActionResult> {
+  const userSession = await auth();
+  if (!userSession?.user?.id) {
+    return { errorKey: "unauthorized" as const };
+  }
+
+  const parsed = transferCaptainSchema.safeParse({
+    teamId: formData.get("teamId"),
+    targetUserId: formData.get("targetUserId"),
+  });
+  if (!parsed.success) {
+    return { errorKey: "invalidData" as const };
+  }
+
+  const result = await transferCaptain(userSession.user.id, code, parsed.data);
+  if ("errorKey" in result) return { errorKey: result.errorKey };
+  return { ok: true as const };
+}
 
 // Player flow: anonymous user joins a live session. We mint a throwaway
 // users row (never reused — random email + random password) and sign the

@@ -225,6 +225,74 @@ export async function joinTeam(
   return { ok: true, teamId: team.id, code: loaded.upperCode };
 }
 
+export type CaptainTransferErrorKey =
+  | "sessionNotFound"
+  | "sessionNotJoinable"
+  | "teamNotFound"
+  | "notCaptain"
+  | "targetNotMember";
+
+export type CaptainTransferResult =
+  | { errorKey: CaptainTransferErrorKey }
+  | { ok: true };
+
+/**
+ * Hand the captain role to another teammate. Lobby only
+ * (loadJoinableSession enforces status === "lobby" → sessionNotJoinable
+ * otherwise): changing the captain mid-question would race the
+ * captain-only submit guard (§4.3). Only the *current* captain can pass
+ * the role, and only to an existing member of the same team.
+ */
+export async function transferCaptain(
+  userId: string,
+  code: string,
+  input: { teamId: string; targetUserId: string }
+): Promise<CaptainTransferResult> {
+  const loaded = await loadJoinableSession(code);
+  if ("error" in loaded) return { errorKey: loaded.error };
+
+  const [team] = await db
+    .select({ id: teams.id, captainUserId: teams.captainUserId })
+    .from(teams)
+    .where(
+      and(
+        eq(teams.id, input.teamId),
+        eq(teams.sessionId, loaded.session.id)
+      )
+    )
+    .limit(1);
+  if (!team) return { errorKey: "teamNotFound" };
+
+  // Only the sitting captain may pass the role.
+  if (team.captainUserId !== userId) {
+    return { errorKey: "notCaptain" };
+  }
+
+  // Target must already be on this team.
+  const [member] = await db
+    .select({ id: teamMembers.id })
+    .from(teamMembers)
+    .where(
+      and(
+        eq(teamMembers.teamId, team.id),
+        eq(teamMembers.userId, input.targetUserId)
+      )
+    )
+    .limit(1);
+  if (!member) return { errorKey: "targetNotMember" };
+
+  await db
+    .update(teams)
+    .set({ captainUserId: input.targetUserId })
+    .where(eq(teams.id, team.id));
+
+  await broadcast(quizChannel(loaded.upperCode), PUSHER_EVENTS.scoresUpdated, {
+    reason: "captain-changed",
+  });
+
+  return { ok: true };
+}
+
 export async function submitTeamAnswer(
   userId: string,
   code: string,

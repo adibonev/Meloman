@@ -14,6 +14,7 @@ import {
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { getDownloadUrl } from "@/lib/r2";
+import { CaptainControls } from "./captain-controls";
 import { LiveLobby } from "./live-lobby";
 import { QuestionPanel } from "./question-panel";
 
@@ -282,39 +283,18 @@ export default async function PlayLobbyPage({
         </p>
       </section>
 
-      <section className="space-y-2">
-        <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
-          {t("membersTitle", { count: members.length })}
-        </h2>
-        <ul className="space-y-1">
-          {members.map((m) => {
-            const isCaptain = m.userId === myTeam.captainUserId;
-            const isYou = m.userId === userId;
-            const name =
-              m.displayName ?? m.anonymousName ?? t("memberFallback");
-            return (
-              <li
-                key={m.id}
-                className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2 text-sm"
-              >
-                <span className="font-medium">
-                  {name}
-                  {isYou && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      ({t("memberYou")})
-                    </span>
-                  )}
-                </span>
-                {isCaptain && (
-                  <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-[10px] uppercase tracking-widest">
-                    {t("captainBadge")}
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <CaptainControls
+        code={upperCode}
+        teamId={myTeam.id}
+        currentUserId={userId}
+        captainUserId={myTeam.captainUserId}
+        canManage={isCaptain && sessionRow.status === "lobby"}
+        members={members.map((m) => ({
+          id: m.id,
+          userId: m.userId,
+          name: m.displayName ?? m.anonymousName ?? t("memberFallback"),
+        }))}
+      />
 
       <QuestionPanel
         key={questionForPanel?.id ?? sessionRow.status}

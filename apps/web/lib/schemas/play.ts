@@ -44,6 +44,15 @@ export const joinTeamSchema = z.object({
   deviceFingerprint: deviceFingerprintField,
 });
 
+// Captain hands the role to another teammate (lobby only). No device
+// fingerprint — this is an authenticated team member acting, not a join.
+export const transferCaptainSchema = z.object({
+  teamId: z.string().uuid("teamIdInvalid"),
+  targetUserId: z.string().uuid("targetUserIdInvalid"),
+});
+
+export type TransferCaptainInput = z.infer<typeof transferCaptainSchema>;
+
 const textAnswerField = z
   .string()
   .trim()

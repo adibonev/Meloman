@@ -14,6 +14,7 @@ import {
 import { auth } from "@/auth";
 import { redirect } from "@/i18n/navigation";
 import { getDownloadUrl } from "@/lib/r2";
+import { QuizTheme } from "@/components/quiz-theme";
 import { CaptainControls } from "./captain-controls";
 import { LiveLobby } from "./live-lobby";
 import { QuestionPanel } from "./question-panel";
@@ -81,6 +82,7 @@ export default async function PlayLobbyPage({
         id: gameSessions.id,
         status: gameSessions.status,
         quizTitle: quizzes.title,
+        quizTheme: quizzes.theme,
         currentQuestionId: gameSessions.currentQuestionId,
         questionEndsAt: gameSessions.questionEndsAt,
         serverNowMs:
@@ -260,7 +262,8 @@ export default async function PlayLobbyPage({
   const questionEndsAtMs = sessionRow.questionEndsAt?.valueOf() ?? null;
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 px-4 py-10">
+    <QuizTheme theme={sessionRow.quizTheme}>
+      <div className="mx-auto max-w-lg space-y-6 px-4 py-10">
       <header className="space-y-2 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">
           {t("eyebrow", { code: upperCode })}
@@ -323,6 +326,7 @@ export default async function PlayLobbyPage({
       {/* Subscribes to the quiz channel and refreshes the page when the host
           broadcasts a roster change or session-status event. */}
       <LiveLobby code={upperCode} sessionStatus={sessionRow.status} />
-    </div>
+      </div>
+    </QuizTheme>
   );
 }

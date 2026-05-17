@@ -15,6 +15,7 @@ import { auth } from "@/auth";
 import { Link } from "@/i18n/navigation";
 import { getRequestOrigin } from "@/lib/origin";
 import { JoinQr } from "@/components/live/join-qr";
+import { QuizTheme } from "@/components/quiz-theme";
 import { TimerCountdown } from "@/components/live/timer-countdown";
 import {
   AnswerOverridePanel,
@@ -89,6 +90,7 @@ export default async function HostLobbyPage({
       pausedFromStatus: gameSessions.pausedFromStatus,
       quizId: quizzes.id,
       quizTitle: quizzes.title,
+      quizTheme: quizzes.theme,
       currentQuestionId: gameSessions.currentQuestionId,
       questionEndsAt: gameSessions.questionEndsAt,
       serverNowMs:
@@ -251,7 +253,8 @@ export default async function HostLobbyPage({
     : [];
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
+    <QuizTheme theme={row.quizTheme}>
+      <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
       <header className="space-y-2">
         <Link
           href={`/admin/quizzes/${row.quizId}`}
@@ -497,6 +500,7 @@ export default async function HostLobbyPage({
       </section>
 
       <LiveHost code={upper} />
-    </div>
+      </div>
+    </QuizTheme>
   );
 }

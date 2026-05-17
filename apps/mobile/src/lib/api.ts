@@ -162,6 +162,7 @@ export type PlayState = {
     | "between_rounds"
     | "paused"
     | "finished";
+  quizTheme: "modern" | "vintage" | "neon";
   serverNowMs: number;
   timerEndsAtMs: number | null;
   joinable: boolean;

@@ -19,7 +19,7 @@ import {
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 import { getDeviceId } from "@/lib/device";
-import { colors } from "@/lib/theme";
+import { colors, quizPalette } from "@/lib/theme";
 
 const POLL_MS = 2500;
 
@@ -323,6 +323,10 @@ function Lobby({
   const team = state.myTeam!;
   const seconds = useCountdown(state);
   const q = state.question;
+  // Per-quiz theme, scoped to the running quiz screen (mirrors the web
+  // [data-quiz-theme]). Applied to the screen background as the clear
+  // signal; the full NativeWind re-skin is a documented follow-up.
+  const palette = quizPalette(state.quizTheme);
   const canSubmit =
     state.status === "active" &&
     team.isCaptain &&
@@ -331,7 +335,8 @@ function Lobby({
 
   return (
     <ScrollView
-      className="flex-1 bg-bg p-[24px]"
+      className="flex-1 p-[24px]"
+      style={{ backgroundColor: palette.bg }}
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">

@@ -461,6 +461,7 @@ export type PlayStateResult =
   | {
       ok: true;
       status: string;
+      quizTheme: "modern" | "vintage" | "neon";
       serverNowMs: number;
       timerEndsAtMs: number | null;
       joinable: boolean;
@@ -527,8 +528,10 @@ export async function getPlayState(
       status: gameSessions.status,
       currentQuestionId: gameSessions.currentQuestionId,
       questionEndsAt: gameSessions.questionEndsAt,
+      quizTheme: quizzes.theme,
     })
     .from(gameSessions)
+    .innerJoin(quizzes, eq(quizzes.id, gameSessions.quizId))
     .where(eq(gameSessions.joinCode, upperCode))
     .limit(1);
 
@@ -702,6 +705,7 @@ export async function getPlayState(
   return {
     ok: true,
     status: sessionRow.status,
+    quizTheme: sessionRow.quizTheme,
     serverNowMs,
     timerEndsAtMs: sessionRow.questionEndsAt?.valueOf() ?? null,
     joinable: sessionRow.status === "lobby",

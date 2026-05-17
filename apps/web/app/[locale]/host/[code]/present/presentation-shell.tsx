@@ -51,12 +51,15 @@ export function PresentationShell({
   teams,
   sponsors,
   guestVideoUrl,
+  quizTheme,
 }: {
   children: React.ReactNode;
   code: string;
   isHost: boolean;
   status: SessionStatus;
   teams: LeaderboardTeam[];
+  // Per-quiz visual theme; re-skins the fullscreen presentation only.
+  quizTheme: "modern" | "vintage" | "neon";
   // Optional sponsors: rendered in the footer of the fullscreen
   // presentation so the venue brand is visible to the room without
   // blocking the question or leaderboard.
@@ -163,7 +166,10 @@ export function PresentationShell({
 
   return (
     <>
-      <div className="relative flex min-h-screen flex-col bg-background text-foreground">
+      <div
+        data-quiz-theme={quizTheme}
+        className="relative flex min-h-screen flex-col bg-background text-foreground"
+      >
         {/* Floating exit button. Always visible in the top-right corner so the */}
         {/* host has an obvious way out of the fullscreen presentation, even */}
         {/* when the page header is hidden by a question takeover. */}

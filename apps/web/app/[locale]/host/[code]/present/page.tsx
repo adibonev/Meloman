@@ -106,6 +106,7 @@ export default async function HostPresentPage({
       status: gameSessions.status,
       pausedFromStatus: gameSessions.pausedFromStatus,
       quizTitle: quizzes.title,
+      quizTheme: quizzes.theme,
       currentQuestionId: gameSessions.currentQuestionId,
       questionEndsAt: gameSessions.questionEndsAt,
       // Legacy single-sponsor fallback. New assignments live in
@@ -327,6 +328,7 @@ export default async function HostPresentPage({
       teams={leaderboardTeams}
       sponsors={presentationSponsors}
       guestVideoUrl={signedGuestVideoUrl}
+      quizTheme={row.quizTheme}
     >
       <header className="flex items-center justify-between border-b border-border px-8 py-4">
         <div className="space-y-0.5">

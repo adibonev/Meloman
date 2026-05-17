@@ -118,6 +118,53 @@
     --sidebar-ring: #FFD166;
 }
 
+/* Per-quiz themes — applied ONLY on quiz surfaces (host /present, host
+   lobby, player live screen) via [data-quiz-theme]. `modern` inherits
+   the warm default above (no override). vintage / neon re-skin the same
+   CSS vars the components already consume, so no component changes are
+   needed. The default app + admin chrome stay warm. */
+[data-quiz-theme="vintage"] {
+    --background: #241405;             /* dark espresso */
+    --foreground: #F3E2C7;             /* aged cream */
+    --card: #3A2412;
+    --card-foreground: #F3E2C7;
+    --popover: #3A2412;
+    --popover-foreground: #F3E2C7;
+    --primary: #E8833A;               /* burnt 70s orange */
+    --primary-foreground: #1A0F05;
+    --secondary: #4A2E16;
+    --secondary-foreground: #F3E2C7;
+    --muted: #3A2412;
+    --muted-foreground: #C9A877;
+    --accent: #4A2E16;
+    --accent-foreground: #F3E2C7;
+    --destructive: #F87171;
+    --border: #4A2E16;
+    --input: #4A2E16;
+    --ring: #E8833A;
+}
+
+[data-quiz-theme="neon"] {
+    --background: #0B0A1F;             /* synthwave night */
+    --foreground: #E6E6FF;
+    --card: #15123A;
+    --card-foreground: #E6E6FF;
+    --popover: #15123A;
+    --popover-foreground: #E6E6FF;
+    --primary: #FF2EC4;               /* hot magenta */
+    --primary-foreground: #0B0A1F;
+    --secondary: #1E1A4D;
+    --secondary-foreground: #E6E6FF;
+    --muted: #15123A;
+    --muted-foreground: #8FA6FF;
+    --accent: #1E1A4D;
+    --accent-foreground: #E6E6FF;
+    --destructive: #FB7185;
+    --border: #2A2470;
+    --input: #2A2470;
+    --ring: #22D3EE;                  /* cyan focus */
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

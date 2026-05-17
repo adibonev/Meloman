@@ -48,6 +48,12 @@ jobs:
       - name: Test
         run: pnpm --filter @meloman/web test:ci
 
+      - name: Mobile typecheck
+        run: pnpm --filter mobile typecheck
+
+      - name: Mobile unit tests
+        run: pnpm --filter mobile test
+
       - name: Install Playwright browsers
         run: pnpm --filter @meloman/web exec playwright install --with-deps chromium
 

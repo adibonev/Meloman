@@ -6,7 +6,9 @@ import { dailyContent } from "@meloman/db/schema";
 import { mysteryStageNow } from "@/lib/daily-stage";
 import { RegisterCta } from "@/components/register-cta";
 import { JsonLd } from "@/components/json-ld";
+import { ShareButtons } from "@/components/share-buttons";
 import { Link } from "@/i18n/navigation";
+import { SITE_URL } from "@/lib/site";
 
 type SongPayload = {
   title?: string;
@@ -104,6 +106,9 @@ export default async function DailyPage({
       ) : (
         <MysteryCard t={t} payload={row.payload as MysteryPayload} />
       )}
+      <ShareButtons
+        url={`${SITE_URL}${locale === "en" ? "/en" : ""}/daily`}
+      />
       <RegisterCta variant="daily" />
     </main>
   );

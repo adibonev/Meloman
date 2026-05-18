@@ -13,6 +13,9 @@
     "tooltip": "Влез утре да задържиш стрийка",
     "days": "{count, plural, one {# ден} other {# дни}}"
   },
+  "Share": {
+    "title": "Сподели"
+  },
   "DailyArchive": {
     "title": "Архив: Песен на деня",
     "subtitle": "Минали песни и Mystery Artist.",

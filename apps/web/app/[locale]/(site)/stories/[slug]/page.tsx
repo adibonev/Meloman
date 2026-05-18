@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { RegisterCta } from "@/components/register-cta";
 import { JsonLd } from "@/components/json-ld";
+import { ShareButtons } from "@/components/share-buttons";
 import { SITE_URL } from "@/lib/site";
 
 export async function generateMetadata({
@@ -186,6 +187,7 @@ export default async function StoryDetailPage({
           </ul>
         </footer>
       )}
+      <ShareButtons url={articleUrl} />
       <RegisterCta variant="stories" />
     </main>
   );

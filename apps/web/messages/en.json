@@ -13,6 +13,9 @@
     "tooltip": "Come back tomorrow to keep your streak",
     "days": "{count, plural, one {# day} other {# days}}"
   },
+  "Share": {
+    "title": "Share"
+  },
   "DailyArchive": {
     "title": "Archive: Song of the Day",
     "subtitle": "Past songs and Mystery Artist.",

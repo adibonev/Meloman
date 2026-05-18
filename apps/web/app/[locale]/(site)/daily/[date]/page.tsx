@@ -6,6 +6,8 @@ import { db } from "@meloman/db";
 import { dailyContent } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { JsonLd } from "@/components/json-ld";
+import { ShareButtons } from "@/components/share-buttons";
+import { SITE_URL } from "@/lib/site";
 
 type SongPayload = {
   title?: string;
@@ -191,6 +193,12 @@ export default async function DailyByDatePage({
           )}
         </article>
       )}
+
+      <ShareButtons
+        url={`${SITE_URL}${
+          locale === "en" ? "/en" : ""
+        }/daily/${date}`}
+      />
     </main>
   );
 }

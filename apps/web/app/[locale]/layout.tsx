@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Meloman",
   description: "Музикален куиз и ежедневно забавление",
+  twitter: { card: "summary_large_image" },
 };
 
 export function generateStaticParams() {

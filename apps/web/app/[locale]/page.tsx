@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { desc, isNotNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
-import { stories } from "@meloman/db/schema";
+import { gameSessions, quizzes, stories, users } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { SiteNav } from "@/components/site-nav";
@@ -42,6 +42,34 @@ export default async function HomePage({
     .where(isNotNull(stories.publishedAt))
     .orderBy(desc(stories.publishedAt))
     .limit(1);
+
+  // Upcoming public events for the Vidin section. Empty → section
+  // auto-hides (no scheduling model, so "upcoming" = public & live).
+  const upcomingEvents = await db
+    .select({
+      id: gameSessions.id,
+      venue: gameSessions.venue,
+      startedAt: gameSessions.startedAt,
+      createdAt: gameSessions.createdAt,
+      quizTitle: quizzes.title,
+      host: users.displayName,
+    })
+    .from(gameSessions)
+    .innerJoin(quizzes, eq(gameSessions.quizId, quizzes.id))
+    .innerJoin(users, eq(gameSessions.hostId, users.id))
+    .where(
+      and(
+        eq(gameSessions.publicEvent, true),
+        ne(gameSessions.status, "finished")
+      )
+    )
+    .orderBy(
+      desc(sql`coalesce(${gameSessions.startedAt}, ${gameSessions.createdAt})`)
+    )
+    .limit(3);
+  const eventFmt = new Intl.DateTimeFormat(locale === "en" ? "en" : "bg", {
+    dateStyle: "long",
+  });
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -99,6 +127,38 @@ export default async function HomePage({
             )}
           </div>
         </section>
+
+        {upcomingEvents.length > 0 && (
+          <section className="mt-20">
+            <div className="mb-6 flex items-baseline justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+                {t("vidinTitle")}
+              </p>
+              <Link
+                href="/events"
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                {t("vidinAll")}
+              </Link>
+            </div>
+            <ul className="divide-y divide-border rounded-lg border border-border">
+              {upcomingEvents.map((e) => (
+                <li key={e.id}>
+                  <Link
+                    href={`/events/${e.id}`}
+                    className="flex flex-col gap-1 px-5 py-4 transition-colors hover:bg-secondary"
+                  >
+                    <span className="font-medium">{e.quizTitle}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {eventFmt.format(new Date(e.startedAt ?? e.createdAt))}
+                      {e.venue ? ` · ${e.venue}` : ""} · {e.host}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="mt-20">
           <p className="mb-6 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">

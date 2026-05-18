@@ -1,12 +1,47 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { useToast } from "@/components/toast";
 import { getProgress, type Progress } from "@/lib/api";
 import { getToken, clearToken } from "@/lib/auth";
+import { getItem, setItem } from "@/lib/secure-storage";
 import { colors } from "@/lib/theme";
+
+const SEEN_BADGES_KEY = "meloman.seenBadges";
+
+// Toast any badge that wasn't present last time progress was read.
+// First ever read just records a baseline so we don't announce
+// badges the user already had.
+async function announceNewBadges(
+  badges: { slug: string; name: string }[],
+  showToast: (m: string) => void
+): Promise<void> {
+  const raw = await getItem(SEEN_BADGES_KEY);
+  const current = badges.map((b) => b.slug);
+  if (raw === null) {
+    await setItem(SEEN_BADGES_KEY, JSON.stringify(current));
+    return;
+  }
+  let seen: string[] = [];
+  try {
+    seen = JSON.parse(raw) as string[];
+  } catch {
+    seen = [];
+  }
+  const fresh = badges.filter((b) => !seen.includes(b.slug));
+  if (fresh.length > 0) {
+    showToast(
+      fresh.length === 1
+        ? `Спечели значка: ${fresh[0].name}`
+        : `Спечели нови значки: ${fresh.map((b) => b.name).join(", ")}`
+    );
+  }
+  await setItem(SEEN_BADGES_KEY, JSON.stringify(current));
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [state, setState] = useState<Progress["progress"] | null>(null);
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
@@ -26,7 +61,9 @@ export default function ProfileScreen() {
         setSignedIn(true);
         try {
           const r = await getProgress();
-          if (active) setState(r.progress);
+          if (!active) return;
+          setState(r.progress);
+          await announceNewBadges(r.progress.badges, showToast);
         } catch {
           if (active) setState(null);
         } finally {
@@ -36,7 +73,7 @@ export default function ProfileScreen() {
       return () => {
         active = false;
       };
-    }, [])
+    }, [showToast])
   );
 
   if (loading) {

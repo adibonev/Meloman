@@ -1,11 +1,12 @@
 import "../global.css";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { ToastProvider } from "@/components/toast";
 import { colors } from "@/lib/theme";
 
 export default function RootLayout() {
   return (
-    <>
+    <ToastProvider>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -20,6 +21,6 @@ export default function RootLayout() {
         <Stack.Screen name="play" options={{ title: "Влез в куиз" }} />
         <Stack.Screen name="story/[slug]" options={{ title: "История" }} />
       </Stack>
-    </>
+    </ToastProvider>
   );
 }

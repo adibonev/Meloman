@@ -14,7 +14,9 @@
     "days": "{count, plural, one {# day} other {# days}}"
   },
   "Share": {
-    "title": "Share"
+    "title": "Share",
+    "share": "Share",
+    "copied": "Copied!"
   },
   "About": {
     "metaTitle": "About Meloman | Meloman",

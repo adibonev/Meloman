@@ -14,7 +14,9 @@
     "days": "{count, plural, one {# ден} other {# дни}}"
   },
   "Share": {
-    "title": "Сподели"
+    "title": "Сподели",
+    "share": "Сподели",
+    "copied": "Копирано!"
   },
   "About": {
     "metaTitle": "За Meloman | Meloman",

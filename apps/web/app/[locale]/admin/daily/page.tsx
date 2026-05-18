@@ -4,6 +4,7 @@ import { db } from "@meloman/db";
 import { dailyContent } from "@meloman/db/schema";
 import { Button } from "@/components/ui/button";
 import { createDailyAction, deleteDailyAction } from "./actions";
+import { DailyFields } from "./daily-fields";
 
 const inputCls =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
@@ -73,26 +74,15 @@ export default async function AdminDailyPage({
               className={inputCls}
             />
           </label>
-          <label className="block">
-            <span className="text-sm text-muted-foreground">{t("type")}</span>
-            <select name="contentType" className={inputCls}>
-              <option value="song_of_day">{t("song")}</option>
-              <option value="mystery_artist">{t("mystery")}</option>
-            </select>
-          </label>
-        </div>
-        <label className="block">
-          <span className="text-sm text-muted-foreground">
-            {t("payload")}
-          </span>
-          <textarea
-            name="payload"
-            required
-            rows={8}
-            defaultValue={SONG_TEMPLATE}
-            className={`${inputCls} font-mono`}
+          <DailyFields
+            songTemplate={SONG_TEMPLATE}
+            mysteryTemplate={MYSTERY_TEMPLATE}
+            typeLabel={t("type")}
+            songLabel={t("song")}
+            mysteryLabel={t("mystery")}
+            payloadLabel={t("payload")}
           />
-        </label>
+        </div>
         <div className="grid gap-3 text-xs text-muted-foreground sm:grid-cols-2">
           <div>
             <p className="mb-1">{t("songHint")}</p>

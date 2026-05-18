@@ -865,9 +865,7 @@
     "guessForXp": "Guess now: {xp} XP",
     "answerLockedUntil": "full reveal at 22:00",
     "hint": "Hint",
-    "story": "The story",
-    "openSpotify": "Open in Spotify",
-    "openYoutube": "Listen on YouTube"
+    "story": "The story"
   },
   "Profile": {
     "title": "Profile",

@@ -7,6 +7,7 @@ import { dailyContent } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { ShareButtons } from "@/components/share-buttons";
+import { SpotifyIcon, YouTubeIcon } from "@/components/brand-icons";
 import { SITE_URL } from "@/lib/site";
 
 type SongPayload = {
@@ -145,9 +146,10 @@ export default async function DailyByDatePage({
                 href={song.spotifyUri}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
+                className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
               >
-                {t("openSpotify")}
+                <SpotifyIcon size={18} />
+                Spotify
               </a>
             )}
             {song.youtubeUrl && (
@@ -155,9 +157,10 @@ export default async function DailyByDatePage({
                 href={song.youtubeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
+                className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
               >
-                {t("openYoutube")}
+                <YouTubeIcon size={18} />
+                YouTube
               </a>
             )}
           </div>

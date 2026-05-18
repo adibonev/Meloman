@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { BrandSplash } from "@/components/brand-splash";
 import "../globals.css";
 
 const inter = Inter({
@@ -41,6 +42,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`dark ${inter.variable} ${playfair.variable}`}>
       <body>
+        <BrandSplash />
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

@@ -42,10 +42,7 @@ export default async function HomePage({
             height={288}
             className="h-52 w-52 object-contain sm:h-72 sm:w-72"
           />
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
-            {t("heroKicker")}
-          </p>
-          <p className="mt-3 max-w-xl text-base text-muted-foreground sm:text-lg">
+          <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
             {t("tagline")}
           </p>
 

@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { BadgeIcon } from "@/components/badge";
 import { cn } from "@/lib/utils";
 import { RegisterCta } from "@/components/register-cta";
+import { StreakIndicator } from "@/components/streak-indicator";
 
 export default async function ProfilePage({
   params,
@@ -72,9 +73,12 @@ export default async function ProfilePage({
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="font-heading text-5xl font-black tracking-wider uppercase sm:text-7xl">
-        {t("title")}
-      </h1>
+      <div className="flex flex-wrap items-center gap-4">
+        <h1 className="font-heading text-5xl font-black tracking-wider uppercase sm:text-7xl">
+          {t("title")}
+        </h1>
+        <StreakIndicator days={streak} />
+      </div>
 
       <div className="mt-10 rounded-lg border border-border p-6">
         <p className="text-sm text-muted-foreground">{t("signedInAs")}</p>

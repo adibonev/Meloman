@@ -9,6 +9,10 @@
     "dailySongTitle": "Song of the day: {title} by {artist} | Meloman",
     "dailyDescription": "The song of the day, Mystery Artist and daily challenges from Meloman."
   },
+  "Streak": {
+    "tooltip": "Come back tomorrow to keep your streak",
+    "days": "{count, plural, one {# day} other {# days}}"
+  },
   "Home": {
     "tagline": "Music quiz and daily entertainment",
     "loginCta": "Sign in",

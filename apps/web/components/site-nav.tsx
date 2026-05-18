@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { auth, signOut } from "@/auth";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { StreakIndicator } from "@/components/streak-indicator";
+import { getCurrentStreak } from "@/lib/streak";
 
 /**
  * Global content nav. On the homepage (`minimal`) it shows only brand +
@@ -16,6 +18,9 @@ export async function SiteNav({ minimal = false }: { minimal?: boolean }) {
   const isAdmin =
     session?.user?.role === "admin" ||
     session?.user?.role === "super_admin";
+  const streak = session?.user?.id
+    ? await getCurrentStreak(session.user.id)
+    : 0;
 
   return (
     <nav className="border-b border-border">
@@ -58,6 +63,7 @@ export async function SiteNav({ minimal = false }: { minimal?: boolean }) {
           )}
           {session?.user ? (
             <>
+              <StreakIndicator days={streak} />
               {isAdmin && (
                 <Link
                   href="/admin"

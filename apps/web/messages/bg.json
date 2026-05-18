@@ -9,6 +9,10 @@
     "dailySongTitle": "Песен на деня: {title} от {artist} | Meloman",
     "dailyDescription": "Песента на деня, Mystery Artist и ежедневни предизвикателства от Meloman."
   },
+  "Streak": {
+    "tooltip": "Влез утре да задържиш стрийка",
+    "days": "{count, plural, one {# ден} other {# дни}}"
+  },
   "Home": {
     "tagline": "Музикален куиз и ежедневно забавление",
     "loginCta": "Влез",

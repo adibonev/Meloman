@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   pgEnum,
   pgTable,
@@ -54,6 +55,11 @@ export const gameSessions = pgTable(
     // `reveal`, and we need to remember which one so resume puts us back
     // there cleanly. Nullable: only set while status === 'paused'.
     pausedFromStatus: gameSessionStatusEnum("paused_from_status"),
+    // Surfaced on the public /events page when the host opts in. Venue
+    // is free text (e.g. "Бар Х, Видин"); the schema has no separate
+    // scheduling model, so "upcoming" = public & not finished.
+    publicEvent: boolean("public_event").notNull().default(false),
+    venue: varchar("venue", { length: 160 }),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })

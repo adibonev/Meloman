@@ -25,6 +25,7 @@ import { AutoRevealOnTimeout } from "./auto-reveal-on-timeout";
 import { LiveHost } from "./live-host";
 import { HostControls } from "./host-controls";
 import { ScoreAdjustPanel } from "./score-adjust-panel";
+import { setPublicEventAction } from "./public-event-actions";
 
 function getStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -75,6 +76,7 @@ export default async function HostLobbyPage({
   const { locale, code } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("HostLobby");
+  const te = await getTranslations("Events");
 
   const session = await auth();
   if (!session?.user?.id) notFound();
@@ -88,6 +90,8 @@ export default async function HostLobbyPage({
       hostId: gameSessions.hostId,
       status: gameSessions.status,
       pausedFromStatus: gameSessions.pausedFromStatus,
+      publicEvent: gameSessions.publicEvent,
+      venue: gameSessions.venue,
       quizId: quizzes.id,
       quizTitle: quizzes.title,
       quizTheme: quizzes.theme,
@@ -285,6 +289,34 @@ export default async function HostLobbyPage({
           </p>
         </div>
       </section>
+
+      {isHost && (
+        <form
+          action={setPublicEventAction.bind(null, upper)}
+          className="space-y-3 rounded-md border border-border bg-card px-6 py-4 text-sm"
+        >
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="publicEvent"
+              defaultChecked={row.publicEvent}
+            />
+            <span>{te("markPublic")}</span>
+          </label>
+          <input
+            name="venue"
+            defaultValue={row.venue ?? ""}
+            placeholder={te("venuePlaceholder")}
+            className="w-full rounded-md border border-border bg-background px-3 py-2"
+          />
+          <button
+            type="submit"
+            className="rounded-md border border-border px-4 py-2 font-medium hover:bg-secondary"
+          >
+            {te("save")}
+          </button>
+        </form>
+      )}
 
       <section className="grid grid-cols-2 gap-3 text-sm">
         <div className="space-y-1 rounded-md border border-border bg-card px-4 py-3">

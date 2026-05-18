@@ -16,6 +16,29 @@
   "Share": {
     "title": "Share"
   },
+  "Events": {
+    "title": "Quiz events",
+    "subtitle": "Meloman live music quizzes.",
+    "metaTitle": "Quiz events | Meloman",
+    "metaDescription": "Upcoming and past Meloman live music quizzes.",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "noUpcoming": "No upcoming events.",
+    "noPast": "No past events yet.",
+    "host": "Host",
+    "venue": "Venue",
+    "podium": "Podium",
+    "joinTitle": "Got a quiz code?",
+    "joinPlaceholder": "Code (e.g. MELO42)",
+    "joinCta": "Join",
+    "open": "Details",
+    "live": "Live now",
+    "back": "← Back to events",
+    "empty": "No public events yet.",
+    "markPublic": "Show this event on the public page",
+    "venuePlaceholder": "Venue (e.g. Bar X, Vidin)",
+    "save": "Save"
+  },
   "DailyArchive": {
     "title": "Archive: Song of the Day",
     "subtitle": "Past songs and Mystery Artist.",

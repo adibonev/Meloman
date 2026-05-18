@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { desc, isNotNull } from "drizzle-orm";
+import { desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@meloman/db";
-import { dailyContent, stories } from "@meloman/db/schema";
+import { dailyContent, gameSessions, stories } from "@meloman/db/schema";
 import { SITE_URL } from "@/lib/site";
 
 // Public routes for both locales (BG has no prefix, EN under /en —
@@ -35,6 +35,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from(dailyContent)
     .orderBy(desc(dailyContent.contentDate));
   for (const d of days) add(`/daily/${d.contentDate}`, now);
+
+  add("/events", now);
+  const events = await db
+    .select({ id: gameSessions.id })
+    .from(gameSessions)
+    .where(eq(gameSessions.publicEvent, true));
+  for (const e of events) add(`/events/${e.id}`, now);
 
   for (const s of published) {
     add(`/stories/${s.slug}`, s.updatedAt ?? now);

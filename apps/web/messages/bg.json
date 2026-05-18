@@ -16,6 +16,29 @@
   "Share": {
     "title": "Сподели"
   },
+  "Events": {
+    "title": "Куиз събития",
+    "subtitle": "Живи музикални куизове на Meloman.",
+    "metaTitle": "Куиз събития | Meloman",
+    "metaDescription": "Предстоящи и минали живи музикални куизове на Meloman.",
+    "upcoming": "Предстоящи",
+    "past": "Минали",
+    "noUpcoming": "Няма предстоящи събития.",
+    "noPast": "Все още няма минали събития.",
+    "host": "Водещ",
+    "venue": "Място",
+    "podium": "Подиум",
+    "joinTitle": "Имаш код за куиз?",
+    "joinPlaceholder": "Код (напр. MELO42)",
+    "joinCta": "Влез",
+    "open": "Детайли",
+    "live": "На живо сега",
+    "back": "← Към събитията",
+    "empty": "Все още няма публични събития.",
+    "markPublic": "Покажи това събитие на публичната страница",
+    "venuePlaceholder": "Място (напр. Бар Х, Видин)",
+    "save": "Запази"
+  },
   "DailyArchive": {
     "title": "Архив: Песен на деня",
     "subtitle": "Минали песни и Mystery Artist.",

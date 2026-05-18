@@ -1,4 +1,14 @@
 {
+  "Meta": {
+    "homeTitle": "Meloman — Music quiz and stories",
+    "homeDescription": "Live music quiz and daily music entertainment — stories, song of the day and Mystery Artist.",
+    "storiesTitle": "Music stories and portraits | Meloman",
+    "storiesDescription": "Music stories, artist portraits and trivia from Meloman.",
+    "storySuffix": " | Meloman",
+    "dailyFallbackTitle": "Song of the day | Meloman",
+    "dailySongTitle": "Song of the day: {title} by {artist} | Meloman",
+    "dailyDescription": "The song of the day, Mystery Artist and daily challenges from Meloman."
+  },
   "Home": {
     "tagline": "Music quiz and daily entertainment",
     "loginCta": "Sign in",

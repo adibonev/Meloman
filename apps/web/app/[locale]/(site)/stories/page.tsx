@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { desc, isNotNull, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
@@ -6,6 +7,19 @@ import { Link } from "@/i18n/navigation";
 import { PaginationNav } from "@/components/pagination-nav";
 import { getPageParams, pageMeta } from "@/lib/pagination";
 import { RegisterCta } from "@/components/register-cta";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
+  return {
+    title: t("storiesTitle"),
+    description: t("storiesDescription"),
+  };
+}
 
 export default async function StoriesPage({
   params,

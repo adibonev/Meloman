@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
@@ -23,6 +24,28 @@ type MysteryPayload = {
 
 function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
+  const [row] = await db
+    .select()
+    .from(dailyContent)
+    .where(eq(dailyContent.contentDate, todayIsoDate()))
+    .limit(1);
+  let title = t("dailyFallbackTitle");
+  if (row?.contentType === "song_of_day") {
+    const p = row.payload as SongPayload;
+    if (p.title && p.artist) {
+      title = t("dailySongTitle", { title: p.title, artist: p.artist });
+    }
+  }
+  return { title, description: t("dailyDescription") };
 }
 
 export default async function DailyPage({

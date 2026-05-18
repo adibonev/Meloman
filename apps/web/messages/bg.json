@@ -1,4 +1,14 @@
 {
+  "Meta": {
+    "homeTitle": "Meloman — Музикален куиз и истории",
+    "homeDescription": "Музикален куиз на живо и ежедневно музикално забавление — истории, песен на деня и Mystery Artist.",
+    "storiesTitle": "Музикални истории и портрети | Meloman",
+    "storiesDescription": "Музикални истории, портрети на артисти и любопитни факти от Meloman.",
+    "storySuffix": " | Meloman",
+    "dailyFallbackTitle": "Песен на деня | Meloman",
+    "dailySongTitle": "Песен на деня: {title} от {artist} | Meloman",
+    "dailyDescription": "Песента на деня, Mystery Artist и ежедневни предизвикателства от Meloman."
+  },
   "Home": {
     "tagline": "Музикален куиз и ежедневно забавление",
     "loginCta": "Влез",

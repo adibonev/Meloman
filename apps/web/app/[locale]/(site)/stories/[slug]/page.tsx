@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { and, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -6,6 +7,38 @@ import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { RegisterCta } from "@/components/register-cta";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
+  const [story] = await db
+    .select({
+      title: stories.title,
+      subtitle: stories.subtitle,
+      body: stories.body,
+    })
+    .from(stories)
+    .where(eq(stories.slug, slug))
+    .limit(1);
+  if (!story) {
+    return {
+      title: t("storiesTitle"),
+      description: t("storiesDescription"),
+    };
+  }
+  const plain = (story.subtitle || story.body || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return {
+    title: `${story.title}${t("storySuffix")}`,
+    description: plain.slice(0, 150),
+  };
+}
 
 export default async function StoryDetailPage({
   params,

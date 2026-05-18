@@ -29,6 +29,7 @@ const SEED_USERS = [
 ];
 
 const DEMO_QUIZ_TITLE = "Demo Music Quiz";
+const FULL_QUIZ_TITLE = "Меломан: пълен куиз";
 
 function p(...paras: string[]): string {
   return paras.map((t) => `<p>${t}</p>`).join("");
@@ -311,6 +312,221 @@ async function seedDemoQuiz(creatorId: string) {
   ]);
 
   console.log(`  ✓ "${DEMO_QUIZ_TITLE}" (1 round, 6 questions, all types)`);
+
+  await seedFullQuiz(creatorId, audioKey, imageKey);
+}
+
+// A separate, full from-start-to-finish quiz. The demo quiz above is
+// left untouched. 4 standard rounds, all six question types,
+// escalating points in the last round. Text content is authored
+// (music trivia facts aren't copyrightable; the short lyric snippets
+// are the same fair-use design as the rest of the app). Audio/image
+// reuse the demo media already uploaded to R2 — no third-party
+// song/image is downloaded (CLAUDE.md §4.6 / §4.7).
+async function seedFullQuiz(
+  creatorId: string,
+  audioKey: string,
+  imageKey: string
+) {
+  type SeedQuestion = typeof questions.$inferInsert;
+  const roundDefs: {
+    title: string;
+    intro: string;
+    questions: Omit<SeedQuestion, "roundId" | "orderIndex">[];
+  }[] = [
+    {
+      title: "Рунд 1: Рок класика",
+      intro: "4 въпроса, по 1 точка.",
+      questions: [
+        {
+          questionType: "multiple_choice",
+          questionText:
+            "Коя група издава албума 'The Dark Side of the Moon'?",
+          options: ["Pink Floyd", "The Who", "Genesis", "Yes"],
+          correctAnswer: 0,
+          timeLimitSeconds: 20,
+          pointsBase: 1,
+        },
+        {
+          questionType: "open_text",
+          questionText:
+            "Кой барабанист на Nirvana по-късно основава Foo Fighters?",
+          correctAnswer: "Dave Grohl",
+          acceptableAnswers: ["Dave Grohl", "Grohl", "Дейв Грол", "Грол"],
+          timeLimitSeconds: 20,
+          pointsBase: 1,
+        },
+        {
+          questionType: "multiple_choice",
+          questionText: "Кой изпълнява 'Smells Like Teen Spirit'?",
+          options: ["Nirvana", "Pearl Jam", "Soundgarden", "Alice in Chains"],
+          correctAnswer: 0,
+          timeLimitSeconds: 20,
+          pointsBase: 1,
+        },
+        {
+          questionType: "decade",
+          questionText: "През коя година излиза албумът 'Nevermind'?",
+          correctAnswer: 1991,
+          timeLimitSeconds: 20,
+          pointsBase: 1,
+        },
+      ],
+    },
+    {
+      title: "Рунд 2: Познай текста",
+      intro: "Попълни липсващите думи. 1 точка на правилна дума.",
+      questions: [
+        {
+          questionType: "lyric_blank",
+          questionText: "We don't need no ___, we don't need no thought ___",
+          correctAnswer: ["education", "control"],
+          timeLimitSeconds: 30,
+          pointsBase: 1,
+        },
+        {
+          questionType: "lyric_blank",
+          questionText: "Hello ___, my old ___",
+          correctAnswer: ["darkness", "friend"],
+          timeLimitSeconds: 30,
+          pointsBase: 1,
+        },
+        {
+          questionType: "open_text",
+          questionText:
+            "Коя песен на The Beatles започва с 'Yesterday, all my troubles seemed so far away'?",
+          correctAnswer: "Yesterday",
+          acceptableAnswers: ["Yesterday", "Йестърдей"],
+          timeLimitSeconds: 20,
+          pointsBase: 1,
+        },
+      ],
+    },
+    {
+      title: "Рунд 3: Мултимедия",
+      intro: "Аудио и снимка. 1 точка.",
+      questions: [
+        {
+          questionType: "audio",
+          questionText: "Кой изпълнява този откъс?",
+          mediaUrl: audioKey,
+          correctAnswer: "Michael Jackson",
+          acceptableAnswers: ["Michael Jackson", "Майкъл Джексън", "MJ"],
+          timeLimitSeconds: 15,
+          pointsBase: 1,
+        },
+        {
+          questionType: "image_reveal",
+          questionText: "Кой е този артист?",
+          mediaUrl: imageKey,
+          mediaSource: "Other",
+          mediaAttribution: "Seed demo image",
+          mediaBlurPx: 24,
+          correctAnswer: "Lady Gaga",
+          acceptableAnswers: ["Lady Gaga", "Гага", "Stefani Germanotta"],
+          timeLimitSeconds: 20,
+          pointsBase: 1,
+        },
+      ],
+    },
+    {
+      title: "Рунд 4: Финал (двойни точки)",
+      intro: "3 въпроса, по 2 точки.",
+      questions: [
+        {
+          questionType: "multiple_choice",
+          questionText:
+            "Кой албум е най-продаваният в историята на музиката?",
+          options: ["Thriller", "Bad", "Back in Black", "The Wall"],
+          correctAnswer: 0,
+          timeLimitSeconds: 20,
+          pointsBase: 2,
+        },
+        {
+          questionType: "decade",
+          questionText: "През коя година излиза албумът 'Thriller'?",
+          correctAnswer: 1982,
+          timeLimitSeconds: 20,
+          pointsBase: 2,
+        },
+        {
+          questionType: "open_text",
+          questionText:
+            "Кой композира 'Symphony No. 9' (с темата 'Ode to Joy')?",
+          correctAnswer: "Beethoven",
+          acceptableAnswers: [
+            "Beethoven",
+            "Ludwig van Beethoven",
+            "Бетовен",
+            "Лудвиг ван Бетовен",
+          ],
+          timeLimitSeconds: 25,
+          pointsBase: 2,
+        },
+      ],
+    },
+  ];
+
+  // Idempotent without deleting the quiz row (game_sessions FK is
+  // RESTRICT): reuse it if present, just refresh its rounds.
+  const [existing] = await db
+    .select({ id: quizzes.id })
+    .from(quizzes)
+    .where(eq(quizzes.title, FULL_QUIZ_TITLE))
+    .limit(1);
+
+  let quizId: string;
+  if (existing) {
+    await db
+      .update(quizzes)
+      .set({ status: "published", publishedAt: new Date() })
+      .where(eq(quizzes.id, existing.id));
+    await db.delete(rounds).where(eq(rounds.quizId, existing.id));
+    quizId = existing.id;
+  } else {
+    const [inserted] = await db
+      .insert(quizzes)
+      .values({
+        creatorId,
+        title: FULL_QUIZ_TITLE,
+        description:
+          "Пълен куиз: 4 рунда, всички 6 типа въпроси, финал с двойни точки.",
+        theme: "modern",
+        language: "bg",
+        status: "published",
+        publishedAt: new Date(),
+      })
+      .returning({ id: quizzes.id });
+    if (!inserted) throw new Error("full quiz insert returned no row");
+    quizId = inserted.id;
+  }
+
+  let totalQuestions = 0;
+  for (const [i, def] of roundDefs.entries()) {
+    const [r] = await db
+      .insert(rounds)
+      .values({
+        quizId,
+        title: def.title,
+        orderIndex: i,
+        roundType: "standard",
+        introSlideText: def.intro,
+      })
+      .returning({ id: rounds.id });
+    if (!r) throw new Error("round insert returned no row");
+    await db.insert(questions).values(
+      def.questions.map((q, idx) => ({
+        ...q,
+        roundId: r.id,
+        orderIndex: idx,
+      }))
+    );
+    totalQuestions += def.questions.length;
+  }
+
+  console.log(
+    `  ✓ "${FULL_QUIZ_TITLE}" (${roundDefs.length} rounds, ${totalQuestions} questions, all types)`
+  );
 }
 
 async function seedDaily() {

@@ -126,6 +126,25 @@ Each item lists:
   Full mobile NativeWind re-skin + on-device visual QA is the only
   documented follow-up (verified via tsc + expo export, no emulator).
 
+### File upload for story / daily images (admin)
+
+- **What**: Add an R2-backed file picker to the stories form
+  (`cover_image_url`, `hero_image_url`) and the daily content payload
+  (`albumCoverUrl`, `blurredImageUrl`), so the owner uploads images
+  from disk like the quiz audio/image forms already do.
+- **Why**: quiz media (audio / image-reveal / guest video) already
+  uploads to R2 via Server Actions, but stories and daily content
+  only accept a pasted image **URL** — the co-owner can't upload a
+  photo from their computer there, which is inconsistent and a
+  content-authoring friction.
+- **Sprint**: post-defense (Stage 5 Admin polish, CLAUDE.md §3.4).
+- **Effort**: medium. Reuse the existing quiz upload pattern
+  (`lib/r2.ts` `uploadObject` + Server Action, 32 MB body limit) and
+  the image source/attribution warning (CLAUDE.md §4.7) for stories.
+- **Notes**: deliberately deferred — not started before the defense to
+  avoid destabilising the shipped admin. Disclosed honestly so the
+  current URL-only behaviour for stories/daily isn't a surprise.
+
 ### Daily song by mood (player-facing)
 
 - **What**: In the daily app, ask the user what mood they're in (pick from a

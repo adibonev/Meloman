@@ -84,6 +84,8 @@ export default async function StoriesPage({
               <img
                 src={featured.coverImageUrl}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="aspect-[21/9] w-full object-cover"
               />
             )}
@@ -119,6 +121,8 @@ export default async function StoriesPage({
                     <img
                       src={story.coverImageUrl}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="aspect-video w-full object-cover"
                     />
                   )}

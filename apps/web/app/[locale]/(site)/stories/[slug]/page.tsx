@@ -130,6 +130,8 @@ export default async function StoryDetailPage({
         <img
           src={story.heroImageUrl}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="my-10 aspect-video w-full rounded-lg object-cover"
         />
       )}

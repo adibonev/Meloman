@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { auth, signOut } from "@/auth";
 import { Link } from "@/i18n/navigation";
@@ -26,12 +27,12 @@ export async function SiteNav({ minimal = false }: { minimal?: boolean }) {
     <nav className="border-b border-border">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link href="/" className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/meloman-logo-white.png"
             alt="Meloman"
             width={40}
             height={40}
+            sizes="36px"
             className="h-9 w-9 object-contain"
           />
           <span className="text-lg font-semibold uppercase tracking-[0.15em]">

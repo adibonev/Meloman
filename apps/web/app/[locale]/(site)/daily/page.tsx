@@ -130,6 +130,8 @@ function SongCard({
             <img
               src={payload.albumCoverUrl}
               alt=""
+              loading="lazy"
+              decoding="async"
               className="aspect-square w-full rounded-lg object-cover sm:w-56"
             />
           ) : (
@@ -206,6 +208,8 @@ function MysteryCard({
             <img
               src={payload.blurredImageUrl}
               alt=""
+              loading="lazy"
+              decoding="async"
               className="aspect-square w-full rounded-lg object-cover blur-xl sm:w-56"
             />
           ) : (

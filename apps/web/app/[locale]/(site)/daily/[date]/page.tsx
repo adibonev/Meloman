@@ -123,6 +123,8 @@ export default async function DailyByDatePage({
             <img
               src={song.albumCoverUrl}
               alt={song.title ?? ""}
+              loading="lazy"
+              decoding="async"
               className="aspect-square w-full max-w-sm rounded-lg object-cover"
             />
           )}
@@ -167,6 +169,8 @@ export default async function DailyByDatePage({
             <img
               src={mystery.blurredImageUrl}
               alt={mystery.name ?? ""}
+              loading="lazy"
+              decoding="async"
               className="aspect-square w-full max-w-sm rounded-lg object-cover"
             />
           )}

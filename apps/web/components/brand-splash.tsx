@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 // Branded loading splash: the big Meloman logo over a spinning ring,
@@ -53,12 +54,13 @@ export function BrandSplash() {
     >
       <div className="relative flex h-44 w-44 items-center justify-center">
         <span className="absolute inset-0 animate-spin rounded-full border-2 border-border border-t-primary" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/meloman-logo-white.png"
           alt="Meloman"
           width={288}
           height={288}
+          priority
+          sizes="112px"
           className="h-28 w-28 animate-pulse object-contain"
         />
       </div>

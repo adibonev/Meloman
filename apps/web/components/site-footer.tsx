@@ -44,6 +44,18 @@ export async function SiteFooter() {
               {nav("daily")}
             </Link>
             <Link
+              href="/events"
+              className="text-sm text-foreground transition-colors hover:text-primary"
+            >
+              {nav("events")}
+            </Link>
+            <Link
+              href="/about"
+              className="text-sm text-foreground transition-colors hover:text-primary"
+            >
+              {nav("about")}
+            </Link>
+            <Link
               href="/profile"
               className="text-sm text-foreground transition-colors hover:text-primary"
             >

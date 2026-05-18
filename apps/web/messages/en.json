@@ -16,6 +16,24 @@
   "Share": {
     "title": "Share"
   },
+  "About": {
+    "metaTitle": "About Meloman | Meloman",
+    "metaDescription": "Who is behind Meloman, who it is for and how to reach us.",
+    "title": "About Meloman",
+    "intro": "Meloman started as a small music page and grew into a platform for live music quizzes and daily music entertainment. The stories, the song of the day and the quizzes come from a love of music, not marketing.",
+    "whoTitle": "Who is behind it",
+    "who": "Two friends — one runs the tech, the other the music and the quiz nights. Together we build the Meloman we'd want to use ourselves.",
+    "forWhoTitle": "Who it is for",
+    "forWho": "For the Vidin music community and anyone who loves music — whether you come to a quiz night or just read a story with your morning coffee.",
+    "surfacesTitle": "The three faces of Meloman",
+    "surfaceTv": "Host on the big screen — questions run on the venue's TV.",
+    "surfacePhone": "Player on a phone — scan a QR code and play with your team.",
+    "surfaceMobile": "Mobile app — stories, song of the day and your profile in your pocket.",
+    "contactTitle": "Get in touch",
+    "contact": "Message us directly on Instagram DM or Facebook Messenger — we read everything.",
+    "followInstagram": "Instagram",
+    "followFacebook": "Facebook"
+  },
   "Events": {
     "title": "Quiz events",
     "subtitle": "Meloman live music quizzes.",
@@ -800,6 +818,8 @@
     "home": "Home",
     "stories": "Stories",
     "daily": "Song of the Day",
+    "events": "Events",
+    "about": "About",
     "profile": "Profile",
     "admin": "Admin",
     "login": "Log in",

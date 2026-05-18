@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.push({ url: `${SITE_URL}/en${path}`, lastModified });
   }
 
-  for (const p of ["", "/stories", "/daily", "/daily/archive"]) {
+  for (const p of ["", "/stories", "/daily", "/daily/archive", "/about"]) {
     add(p, now);
   }
 

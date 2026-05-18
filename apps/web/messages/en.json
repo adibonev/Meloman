@@ -24,6 +24,8 @@
   "RegisterCta": {
     "title": "Join Meloman",
     "subtitle": "For live quizzes, streaks, XP and badges.",
+    "subtitleStories": "Sign up for XP and badges.",
+    "subtitleDaily": "Sign up for streaks, badges and Mystery Artist.",
     "cta": "Sign up"
   },
   "Login": {

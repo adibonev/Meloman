@@ -8,7 +8,19 @@ import { buttonVariants } from "@/components/ui/button";
  * (SEO + reach); this only nudges guests toward an account for quizzes,
  * streaks and badges. Renders nothing for signed-in users.
  */
-export async function RegisterCta() {
+type RegisterCtaVariant = "generic" | "stories" | "daily";
+
+const SUBTITLE_KEY: Record<RegisterCtaVariant, string> = {
+  generic: "subtitle",
+  stories: "subtitleStories",
+  daily: "subtitleDaily",
+};
+
+export async function RegisterCta({
+  variant = "generic",
+}: {
+  variant?: RegisterCtaVariant;
+}) {
   const session = await auth();
   if (session?.user) return null;
 
@@ -21,7 +33,9 @@ export async function RegisterCta() {
           <p className="font-heading text-xl font-black tracking-wide uppercase text-foreground">
             {t("title")}
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t(SUBTITLE_KEY[variant])}
+          </p>
         </div>
         <Link
           href="/register"

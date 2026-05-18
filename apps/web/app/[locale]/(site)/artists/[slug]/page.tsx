@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
+import { RegisterCta } from "@/components/register-cta";
 
 /**
  * Artist spotlight. The slug is the artist name lowercased with spaces →
@@ -81,6 +82,7 @@ export default async function ArtistPage({
           ))}
         </ul>
       )}
+      <RegisterCta />
     </main>
   );
 }

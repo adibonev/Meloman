@@ -5,6 +5,7 @@ import { db } from "@meloman/db";
 import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { RegisterCta } from "@/components/register-cta";
 
 export default async function StoryDetailPage({
   params,
@@ -128,6 +129,7 @@ export default async function StoryDetailPage({
           </ul>
         </footer>
       )}
+      <RegisterCta variant="stories" />
     </main>
   );
 }

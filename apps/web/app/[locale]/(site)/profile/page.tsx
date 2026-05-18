@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { BadgeIcon } from "@/components/badge";
 import { cn } from "@/lib/utils";
+import { RegisterCta } from "@/components/register-cta";
 
 export default async function ProfilePage({
   params,
@@ -144,6 +145,7 @@ export default async function ProfilePage({
           </ul>
         )}
       </section>
+      <RegisterCta />
     </main>
   );
 }

@@ -1,6 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
 import { SiteNav } from "@/components/site-nav";
-import { RegisterCta } from "@/components/register-cta";
 import { SiteFooter } from "@/components/site-footer";
 
 /**
@@ -21,10 +20,7 @@ export default async function SiteLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <SiteNav />
-      <div className="flex flex-1 flex-col">
-        {children}
-        <RegisterCta />
-      </div>
+      <div className="flex flex-1 flex-col">{children}</div>
       <SiteFooter />
     </div>
   );

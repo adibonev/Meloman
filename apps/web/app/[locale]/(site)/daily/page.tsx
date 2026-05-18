@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { dailyContent } from "@meloman/db/schema";
 import { mysteryStageNow } from "@/lib/daily-stage";
+import { RegisterCta } from "@/components/register-cta";
 
 type SongPayload = {
   title?: string;
@@ -54,6 +55,7 @@ export default async function DailyPage({
       ) : (
         <MysteryCard t={t} payload={row.payload as MysteryPayload} />
       )}
+      <RegisterCta variant="daily" />
     </main>
   );
 }

@@ -5,6 +5,7 @@ import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { PaginationNav } from "@/components/pagination-nav";
 import { getPageParams, pageMeta } from "@/lib/pagination";
+import { RegisterCta } from "@/components/register-cta";
 
 export default async function StoriesPage({
   params,
@@ -136,6 +137,7 @@ export default async function StoriesPage({
         page={meta.page}
         totalPages={meta.totalPages}
       />
+      <RegisterCta />
     </main>
   );
 }

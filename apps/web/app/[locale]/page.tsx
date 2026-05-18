@@ -34,14 +34,9 @@ export default async function HomePage({
       <SiteNav minimal />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-16 sm:pt-24">
         <section className="flex flex-col items-center text-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/meloman-logo-white.png"
-            alt="Meloman"
-            width={288}
-            height={288}
-            className="h-52 w-52 object-contain sm:h-72 sm:w-72"
-          />
+          <h1 className="font-heading text-5xl font-black tracking-wide uppercase sm:text-7xl">
+            Meloman
+          </h1>
           <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
             {t("tagline")}
           </p>

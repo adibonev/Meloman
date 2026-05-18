@@ -6,6 +6,7 @@ import { dailyContent } from "@meloman/db/schema";
 import { mysteryStageNow } from "@/lib/daily-stage";
 import { RegisterCta } from "@/components/register-cta";
 import { JsonLd } from "@/components/json-ld";
+import { Link } from "@/i18n/navigation";
 
 type SongPayload = {
   title?: string;
@@ -57,6 +58,7 @@ export default async function DailyPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Daily");
+  const ta = await getTranslations("DailyArchive");
 
   const [row] = await db
     .select()
@@ -81,9 +83,17 @@ export default async function DailyPage({
           }}
         />
       )}
-      <h1 className="font-heading text-5xl font-black tracking-wider uppercase sm:text-7xl">
-        {t("title")}
-      </h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h1 className="font-heading text-5xl font-black tracking-wider uppercase sm:text-7xl">
+          {t("title")}
+        </h1>
+        <Link
+          href="/daily/archive"
+          className="text-sm font-semibold text-primary hover:underline"
+        >
+          {ta("archiveLink")}
+        </Link>
+      </div>
 
       {!row ? (
         <div className="mt-12 rounded-lg border border-dashed border-border p-16 text-center">

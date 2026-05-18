@@ -13,6 +13,18 @@
     "tooltip": "Влез утре да задържиш стрийка",
     "days": "{count, plural, one {# ден} other {# дни}}"
   },
+  "DailyArchive": {
+    "title": "Архив: Песен на деня",
+    "subtitle": "Минали песни и Mystery Artist.",
+    "metaTitle": "Архив на песните | Meloman",
+    "metaDescription": "Архив на миналите песни на деня и Mystery Artist от Meloman.",
+    "empty": "Все още няма архив.",
+    "open": "Виж",
+    "back": "← Към архива",
+    "archiveLink": "Виж архива →",
+    "hints": "Подсказки",
+    "answer": "Отговор"
+  },
   "Home": {
     "tagline": "Музикален куиз и ежедневно забавление",
     "loginCta": "Влез",

@@ -13,6 +13,18 @@
     "tooltip": "Come back tomorrow to keep your streak",
     "days": "{count, plural, one {# day} other {# days}}"
   },
+  "DailyArchive": {
+    "title": "Archive: Song of the Day",
+    "subtitle": "Past songs and Mystery Artist.",
+    "metaTitle": "Song archive | Meloman",
+    "metaDescription": "Archive of past songs of the day and Mystery Artist from Meloman.",
+    "empty": "No archive yet.",
+    "open": "View",
+    "back": "← Back to archive",
+    "archiveLink": "View archive →",
+    "hints": "Hints",
+    "answer": "Answer"
+  },
   "Home": {
     "tagline": "Music quiz and daily entertainment",
     "loginCta": "Sign in",

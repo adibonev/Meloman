@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { desc, isNotNull } from "drizzle-orm";
 import { db } from "@meloman/db";
-import { stories } from "@meloman/db/schema";
+import { dailyContent, stories } from "@meloman/db/schema";
 import { SITE_URL } from "@/lib/site";
 
 // Public routes for both locales (BG has no prefix, EN under /en —
@@ -26,7 +26,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.push({ url: `${SITE_URL}/en${path}`, lastModified });
   }
 
-  for (const p of ["", "/stories", "/daily"]) add(p, now);
+  for (const p of ["", "/stories", "/daily", "/daily/archive"]) {
+    add(p, now);
+  }
+
+  const days = await db
+    .select({ contentDate: dailyContent.contentDate })
+    .from(dailyContent)
+    .orderBy(desc(dailyContent.contentDate));
+  for (const d of days) add(`/daily/${d.contentDate}`, now);
 
   for (const s of published) {
     add(`/stories/${s.slug}`, s.updatedAt ?? now);

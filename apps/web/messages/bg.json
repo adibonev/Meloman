@@ -877,6 +877,7 @@
     "xp": "Общо XP",
     "days": "{count} дни",
     "badges": "Значки",
+    "badgesCount": "{earned} / {total}",
     "noBadges": "Все още нямаш значки. Играй за да печелиш!",
     "locked": "Заключена",
     "notSignedIn": "Влез, за да видиш профила си."

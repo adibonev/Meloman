@@ -877,6 +877,7 @@
     "xp": "Total XP",
     "days": "{count} days",
     "badges": "Badges",
+    "badgesCount": "{earned} / {total}",
     "noBadges": "No badges yet. Play to earn them!",
     "locked": "Locked",
     "notSignedIn": "Sign in to see your profile."

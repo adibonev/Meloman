@@ -104,9 +104,17 @@ export default async function ProfilePage({
       </div>
 
       <section className="mt-12">
-        <h2 className="font-heading text-2xl font-black uppercase">
-          {t("badges")}
-        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="font-heading text-2xl font-black uppercase">
+            {t("badges")}
+          </h2>
+          <span className="rounded-full border border-border px-3 py-1 text-sm font-semibold text-primary tabular-nums">
+            {t("badgesCount", {
+              earned: earnedSlugs.size,
+              total: allBadges.length,
+            })}
+          </span>
+        </div>
         {allBadges.length === 0 ? (
           <p className="mt-4 text-muted-foreground">{t("noBadges")}</p>
         ) : (

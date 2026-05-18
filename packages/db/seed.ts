@@ -11,6 +11,7 @@ import {
   rounds,
   stories,
   userBadges,
+  userProgress,
   users,
 } from "./schema";
 import { uploadToR2 } from "./r2-seed";
@@ -635,6 +636,46 @@ async function seedBadges() {
   );
 }
 
+// Consistent demo state: the player has streak/XP badges, so give the
+// matching progress (7 recent days, rising streak, real XP) instead of
+// badges with a 0 XP / empty streak. This is seed data only — the
+// runtime XP/streak earning engine is the deferred daily-engagement
+// work, not implemented here.
+const DEMO_PROGRESS_DAYS = 7;
+const DEMO_XP_PER_DAY = 160;
+
+async function seedDemoProgress() {
+  console.log("\nSeeding demo player progress...");
+  const [player] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, "player@meloman.bg"))
+    .limit(1);
+  if (!player) return;
+
+  for (let i = 0; i < DEMO_PROGRESS_DAYS; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const date = d.toISOString().slice(0, 10);
+    await db
+      .insert(userProgress)
+      .values({
+        userId: player.id,
+        date,
+        dailyXp: DEMO_XP_PER_DAY,
+        // Oldest day = streak 1 … today = streak DEMO_PROGRESS_DAYS.
+        streakCountAtDay: DEMO_PROGRESS_DAYS - i,
+        activities: ["song_of_day"],
+      })
+      .onConflictDoNothing();
+  }
+  console.log(
+    `  ✓ ${DEMO_PROGRESS_DAYS} days, ${
+      DEMO_PROGRESS_DAYS * DEMO_XP_PER_DAY
+    } XP, streak ${DEMO_PROGRESS_DAYS}`
+  );
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not set. Check .env.local at repo root.");
@@ -646,6 +687,7 @@ async function main() {
   await seedDemoQuiz(adminId);
   await seedDaily();
   await seedBadges();
+  await seedDemoProgress();
 
   console.log(`\nDone. Password for seeded accounts: ${SEED_PASSWORD}`);
   process.exit(0);

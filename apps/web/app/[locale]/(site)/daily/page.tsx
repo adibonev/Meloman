@@ -5,6 +5,7 @@ import { db } from "@meloman/db";
 import { dailyContent } from "@meloman/db/schema";
 import { mysteryStageNow } from "@/lib/daily-stage";
 import { RegisterCta } from "@/components/register-cta";
+import { JsonLd } from "@/components/json-ld";
 
 type SongPayload = {
   title?: string;
@@ -63,8 +64,23 @@ export default async function DailyPage({
     .where(eq(dailyContent.contentDate, todayIsoDate()))
     .limit(1);
 
+  const songMeta =
+    row?.contentType === "song_of_day"
+      ? (row.payload as SongPayload)
+      : null;
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-16">
+      {songMeta?.title && songMeta.artist && (
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "MusicRecording",
+            name: songMeta.title,
+            byArtist: { "@type": "MusicGroup", name: songMeta.artist },
+          }}
+        />
+      )}
       <h1 className="font-heading text-5xl font-black tracking-wider uppercase sm:text-7xl">
         {t("title")}
       </h1>

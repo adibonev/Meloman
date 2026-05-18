@@ -7,6 +7,8 @@ import { stories } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { RegisterCta } from "@/components/register-cta";
+import { JsonLd } from "@/components/json-ld";
+import { SITE_URL } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -76,8 +78,30 @@ export default async function StoryDetailPage({
     .orderBy(desc(stories.publishedAt))
     .limit(3);
 
+  const articleUrl = `${SITE_URL}${
+    locale === "en" ? "/en" : ""
+  }/stories/${slug}`;
+  const articleDesc = (story.subtitle || story.body || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 200);
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-16">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: story.title,
+          description: articleDesc,
+          datePublished: story.publishedAt?.toISOString(),
+          image: story.heroImageUrl || story.coverImageUrl || undefined,
+          author: { "@type": "Organization", name: "Meloman" },
+          publisher: { "@type": "Organization", name: "Meloman" },
+          mainEntityOfPage: articleUrl,
+        }}
+      />
       <Link
         href="/stories"
         className="text-sm text-muted-foreground hover:underline"

@@ -227,6 +227,9 @@ function MysteryCard({
           <p className="text-xs font-semibold tracking-[0.25em] uppercase text-primary">
             {t("mysteryArtist")}
           </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("mysteryExplain")}
+          </p>
           {(() => {
             const hints = payload.hints ?? [];
             const stage = mysteryStageNow(new Date(), hints.length);

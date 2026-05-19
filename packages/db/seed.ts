@@ -546,12 +546,22 @@ async function seedDaily() {
         title: "Zombie",
         artist: "The Cranberries",
         story:
-          "Протестна песен срещу насилието в Северна Ирландия, която по-късно се превръща в спортен химн.",
+          "„Zombie“ е една от най-разпознаваемите песни на The Cranberries. Песента излиза през 1994 г. и носи тежък, директен звук, различен от по-мекото звучене на групата. Гласът на Dolores O’Riordan превръща песента в един от най-силните рок моменти на 90-те.",
       },
     })
     .onConflictDoUpdate({
       target: dailyContent.contentDate,
-      set: { contentType: "song_of_day" },
+      // Re-seeding restores the canonical demo payload too, so a stale
+      // or placeholder row from manual admin edits is cleaned by db:seed.
+      set: {
+        contentType: "song_of_day",
+        payload: {
+          title: "Zombie",
+          artist: "The Cranberries",
+          story:
+            "„Zombie“ е една от най-разпознаваемите песни на The Cranberries. Песента излиза през 1994 г. и носи тежък, директен звук, различен от по-мекото звучене на групата. Гласът на Dolores O’Riordan превръща песента в един от най-силните рок моменти на 90-те.",
+        },
+      },
     });
 
   await db

@@ -3,18 +3,25 @@
 [![CI](https://github.com/adibonev/Meloman/actions/workflows/ci.yml/badge.svg)](https://github.com/adibonev/Meloman/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> A music quiz platform for in-person trivia nights and daily music
-> engagement — built as the SoftUni "Full Stack Apps with AI" capstone
-> and a real product for the Bulgarian music page **Meloman**.
+> Author led live music quiz app for in person Meloman events, with
+> daily music content between quiz nights — built as the SoftUni "Full
+> Stack Apps with AI" capstone and a real product for the Bulgarian
+> music page **Meloman**.
 
-Two product surfaces over one shared backend:
+**Meloman is not a public quiz builder.** Quizzes are created and
+hosted by the Meloman team. Players join live events from their phones,
+while hosts control the session from the admin and presentation
+screens.
 
-- **Live quiz system** — fullscreen host presentation on a TV, players
-  join from their phones, real-time teams, server-authoritative timer,
-  automated grading with host override, per-round elimination, and an
-  end-of-quiz podium.
-- **Daily engagement app** — Song of the Day, a 4-stage Mystery Artist
-  reveal, streaks, badges, and editorial stories.
+Product hierarchy, one shared backend:
+
+- **Main product — author led live quiz nights.** Fullscreen host
+  presentation on a TV, players join from their phones, real-time
+  teams, server-authoritative timer, automated grading with host
+  override, per-round elimination, and an end-of-quiz podium.
+- **Companion product — daily music content, stories, streaks and
+  badges.** Song of the Day, a 4-stage Mystery Artist reveal, streaks,
+  badges, and editorial stories between quiz nights.
 
 - 🌐 **Live web app:** https://meloman-web.vercel.app
 - 📱 **Mobile (web client):** https://meloman-mobile.vercel.app

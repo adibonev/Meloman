@@ -1,56 +1,91 @@
-# Welcome to your Expo app 👋
+# Meloman — Mobile app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo (SDK 55) React Native client for **Meloman**, the author-led live
+music quiz. It is the companion to the web app: players join live quiz
+nights from their phone and follow the daily music content between
+events. The web app remains the backend and the host/admin surface —
+this app talks to it over the same JSON API.
 
-## Get started
+## What this app is
 
-1. Install dependencies
+- A **player + reader** client, not an admin/host tool.
+- Live quiz: join a session, pick/create a team, answer in real time,
+  watch the leaderboard.
+- Daily content: Song of the Day, Mystery Artist, stories, profile
+  (points, streak, badges).
 
-   ```bash
-   npm install
-   ```
+## Main screens
 
-2. Start the app
+- `(tabs)/index` — home: featured story, daily teaser, socials.
+- `(tabs)/daily` — Song of the Day / Mystery Artist with reveal stages.
+- `(tabs)/stories` + `story/[slug]` — editorial stories.
+- `(tabs)/profile` — points, streak, badges (signed in).
+- `play` — join + live quiz screen.
+- `login` — sign in.
 
-   ```bash
-   npx expo start
-   ```
+## Quiz code join flow
 
-In the output, you'll find options to open the app in a
+`play` screen → type the 6-char join code shown on the venue screen →
+**Продължи**. The app polls the play-state endpoint (no Pusher client
+in RN) and walks: choose/create team → lobby → question → reveal →
+finished. The server stays the source of truth.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## QR join flow
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+`play` screen → **Сканирай QR** → `expo-camera` reads the host
+`/present` QR. `parseJoinCode()` extracts the code from the join URL
+(or accepts a pasted raw code), then the same join flow runs. All three
+camera-permission states are handled; the camera needs a real device or
+dev build (Expo Go on SDK 55 / `expo export` can't exercise it).
 
-## Get a fresh project
+## Auth and guest player flow
 
-When you're ready, run:
+- Auth is JWT-based, stored with `expo-secure-store` (in-memory cache
+  fallback so the token survives in-app browsers).
+- Reading content and the daily screens work signed out.
+- Live quiz currently requires a signed-in user; the **guest-friendly
+  entry** (anonymous throwaway user → name → team → play) lives on the
+  web `/play/[code]` flow. The mobile client reuses the same API and
+  token; full in-app anonymous join is a documented follow-up.
+
+## How it talks to the web API
+
+All data goes through `src/lib/api.ts` over the shared JSON REST API.
+Base URL resolution order:
+
+1. `EXPO_PUBLIC_API_BASE_URL` env var
+2. `app.json` → `expo.extra.apiBaseUrl` (LAN IP in dev, Vercel URL in
+   prod)
+3. `http://localhost:3000` fallback
+
+The web app sends permissive CORS headers for `/api/*` so the exported
+web build and native client can call it cross-origin.
+
+## Run locally
 
 ```bash
-npm run reset-project
+pnpm install                       # from the repo root
+# point the app at your dev machine's LAN IP:
+#   app.json -> expo.extra.apiBaseUrl, or EXPO_PUBLIC_API_BASE_URL
+pnpm --filter mobile start         # Expo dev server
+pnpm --filter mobile web           # run as a web client
+pnpm --filter mobile typecheck     # tsc --noEmit
+pnpm --filter mobile test          # jest (pure logic)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Expo Go on the App/Play store only supports the latest stable SDK, so
+SDK 55 needs a dev build or the web client for on-device testing.
 
-### Other setup steps
+## Build the Android APK
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+EAS is configured in `eas.json`:
 
-## Learn more
+```bash
+npm i -g eas-cli
+eas login
+eas build -p android --profile preview   # APK artifact
+```
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Set `expo.extra.apiBaseUrl` to the production Vercel URL before a
+release build. The static web client is produced with
+`pnpm --filter mobile build:web` (`expo export -p web`).

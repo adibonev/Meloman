@@ -31,16 +31,10 @@
     "title": "About Meloman",
     "intro": "Meloman is for people who listen to music as more than background noise. We run live quiz nights and small daily things for the rest of the days — song of the day, a mystery artist and short stories about the artists we love.",
     "positioning": "An original format for live music quizzes.",
-    "whoTitle": "Who is behind it",
-    "who": "Two friends — one runs the tech, the other the music and the quiz nights. Together we build the Meloman we'd want to use ourselves.",
     "forWhoTitle": "Who it is for",
-    "forWho": "For the Vidin music community and anyone who loves music — whether you come to a quiz night or just read a story with your morning coffee.",
-    "surfacesTitle": "The three faces of Meloman",
-    "surfaceTv": "Host on the big screen — questions run on the venue's TV.",
-    "surfacePhone": "Player on a phone — scan a QR code and play with your team.",
-    "surfaceMobile": "Mobile app — stories, song of the day and your profile in your pocket.",
+    "forWho": "For the music community and anyone who loves music — whether you come to a quiz night or just read a story with your morning coffee.",
     "contactTitle": "Get in touch",
-    "contact": "Message us directly on Instagram DM or Facebook Messenger — we read everything.",
+    "contact": "Message us directly on Instagram DM or Facebook Messenger.",
     "followInstagram": "Instagram",
     "followFacebook": "Facebook"
   },
@@ -77,7 +71,14 @@
       "Answer on your phone",
       "Follow the leaderboard after every round"
     ],
-    "viewEvent": "View the event"
+    "viewEvent": "View the event",
+    "quizHowTitle": "How the quiz works",
+    "quizHowSteps": [
+      "The host starts the game",
+      "Players join with a code",
+      "Answers are given on the phone",
+      "The leaderboard updates after each round"
+    ]
   },
   "DailyArchive": {
     "title": "Archive: Song of the Day",
@@ -92,28 +93,14 @@
     "answer": "Answer"
   },
   "Home": {
-    "heroTitle": "Meloman is an original live music quiz",
-    "heroSubtitle": "The quizzes are written and hosted by Meloman. Play solo or with a team on your phone, answer in real time and follow the leaderboard after every round.",
+    "heroSubtitle": "Live quizzes and daily music fun",
     "ctaEvents": "See events",
     "ctaJoin": "Join a quiz",
-    "ctaStories": "Read stories",
-    "welcome": "Welcome, {name}",
-    "logout": "Sign out",
+    "ctaRegister": "Sign up",
     "vidinTitle": "Upcoming quizzes",
     "vidinAll": "See all →",
-    "howTitle": "How the quiz works",
-    "howSteps": [
-      "The host starts the game",
-      "Players join with a code",
-      "Answers are given on the phone",
-      "The leaderboard updates after each round"
-    ],
     "venueTitle": "Want a Meloman night at your venue?",
     "venueCta": "Message us",
-    "demoTitle": "Demo access (for reviewers)",
-    "demoPlayer": "Demo player",
-    "demoAdmin": "Demo admin",
-    "demoHost": "Demo host: created when a session is started from the admin account.",
     "exploreTitle": "Explore",
     "cardDaily": "Daily music",
     "cardDailyDesc": "Today's song and mystery artist",
@@ -141,6 +128,8 @@
     "title": "Sign in",
     "description": "Sign in to your account",
     "registeredSuccess": "Registration successful! Sign in with your new account.",
+    "verifiedSuccess": "Email confirmed! You can sign in now.",
+    "resendVerification": "Resend the confirmation link",
     "emailLabel": "Email",
     "passwordLabel": "Password",
     "submit": "Sign in",
@@ -150,8 +139,23 @@
     "forgotPassword": "Forgot password?",
     "errors": {
       "credentials": "Invalid email or password.",
+      "unverified": "Your email isn't confirmed yet. Check your inbox for the confirmation link.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "Oauth": {
+    "continueWith": "or continue with"
+  },
+  "VerifyEmail": {
+    "title": "Confirm your email",
+    "description": "We sent you a confirmation link. Check your inbox (and spam folder).",
+    "confirmedDescription": "All done!",
+    "confirmed": "Your email is confirmed. You can sign in now.",
+    "invalid": "The link is invalid or expired. Request a new one below.",
+    "resent": "If the email exists and isn't confirmed, we sent a new link.",
+    "emailLabel": "Email",
+    "resend": "Resend link",
+    "backToLogin": "Back to sign in"
   },
   "ForgotPassword": {
     "title": "Forgot password",

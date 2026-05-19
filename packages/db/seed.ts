@@ -551,17 +551,10 @@ async function seedDaily() {
     })
     .onConflictDoUpdate({
       target: dailyContent.contentDate,
-      // Re-seeding restores the canonical demo payload too, so a stale
-      // or placeholder row from manual admin edits is cleaned by db:seed.
-      set: {
-        contentType: "song_of_day",
-        payload: {
-          title: "Zombie",
-          artist: "The Cranberries",
-          story:
-            "„Zombie“ е една от най-разпознаваемите песни на The Cranberries. Песента излиза през 1994 г. и носи тежък, директен звук, различен от по-мекото звучене на групата. Гласът на Dolores O’Riordan превръща песента в един от най-силните рок моменти на 90-те.",
-        },
-      },
+      // Only the type is reconciled on conflict — the payload is NOT
+      // overwritten, so a cover image / story the owner sets via
+      // /admin/daily survives a re-seed instead of being wiped.
+      set: { contentType: "song_of_day" },
     });
 
   await db

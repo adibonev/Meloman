@@ -18,6 +18,13 @@
     "share": "Share",
     "copied": "Copied!"
   },
+  "GuestCta": {
+    "title": "The quiz is over",
+    "benefitScore": "Keep your points",
+    "benefitLeaderboard": "See your ranking",
+    "benefitBadge": "Earn a badge",
+    "cta": "Create a profile"
+  },
   "About": {
     "metaTitle": "About Meloman | Meloman",
     "metaDescription": "Who is behind Meloman, who it is for and how to reach us.",
@@ -94,6 +101,19 @@
     "logout": "Sign out",
     "vidinTitle": "Upcoming quizzes",
     "vidinAll": "See all →",
+    "howTitle": "How the quiz works",
+    "howSteps": [
+      "The host starts the game",
+      "Players join with a code",
+      "Answers are given on the phone",
+      "The leaderboard updates after each round"
+    ],
+    "venueTitle": "Want a Meloman night at your venue?",
+    "venueCta": "Message us",
+    "demoTitle": "Demo access (for reviewers)",
+    "demoPlayer": "Demo player",
+    "demoAdmin": "Demo admin",
+    "demoHost": "Demo host: created when a session is started from the admin account.",
     "exploreTitle": "Explore",
     "cardDaily": "Daily music",
     "cardDailyDesc": "Today's song and mystery artist",
@@ -105,14 +125,14 @@
     "cardProfileDesc": "Progress, XP and badges"
   },
   "Footer": {
-    "tagline": "Music quiz and stories",
+    "tagline": "Original music quizzes and stories",
     "explore": "Explore",
     "followUs": "Follow us",
     "audioDisclaimer": "Audio snippets used under fair citation rights for educational and entertainment purposes. For full songs, support artists by purchasing on Spotify, Apple Music, or YouTube."
   },
   "RegisterCta": {
     "title": "Join Meloman",
-    "subtitle": "For live quizzes, streaks, XP and badges.",
+    "subtitle": "Join Meloman to keep your quiz points and unlock badges between events.",
     "subtitleStories": "Sign up for XP and badges.",
     "subtitleDaily": "Create a profile to keep your XP, streak and solved artists.",
     "cta": "Sign up"
@@ -853,7 +873,9 @@
     "empty": "No published stories yet.",
     "readTime": "{minutes} min read",
     "by": "by {author}",
-    "featured": "Featured"
+    "featured": "Featured",
+    "filterLabel": "Filter by category",
+    "allCategory": "All"
   },
   "StoryDetail": {
     "notFound": "Story not found.",
@@ -896,7 +918,16 @@
     "badgesCount": "{earned} / {total}",
     "noBadges": "No badges yet. Play to earn them!",
     "locked": "Locked",
-    "notSignedIn": "Sign in to see your profile."
+    "previewTitle": "Here you'll see:",
+    "previewItems": [
+      "Your points",
+      "Your streak",
+      "Your badges",
+      "Your quiz history",
+      "Mystery Artists you've solved"
+    ],
+    "ctaLogin": "Sign in",
+    "ctaRegister": "Create a profile"
   },
   "AdminUsers": {
     "title": "Users",

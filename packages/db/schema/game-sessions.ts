@@ -56,10 +56,16 @@ export const gameSessions = pgTable(
     // there cleanly. Nullable: only set while status === 'paused'.
     pausedFromStatus: gameSessionStatusEnum("paused_from_status"),
     // Surfaced on the public /events page when the host opts in. Venue
-    // is free text (e.g. "Бар Х, Видин"); the schema has no separate
-    // scheduling model, so "upcoming" = public & not finished.
+    // is free text (e.g. "Бар Х, Видин").
     publicEvent: boolean("public_event").notNull().default(false),
     venue: varchar("venue", { length: 160 }),
+    // Host-declared schedule for the public event. This is the planned
+    // start (and optional end) shown on /events — distinct from
+    // `startedAt`, which is only set when the host actually clicks
+    // Start. Classification (upcoming/live/past) is time-based off
+    // these; if `scheduledEndAt` is null we assume a 3-hour duration.
+    scheduledStartAt: timestamp("scheduled_start_at", { withTimezone: true }),
+    scheduledEndAt: timestamp("scheduled_end_at", { withTimezone: true }),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })

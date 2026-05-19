@@ -50,3 +50,44 @@ export async function sendPasswordResetEmail(
     console.error("[email] password reset send failed:", err);
   }
 }
+
+/**
+ * Email-verification link. Same graceful degradation as the reset mail:
+ * without RESEND_API_KEY (local dev / unverified demo domain) the link
+ * is logged instead of thrown, so sign-up still works end to end.
+ */
+export async function sendVerificationEmail(
+  to: string,
+  verifyUrl: string
+): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn(
+      `[email] RESEND_API_KEY not set — email verification link for ${to}: ${verifyUrl}`
+    );
+    return;
+  }
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from: FROM,
+      to,
+      subject: "Meloman — потвърди имейла си / confirm your email",
+      html: `
+        <div style="font-family:system-ui,sans-serif;line-height:1.6">
+          <h2>Meloman</h2>
+          <p>Потвърди имейла си, за да активираш профила си. Линкът е валиден 24 часа.</p>
+          <p>Confirm your email to activate your account. This link is valid for 24 hours.</p>
+          <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+          <p style="color:#888;font-size:13px">
+            Ако не си се регистрирал, игнорирай имейла. /
+            If you didn't sign up, ignore this email.
+          </p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error("[email] verification send failed:", err);
+  }
+}

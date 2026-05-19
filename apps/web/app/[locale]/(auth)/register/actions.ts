@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { registerSchema } from "@/lib/schemas/auth";
+import { getRequestOrigin } from "@/lib/origin";
+import { sendVerificationFor } from "@/lib/auth/email-verification";
 
 export async function registerAction(formData: FormData) {
   const raw = {
@@ -40,8 +42,13 @@ export async function registerAction(formData: FormData) {
     displayName,
     passwordHash,
     role: "player",
+    emailVerified: false,
   });
 
+  // Send the confirmation link; login is gated until the address is
+  // verified (see login action). Graceful without RESEND_API_KEY.
+  await sendVerificationFor(email, await getRequestOrigin());
+
   const locale = await getLocale();
-  redirect({ href: "/login?registered=1", locale });
+  redirect({ href: "/verify-email?sent=1", locale });
 }

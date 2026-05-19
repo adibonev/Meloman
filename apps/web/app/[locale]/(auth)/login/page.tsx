@@ -39,11 +39,22 @@ function RegistrationSuccessMessage() {
   );
 }
 
+function VerifiedSuccessMessage() {
+  const t = useTranslations("Login");
+  const searchParams = useSearchParams();
+  if (searchParams.get("verified") !== "1") return null;
+  return (
+    <p className="mb-4 rounded-md bg-primary/10 px-3 py-2 text-sm text-primary">
+      {t("verifiedSuccess")}
+    </p>
+  );
+}
+
 export default function LoginPage() {
   const t = useTranslations("Login");
   const tValidation = useTranslations("Validation");
   const [serverErrorKey, setServerErrorKey] = useState<
-    "credentials" | "generic" | null
+    "credentials" | "generic" | "unverified" | null
   >(null);
   const [isPending, startTransition] = useTransition();
 
@@ -79,6 +90,7 @@ export default function LoginPage() {
       <CardContent>
         <Suspense fallback={null}>
           <RegistrationSuccessMessage />
+          <VerifiedSuccessMessage />
         </Suspense>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -121,9 +133,17 @@ export default function LoginPage() {
           </div>
 
           {serverErrorKey && (
-            <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {t(`errors.${serverErrorKey}`)}
-            </p>
+            <div className="space-y-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <p>{t(`errors.${serverErrorKey}`)}</p>
+              {serverErrorKey === "unverified" && (
+                <Link
+                  href="/verify-email"
+                  className="inline-block font-medium text-foreground hover:underline"
+                >
+                  {t("resendVerification")}
+                </Link>
+              )}
+            </div>
           )}
 
           <Button type="submit" className="w-full" disabled={isPending}>

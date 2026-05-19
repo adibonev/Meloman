@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { auth, signOut } from "@/auth";
 import { classifyEvent, eventStartMs } from "@/lib/event-status";
 import { formatEventDateTime } from "@/lib/datetime";
+import { SOCIAL } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -139,6 +140,25 @@ export default async function HomePage({
           )}
         </section>
 
+        <section className="mt-20">
+          <h2 className="mb-6 font-heading text-2xl font-black uppercase">
+            {t("howTitle")}
+          </h2>
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {(t.raw("howSteps") as string[]).map((step, i) => (
+              <li
+                key={i}
+                className="flex flex-col gap-3 rounded-lg border border-border border-l-2 border-l-primary bg-card p-5"
+              >
+                <span className="font-heading text-3xl font-black text-primary tabular-nums">
+                  {i + 1}
+                </span>
+                <span className="text-sm text-foreground">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         {upcomingEvents.length > 0 && (
           <section className="mt-16">
             <div className="mb-6 flex items-baseline justify-between gap-3">
@@ -218,6 +238,33 @@ export default async function HomePage({
               />
             )}
           </div>
+        </section>
+
+        <section className="mt-20 rounded-lg border border-border border-l-2 border-l-primary bg-card p-6 text-center sm:p-8">
+          <h2 className="font-heading text-2xl font-black uppercase">
+            {t("venueTitle")}
+          </h2>
+          <a
+            href={SOCIAL.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants({
+              className: "mt-5 h-11 px-8 text-sm",
+            })}
+          >
+            {t("venueCta")}
+          </a>
+        </section>
+
+        <section className="mt-16 rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em]">
+            {t("demoTitle")}
+          </p>
+          <ul className="mt-3 space-y-1">
+            <li>{t("demoPlayer")}: player@meloman.bg / demo123</li>
+            <li>{t("demoAdmin")}: super-admin@meloman.bg / demo123</li>
+            <li>{t("demoHost")}</li>
+          </ul>
         </section>
       </main>
       <SiteFooter />

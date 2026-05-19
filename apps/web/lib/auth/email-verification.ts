@@ -68,18 +68,32 @@ export async function confirmEmail(
   return { ok: true };
 }
 
+// Accounts created on/before this instant are grandfathered: they keep
+// signing in exactly as before and are NEVER modified — verification is
+// only enforced for sign-ups created AFTER the feature shipped. No DB
+// backfill, no touching existing rows. Override with
+// EMAIL_VERIFICATION_ENFORCED_FROM (ISO) if the deploy time differs.
+const ENFORCED_FROM = new Date(
+  process.env.EMAIL_VERIFICATION_ENFORCED_FROM ?? "2026-05-19T00:00:00Z"
+).getTime();
+
 /**
- * True when the address belongs to a real, not-yet-verified account.
- * Anonymous quiz players (anon-*@meloman.local) are never gated — the
- * guest-friendly entry stays open.
+ * True only for a real account that (a) was created after the feature
+ * shipped and (b) hasn't verified yet. Pre-existing accounts and
+ * anonymous quiz players (anon-*@meloman.local) are never gated.
  */
 export async function isUnverified(email: string): Promise<boolean> {
   const normalized = email.trim().toLowerCase();
   if (normalized.endsWith("@meloman.local")) return false;
   const [user] = await db
-    .select({ emailVerified: users.emailVerified })
+    .select({
+      emailVerified: users.emailVerified,
+      createdAt: users.createdAt,
+    })
     .from(users)
     .where(eq(users.email, normalized))
     .limit(1);
-  return !!user && !user.emailVerified;
+  if (!user || user.emailVerified) return false;
+  // Grandfather everything that already existed — don't touch it.
+  return user.createdAt.getTime() > ENFORCED_FROM;
 }

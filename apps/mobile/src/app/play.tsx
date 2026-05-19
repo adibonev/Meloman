@@ -127,13 +127,9 @@ export default function PlayScreen() {
 
   if (!joinedCode) {
     return (
-      <View className="flex-1 bg-bg p-[24px]">
-        <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
-          Live quiz
-        </Text>
-        <Text className="text-[32px] font-black text-fg">Влез в куиз</Text>
-        <Text className={MUTED}>
-          Въведи кода, който водещият показва на екрана.
+      <View className="flex-1 justify-center bg-bg p-[24px]">
+        <Text className="text-center text-[32px] font-black text-fg">
+          Влез в куиз
         </Text>
         <TextInput
           value={code}
@@ -141,6 +137,7 @@ export default function PlayScreen() {
           placeholder="MELO42"
           placeholderTextColor={colors.dim}
           autoCapitalize="characters"
+          autoFocus
           className="mb-[16px] mt-[24px] rounded-[12px] border border-border-strong p-[15px] text-center text-[22px] tracking-[6px] text-fg"
         />
         <Pressable
@@ -155,7 +152,7 @@ export default function PlayScreen() {
             setJoinedCode(code.trim().toUpperCase());
           }}
         >
-          <Text className={TXT_PRIMARY}>Влез</Text>
+          <Text className={TXT_PRIMARY}>Продължи</Text>
         </Pressable>
         <Pressable
           className="mt-[12px] items-center rounded-[14px] border border-border-strong py-[16px]"
@@ -165,9 +162,12 @@ export default function PlayScreen() {
           }}
         >
           <Text className="text-[16px] font-extrabold text-fg">
-            Сканирай QR код
+            Сканирай QR
           </Text>
         </Pressable>
+        <Text className="mt-[16px] text-center text-[15px] text-muted">
+          Кодът е на екрана в заведението.
+        </Text>
         {error ? (
           <Text className="mt-[16px] text-center text-danger">{error}</Text>
         ) : null}

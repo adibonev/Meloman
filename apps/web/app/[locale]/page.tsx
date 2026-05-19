@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { and, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
+import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { gameSessions, quizzes, stories, users } from "@meloman/db/schema";
@@ -8,6 +8,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { auth, signOut } from "@/auth";
+import { classifyEvent, eventStartMs } from "@/lib/event-status";
+import { formatEventDateTime } from "@/lib/datetime";
 
 export async function generateMetadata({
   params,
@@ -30,6 +32,7 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Home");
+  const t2 = await getTranslations("Events");
   const session = await auth();
   const isAdmin =
     session?.user?.role === "admin" ||
@@ -43,12 +46,16 @@ export default async function HomePage({
     .orderBy(desc(stories.publishedAt))
     .limit(1);
 
-  // Upcoming public events for the Vidin section. Empty → section
-  // auto-hides (no scheduling model, so "upcoming" = public & live).
-  const upcomingEvents = await db
+  // Upcoming + live public events for the homepage section. We fetch a
+  // window, classify by time (lib/event-status) and keep only
+  // upcoming/live, soonest first. Empty → section auto-hides.
+  const eventRows = await db
     .select({
       id: gameSessions.id,
+      status: gameSessions.status,
       venue: gameSessions.venue,
+      scheduledStartAt: gameSessions.scheduledStartAt,
+      scheduledEndAt: gameSessions.scheduledEndAt,
       startedAt: gameSessions.startedAt,
       createdAt: gameSessions.createdAt,
       quizTitle: quizzes.title,
@@ -57,83 +64,87 @@ export default async function HomePage({
     .from(gameSessions)
     .innerJoin(quizzes, eq(gameSessions.quizId, quizzes.id))
     .innerJoin(users, eq(gameSessions.hostId, users.id))
-    .where(
-      and(
-        eq(gameSessions.publicEvent, true),
-        ne(gameSessions.status, "finished")
-      )
-    )
+    .where(eq(gameSessions.publicEvent, true))
     .orderBy(
       desc(sql`coalesce(${gameSessions.startedAt}, ${gameSessions.createdAt})`)
     )
-    .limit(3);
-  const eventFmt = new Intl.DateTimeFormat(locale === "en" ? "en" : "bg", {
-    dateStyle: "long",
-  });
+    .limit(30);
+  const upcomingEvents = eventRows
+    .map((e) => ({ ...e, bucket: classifyEvent(e) }))
+    .filter((e) => e.bucket === "upcoming" || e.bucket === "live")
+    .sort((a, b) => eventStartMs(a) - eventStartMs(b))
+    .slice(0, 3);
 
   return (
     <div className="flex min-h-screen flex-col">
       <SiteNav minimal />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-16 sm:pt-24">
         <section className="flex flex-col items-center text-center">
-          <h1 className="font-heading text-5xl font-black tracking-wide uppercase sm:text-7xl">
-            Meloman
+          <h1 className="max-w-3xl font-heading text-3xl font-black uppercase sm:text-5xl">
+            {t("heroTitle")}
           </h1>
-          <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
-            {t("tagline")}
+          <p className="mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            {t("heroSubtitle")}
           </p>
 
-          <div className="mt-8">
-            {session?.user ? (
-              <div className="flex flex-col items-center gap-4">
-                <p className="text-base text-foreground">
-                  {t("welcome", {
-                    name: session.user.name ?? session.user.email ?? "",
-                  })}
-                </p>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut({ redirectTo: locale === "en" ? "/en" : "/" });
-                  }}
-                >
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    className="h-11 px-6 text-sm"
-                  >
-                    {t("logout")}
-                  </Button>
-                </form>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <Link
-                  href="/login"
-                  className={buttonVariants({ className: "h-11 px-8 text-sm" })}
-                >
-                  {t("loginCta")}
-                </Link>
-                <Link
-                  href="/register"
-                  className={buttonVariants({
-                    variant: "secondary",
-                    className: "h-11 px-8 text-sm",
-                  })}
-                >
-                  {t("registerCta")}
-                </Link>
-              </div>
-            )}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/events"
+              className={buttonVariants({ className: "h-11 px-8 text-sm" })}
+            >
+              {t("ctaEvents")}
+            </Link>
+            <Link
+              href="/events"
+              className={buttonVariants({
+                variant: "secondary",
+                className: "h-11 px-8 text-sm",
+              })}
+            >
+              {t("ctaJoin")}
+            </Link>
+            <Link
+              href="/stories"
+              className={buttonVariants({
+                variant: "secondary",
+                className: "h-11 px-8 text-sm",
+              })}
+            >
+              {t("ctaStories")}
+            </Link>
           </div>
+
+          {session?.user && (
+            <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
+              <span>
+                {t("welcome", {
+                  name: session.user.name ?? session.user.email ?? "",
+                })}
+              </span>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: locale === "en" ? "/en" : "/" });
+                }}
+              >
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="h-8 px-3 text-xs"
+                >
+                  {t("logout")}
+                </Button>
+              </form>
+            </div>
+          )}
         </section>
 
         {upcomingEvents.length > 0 && (
-          <section className="mt-20">
+          <section className="mt-16">
             <div className="mb-6 flex items-baseline justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+              <h2 className="font-heading text-2xl font-black uppercase">
                 {t("vidinTitle")}
-              </p>
+              </h2>
               <Link
                 href="/events"
                 className="text-sm font-semibold text-primary hover:underline"
@@ -141,17 +152,35 @@ export default async function HomePage({
                 {t("vidinAll")}
               </Link>
             </div>
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="space-y-3">
               {upcomingEvents.map((e) => (
                 <li key={e.id}>
                   <Link
                     href={`/events/${e.id}`}
-                    className="flex flex-col gap-1 px-5 py-4 transition-colors hover:bg-secondary"
+                    className="group flex flex-col gap-2 rounded-lg border border-border border-l-2 border-l-primary bg-card p-5 transition-colors hover:bg-secondary sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <span className="font-medium">{e.quizTitle}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {eventFmt.format(new Date(e.startedAt ?? e.createdAt))}
-                      {e.venue ? ` · ${e.venue}` : ""} · {e.host}
+                    <div className="flex flex-col gap-1">
+                      <span className="font-heading text-xl font-black uppercase">
+                        {e.quizTitle}
+                        {e.bucket === "live" && (
+                          <span className="ml-3 align-middle text-xs font-semibold uppercase tracking-widest text-primary">
+                            {t2("live")}
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {formatEventDateTime(
+                          new Date(eventStartMs(e)),
+                          locale
+                        )}
+                        {e.venue ? ` · ${e.venue}` : ""}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {t2("host")}: {e.host}
+                      </span>
+                    </div>
+                    <span className="shrink-0 text-sm font-semibold text-primary group-hover:underline">
+                      {t2("viewEvent")} →
                     </span>
                   </Link>
                 </li>

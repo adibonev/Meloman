@@ -5,6 +5,8 @@ import { db } from "@meloman/db";
 import { gameSessions, quizzes, teams, users } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { JoinCodeEntry } from "@/components/join-code-entry";
+import { classifyEvent, eventStartMs } from "@/lib/event-status";
+import { formatEventDateTime } from "@/lib/datetime";
 
 export async function generateMetadata({
   params,
@@ -30,6 +32,8 @@ export default async function EventsPage({
       id: gameSessions.id,
       status: gameSessions.status,
       venue: gameSessions.venue,
+      scheduledStartAt: gameSessions.scheduledStartAt,
+      scheduledEndAt: gameSessions.scheduledEndAt,
       startedAt: gameSessions.startedAt,
       createdAt: gameSessions.createdAt,
       quizTitle: quizzes.title,
@@ -43,8 +47,17 @@ export default async function EventsPage({
     .orderBy(desc(sql`coalesce(${gameSessions.startedAt}, ${gameSessions.createdAt})`))
     .limit(60);
 
-  const upcoming = rows.filter((r) => r.status !== "finished");
-  const past = rows.filter((r) => r.status === "finished");
+  // Time-based classification (see lib/event-status). Upcoming + live
+  // share the "upcoming" section (live carries a badge); upcoming is
+  // sorted soonest-first, past most-recent-first.
+  const classified = rows.map((r) => ({
+    ...r,
+    bucket: classifyEvent(r),
+  }));
+  const upcoming = classified
+    .filter((r) => r.bucket === "upcoming" || r.bucket === "live")
+    .sort((a, b) => eventStartMs(a) - eventStartMs(b));
+  const past = classified.filter((r) => r.bucket === "past");
 
   // Podium for finished events: top 3 teams per session, one query.
   const pastIds = past.map((p) => p.id);
@@ -67,11 +80,8 @@ export default async function EventsPage({
     podiumBySession.set(row.sessionId, list);
   }
 
-  const fmt = new Intl.DateTimeFormat(locale === "en" ? "en" : "bg", {
-    dateStyle: "long",
-  });
-  const dateOf = (r: (typeof rows)[number]) =>
-    fmt.format(new Date(r.startedAt ?? r.createdAt));
+  const dateOf = (r: (typeof classified)[number]) =>
+    formatEventDateTime(new Date(eventStartMs(r)), locale);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-16">
@@ -110,7 +120,7 @@ export default async function EventsPage({
               <p className="mt-1 text-sm text-muted-foreground">
                 {dateOf(r)}
                 {r.venue ? ` · ${r.venue}` : ""} · {t("host")}: {r.host}
-                {r.status !== "lobby" ? ` · ${t("live")}` : ""}
+                {r.bucket === "live" ? ` · ${t("live")}` : ""}
               </p>
             </li>
           ))}

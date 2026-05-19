@@ -27,6 +27,16 @@ import { HostControls } from "./host-controls";
 import { ScoreAdjustPanel } from "./score-adjust-panel";
 import { setPublicEventAction } from "./public-event-actions";
 
+// Date → "YYYY-MM-DDTHH:mm" for <input type="datetime-local">. We use
+// UTC parts so it round-trips with the timeZone-less display on /events
+// (the wall-clock the host typed is the wall-clock shown back).
+function toDateTimeLocal(value: Date | string | null): string {
+  if (value === null) return "";
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 16);
+}
+
 function getStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string");
@@ -92,6 +102,8 @@ export default async function HostLobbyPage({
       pausedFromStatus: gameSessions.pausedFromStatus,
       publicEvent: gameSessions.publicEvent,
       venue: gameSessions.venue,
+      scheduledStartAt: gameSessions.scheduledStartAt,
+      scheduledEndAt: gameSessions.scheduledEndAt,
       quizId: quizzes.id,
       quizTitle: quizzes.title,
       quizTheme: quizzes.theme,
@@ -309,6 +321,33 @@ export default async function HostLobbyPage({
             placeholder={te("venuePlaceholder")}
             className="w-full rounded-md border border-border bg-background px-3 py-2"
           />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {te("scheduledStartLabel")}
+              </span>
+              <input
+                type="datetime-local"
+                name="scheduledStartAt"
+                defaultValue={toDateTimeLocal(row.scheduledStartAt)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">
+                {te("scheduledEndLabel")}
+              </span>
+              <input
+                type="datetime-local"
+                name="scheduledEndAt"
+                defaultValue={toDateTimeLocal(row.scheduledEndAt)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2"
+              />
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {te("scheduledHint")}
+          </p>
           <button
             type="submit"
             className="rounded-md border border-border px-4 py-2 font-medium hover:bg-secondary"

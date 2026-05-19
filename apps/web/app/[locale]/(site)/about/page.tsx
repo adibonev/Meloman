@@ -35,6 +35,9 @@ export default async function AboutPage({
       <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
         {t("intro")}
       </p>
+      <p className="mt-4 font-heading text-xl font-black uppercase text-foreground">
+        {t("positioning")}
+      </p>
 
       <section className="mt-12">
         <h2 className="font-heading text-2xl font-black uppercase">

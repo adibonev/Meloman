@@ -22,7 +22,8 @@
     "metaTitle": "About Meloman | Meloman",
     "metaDescription": "Who is behind Meloman, who it is for and how to reach us.",
     "title": "About Meloman",
-    "intro": "Meloman started as a small music page and grew into a platform for live music quizzes and daily music entertainment. The stories, the song of the day and the quizzes come from a love of music, not marketing.",
+    "intro": "Meloman is for people who listen to music as more than background noise. We run live quiz nights and small daily things for the rest of the days — song of the day, a mystery artist and short stories about the artists we love.",
+    "positioning": "An original format for live music quizzes.",
     "whoTitle": "Who is behind it",
     "who": "Two friends — one runs the tech, the other the music and the quiz nights. Together we build the Meloman we'd want to use ourselves.",
     "forWhoTitle": "Who it is for",
@@ -57,7 +58,19 @@
     "empty": "No public events yet.",
     "markPublic": "Show this event on the public page",
     "venuePlaceholder": "Venue (e.g. Bar X, Vidin)",
-    "save": "Save"
+    "scheduledStartLabel": "Start (date and time)",
+    "scheduledEndLabel": "End (optional)",
+    "scheduledHint": "This time shows on the public page and decides whether the event is upcoming, live or past. With no end we assume a 3-hour duration.",
+    "save": "Save",
+    "howToTitle": "How to take part",
+    "howToSteps": [
+      "Come to the event venue",
+      "Scan the QR code on the screen",
+      "Join solo or with a team",
+      "Answer on your phone",
+      "Follow the leaderboard after every round"
+    ],
+    "viewEvent": "View the event"
   },
   "DailyArchive": {
     "title": "Archive: Song of the Day",
@@ -72,12 +85,14 @@
     "answer": "Answer"
   },
   "Home": {
-    "tagline": "Music quiz and daily entertainment",
-    "loginCta": "Sign in",
-    "registerCta": "Sign up",
+    "heroTitle": "Meloman is an original live music quiz",
+    "heroSubtitle": "The quizzes are written and hosted by Meloman. Play solo or with a team on your phone, answer in real time and follow the leaderboard after every round.",
+    "ctaEvents": "See events",
+    "ctaJoin": "Join a quiz",
+    "ctaStories": "Read stories",
     "welcome": "Welcome, {name}",
     "logout": "Sign out",
-    "vidinTitle": "Quizzes in Vidin",
+    "vidinTitle": "Upcoming quizzes",
     "vidinAll": "See all →",
     "exploreTitle": "Explore",
     "cardDaily": "Daily music",
@@ -99,7 +114,7 @@
     "title": "Join Meloman",
     "subtitle": "For live quizzes, streaks, XP and badges.",
     "subtitleStories": "Sign up for XP and badges.",
-    "subtitleDaily": "Sign up for streaks, badges and Mystery Artist.",
+    "subtitleDaily": "Create a profile to keep your XP, streak and solved artists.",
     "cta": "Sign up"
   },
   "Login": {
@@ -867,7 +882,8 @@
     "guessForXp": "Guess now: {xp} XP",
     "answerLockedUntil": "full reveal at 22:00",
     "hint": "Hint",
-    "story": "The story"
+    "story": "The story",
+    "mysteryExplain": "Guess the artist before the full reveal at 22:00 and earn more XP."
   },
   "Profile": {
     "title": "Profile",

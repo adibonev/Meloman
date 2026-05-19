@@ -7,6 +7,8 @@ import { gameSessions, quizzes, teams, users } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
 import { ShareButtons } from "@/components/share-buttons";
 import { SITE_URL } from "@/lib/site";
+import { classifyEvent, eventStartMs } from "@/lib/event-status";
+import { formatEventDateTime } from "@/lib/datetime";
 
 async function loadEvent(id: string) {
   const [row] = await db
@@ -14,6 +16,8 @@ async function loadEvent(id: string) {
       id: gameSessions.id,
       status: gameSessions.status,
       venue: gameSessions.venue,
+      scheduledStartAt: gameSessions.scheduledStartAt,
+      scheduledEndAt: gameSessions.scheduledEndAt,
       startedAt: gameSessions.startedAt,
       createdAt: gameSessions.createdAt,
       publicEvent: gameSessions.publicEvent,
@@ -53,10 +57,9 @@ export default async function EventDetailPage({
   if (!row) notFound();
 
   const t = await getTranslations("Events");
-  const fmt = new Intl.DateTimeFormat(locale === "en" ? "en" : "bg", {
-    dateStyle: "long",
-  });
-  const isPast = row.status === "finished";
+  const bucket = classifyEvent(row);
+  const isPast = bucket === "past";
+  const isLive = bucket === "live";
 
   const podium = isPast
     ? await db
@@ -84,9 +87,9 @@ export default async function EventDetailPage({
         {row.quizTitle}
       </h1>
       <p className="mt-3 text-muted-foreground">
-        {fmt.format(new Date(row.startedAt ?? row.createdAt))}
+        {formatEventDateTime(new Date(eventStartMs(row)), locale)}
         {row.venue ? ` · ${row.venue}` : ""} · {t("host")}: {row.host}
-        {!isPast && row.status !== "lobby" ? ` · ${t("live")}` : ""}
+        {isLive ? ` · ${t("live")}` : ""}
       </p>
 
       {podium.length > 0 && (
@@ -99,6 +102,24 @@ export default async function EventDetailPage({
               <li key={p.name}>
                 {["🥇", "🥈", "🥉"][i]} {p.emoji} {p.name} —{" "}
                 <span className="tabular-nums">{p.score}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {!isPast && (
+        <section className="mt-10 rounded-lg border border-border border-l-2 border-l-primary bg-card p-6">
+          <h2 className="font-heading text-lg font-black uppercase">
+            {t("howToTitle")}
+          </h2>
+          <ol className="mt-4 space-y-2 text-sm text-foreground/90">
+            {(t.raw("howToSteps") as string[]).map((step, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="font-heading text-primary tabular-nums">
+                  {i + 1}.
+                </span>
+                <span>{step}</span>
               </li>
             ))}
           </ol>

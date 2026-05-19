@@ -4,10 +4,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { gameSessions, quizzes, stories, users } from "@meloman/db/schema";
 import { Link } from "@/i18n/navigation";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { classifyEvent, eventStartMs } from "@/lib/event-status";
 import { formatEventDateTime } from "@/lib/datetime";
 import { SOCIAL } from "@/lib/site";
@@ -81,10 +81,10 @@ export default async function HomePage({
       <SiteNav minimal />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-24 pt-16 sm:pt-24">
         <section className="flex flex-col items-center text-center">
-          <h1 className="max-w-3xl font-heading text-3xl font-black uppercase sm:text-5xl">
-            {t("heroTitle")}
+          <h1 className="font-heading text-6xl font-black uppercase tracking-wide sm:text-8xl">
+            Meloman
           </h1>
-          <p className="mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
+          <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
             {t("heroSubtitle")}
           </p>
 
@@ -104,59 +104,18 @@ export default async function HomePage({
             >
               {t("ctaJoin")}
             </Link>
-            <Link
-              href="/stories"
-              className={buttonVariants({
-                variant: "secondary",
-                className: "h-11 px-8 text-sm",
-              })}
-            >
-              {t("ctaStories")}
-            </Link>
-          </div>
-
-          {session?.user && (
-            <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
-              <span>
-                {t("welcome", {
-                  name: session.user.name ?? session.user.email ?? "",
+            {!session?.user && (
+              <Link
+                href="/register"
+                className={buttonVariants({
+                  variant: "secondary",
+                  className: "h-11 px-8 text-sm",
                 })}
-              </span>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: locale === "en" ? "/en" : "/" });
-                }}
               >
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  className="h-8 px-3 text-xs"
-                >
-                  {t("logout")}
-                </Button>
-              </form>
-            </div>
-          )}
-        </section>
-
-        <section className="mt-20">
-          <h2 className="mb-6 font-heading text-2xl font-black uppercase">
-            {t("howTitle")}
-          </h2>
-          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {(t.raw("howSteps") as string[]).map((step, i) => (
-              <li
-                key={i}
-                className="flex flex-col gap-3 rounded-lg border border-border border-l-2 border-l-primary bg-card p-5"
-              >
-                <span className="font-heading text-3xl font-black text-primary tabular-nums">
-                  {i + 1}
-                </span>
-                <span className="text-sm text-foreground">{step}</span>
-              </li>
-            ))}
-          </ol>
+                {t("ctaRegister")}
+              </Link>
+            )}
+          </div>
         </section>
 
         {upcomingEvents.length > 0 && (
@@ -256,16 +215,6 @@ export default async function HomePage({
           </a>
         </section>
 
-        <section className="mt-16 rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em]">
-            {t("demoTitle")}
-          </p>
-          <ul className="mt-3 space-y-1">
-            <li>{t("demoPlayer")}: player@meloman.bg / demo123</li>
-            <li>{t("demoAdmin")}: super-admin@meloman.bg / demo123</li>
-            <li>{t("demoHost")}</li>
-          </ul>
-        </section>
       </main>
       <SiteFooter />
     </div>

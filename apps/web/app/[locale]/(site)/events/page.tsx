@@ -100,6 +100,22 @@ export default async function EventsPage({
             cta={t("joinCta")}
           />
         </div>
+
+        <div className="mt-8 border-t border-border pt-6">
+          <p className="font-heading text-lg font-black uppercase">
+            {t("quizHowTitle")}
+          </p>
+          <ol className="mt-4 grid gap-3 sm:grid-cols-2">
+            {(t.raw("quizHowSteps") as string[]).map((step, i) => (
+              <li key={i} className="flex gap-3 text-sm text-foreground/90">
+                <span className="font-heading text-primary tabular-nums">
+                  {i + 1}.
+                </span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
       <h2 className="mt-12 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">

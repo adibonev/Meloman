@@ -65,6 +65,9 @@ export async function SiteNav({ minimal = false }: { minimal?: boolean }) {
           {session?.user ? (
             <>
               <StreakIndicator days={streak} />
+              <span className="hidden text-sm text-muted-foreground sm:inline">
+                {session.user.name ?? session.user.email}
+              </span>
               {isAdmin && (
                 <Link
                   href="/admin"
@@ -94,12 +97,23 @@ export async function SiteNav({ minimal = false }: { minimal?: boolean }) {
               </form>
             </>
           ) : (
-            <Link
-              href="/login"
-              className={buttonVariants({ className: "h-9 px-5" })}
-            >
-              {t("login")}
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "h-9 px-4",
+                })}
+              >
+                {t("login")}
+              </Link>
+              <Link
+                href="/register"
+                className={buttonVariants({ className: "h-9 px-5" })}
+              >
+                {t("register")}
+              </Link>
+            </>
           )}
         </div>
       </div>

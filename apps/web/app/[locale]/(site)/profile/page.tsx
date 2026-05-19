@@ -22,17 +22,40 @@ export default async function ProfilePage({
 
   if (!session?.user?.id) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <h1 className="font-heading text-4xl font-black uppercase">
+      <main className="mx-auto max-w-xl px-4 py-24">
+        <h1 className="font-heading text-5xl font-black uppercase">
           {t("title")}
         </h1>
-        <p className="mt-6 text-muted-foreground">{t("notSignedIn")}</p>
-        <Link
-          href="/login"
-          className={buttonVariants({ size: "lg", className: "mt-8" })}
-        >
-          {t("title")}
-        </Link>
+        <div className="mt-10 rounded-lg border border-border border-l-2 border-l-primary bg-card p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            {t("previewTitle")}
+          </p>
+          <ul className="mt-4 space-y-2">
+            {(t.raw("previewItems") as string[]).map((item, i) => (
+              <li key={i} className="flex gap-3 text-foreground">
+                <span className="text-primary">→</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link
+            href="/login"
+            className={buttonVariants({ className: "h-11 px-8 text-sm" })}
+          >
+            {t("ctaLogin")}
+          </Link>
+          <Link
+            href="/register"
+            className={buttonVariants({
+              variant: "secondary",
+              className: "h-11 px-8 text-sm",
+            })}
+          >
+            {t("ctaRegister")}
+          </Link>
+        </div>
       </main>
     );
   }

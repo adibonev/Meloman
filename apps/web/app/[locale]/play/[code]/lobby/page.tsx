@@ -12,7 +12,8 @@ import {
   users,
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import { getDownloadUrl } from "@/lib/r2";
 import { QuizTheme } from "@/components/quiz-theme";
 import { resolveQuestionContent } from "@/lib/question-content";
@@ -74,6 +75,7 @@ export default async function PlayLobbyPage({
   const { locale, code } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("PlayLobby");
+  const tg = await getTranslations("GuestCta");
 
   const upperCode = code.toUpperCase();
 
@@ -106,6 +108,10 @@ export default async function PlayLobbyPage({
   // narrowing: after the redirect above, both are defined
   const sessionRow = row!;
   const userId = userSession!.user.id!;
+  // Anonymous players get a throwaway anon-*@meloman.local user (see
+  // joinAsAnonymousAction). After the quiz we nudge them to a real
+  // account — without removing the guest-friendly entry.
+  const isGuest = (userSession!.user.email ?? "").endsWith("@meloman.local");
 
   // Find which team in this session the player belongs to.
   const sessionTeams = await db
@@ -338,6 +344,25 @@ export default async function PlayLobbyPage({
         timerEndsAtMs={questionEndsAtMs}
         serverNowMs={sessionRow.serverNowMs}
       />
+
+      {sessionRow.status === "finished" && isGuest && (
+        <section className="space-y-4 rounded-lg border border-border border-l-2 border-l-primary bg-card p-6 text-center">
+          <p className="font-heading text-2xl font-black uppercase">
+            {tg("title")}
+          </p>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            <li>{tg("benefitScore")}</li>
+            <li>{tg("benefitLeaderboard")}</li>
+            <li>{tg("benefitBadge")}</li>
+          </ul>
+          <Link
+            href="/register"
+            className={buttonVariants({ className: "h-11 px-6 text-sm" })}
+          >
+            {tg("cta")}
+          </Link>
+        </section>
+      )}
 
       {/* Subscribes to the quiz channel and refreshes the page when the host
           broadcasts a roster change or session-status event. */}

@@ -11,11 +11,14 @@ export async function PaginationNav({
   basePath,
   page,
   totalPages,
+  extraQuery,
 }: {
   /** Locale-relative path, e.g. "/admin/users" or "/stories". */
   basePath: string;
   page: number;
   totalPages: number;
+  /** Preserved alongside `page` (e.g. an active filter). */
+  extraQuery?: Record<string, string>;
 }) {
   if (totalPages <= 1) return null;
   const t = await getTranslations("Pagination");
@@ -35,7 +38,7 @@ export async function PaginationNav({
         <span className={disabledCls}>{t("previous")}</span>
       ) : (
         <Link
-          href={{ pathname: basePath, query: { page: page - 1 } }}
+          href={{ pathname: basePath, query: { ...extraQuery, page: page - 1 } }}
           className={linkCls}
           rel="prev"
         >
@@ -51,7 +54,7 @@ export async function PaginationNav({
         <span className={disabledCls}>{t("next")}</span>
       ) : (
         <Link
-          href={{ pathname: basePath, query: { page: page + 1 } }}
+          href={{ pathname: basePath, query: { ...extraQuery, page: page + 1 } }}
           className={linkCls}
           rel="next"
         >

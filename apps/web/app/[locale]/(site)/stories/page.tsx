@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { desc, isNotNull, sql } from "drizzle-orm";
+import { and, desc, isNotNull, sql } from "drizzle-orm";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@meloman/db";
 import { stories } from "@meloman/db/schema";
@@ -7,6 +7,18 @@ import { Link } from "@/i18n/navigation";
 import { PaginationNav } from "@/components/pagination-nav";
 import { getPageParams, pageMeta } from "@/lib/pagination";
 import { RegisterCta } from "@/components/register-cta";
+
+// Category tabs filter by the story `tags` jsonb array. The values are
+// content tags (Bulgarian, locale-independent) — a story shows under a
+// tab when its tags contain the exact string. Empty tab = data not yet
+// tagged, not a bug.
+const CATEGORIES = [
+  "Българска музика",
+  "Рок",
+  "Поп",
+  "Истории от куиза",
+  "Песен на деня",
+] as const;
 
 export async function generateMetadata({
   params,
@@ -33,12 +45,19 @@ export default async function StoriesPage({
   const t = await getTranslations("Stories");
 
   // Paginated server-side — the public catalogue can grow unbounded.
-  const pageParams = getPageParams(await searchParams);
+  const sp = await searchParams;
+  const pageParams = getPageParams(sp);
+  const rawCat = typeof sp.cat === "string" ? sp.cat : undefined;
+  const activeCat = CATEGORIES.find((c) => c === rawCat);
+  const whereClause = and(
+    isNotNull(stories.publishedAt),
+    activeCat ? sql`${stories.tags} ? ${activeCat}` : undefined
+  );
   const [[{ total }], rows] = await Promise.all([
     db
       .select({ total: sql<number>`count(*)` })
       .from(stories)
-      .where(isNotNull(stories.publishedAt)),
+      .where(whereClause),
     db
       .select({
         slug: stories.slug,
@@ -49,7 +68,7 @@ export default async function StoriesPage({
         readingTimeMinutes: stories.readingTimeMinutes,
       })
       .from(stories)
-      .where(isNotNull(stories.publishedAt))
+      .where(whereClause)
       .orderBy(desc(stories.publishedAt))
       .limit(pageParams.limit)
       .offset(pageParams.offset),
@@ -68,6 +87,32 @@ export default async function StoriesPage({
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">{t("subtitle")}</p>
       </header>
+
+      <nav className="mb-10 flex flex-wrap gap-2" aria-label={t("filterLabel")}>
+        <Link
+          href="/stories"
+          className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+            activeCat
+              ? "border-border text-muted-foreground hover:bg-secondary"
+              : "border-l-primary border-primary bg-card font-semibold text-foreground"
+          }`}
+        >
+          {t("allCategory")}
+        </Link>
+        {CATEGORIES.map((cat) => (
+          <Link
+            key={cat}
+            href={{ pathname: "/stories", query: { cat } }}
+            className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+              activeCat === cat
+                ? "border-primary bg-card font-semibold text-foreground"
+                : "border-border text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            {cat}
+          </Link>
+        ))}
+      </nav>
 
       {rows.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-16 text-center">
@@ -154,6 +199,7 @@ export default async function StoriesPage({
         basePath="/stories"
         page={meta.page}
         totalPages={meta.totalPages}
+        extraQuery={activeCat ? { cat: activeCat } : undefined}
       />
       <RegisterCta />
     </main>

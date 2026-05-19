@@ -68,11 +68,19 @@ export async function confirmEmail(
   return { ok: true };
 }
 
-// Accounts created on/before this instant are grandfathered: they keep
-// signing in exactly as before and are NEVER modified — verification is
-// only enforced for sign-ups created AFTER the feature shipped. No DB
-// backfill, no touching existing rows. Override with
-// EMAIL_VERIFICATION_ENFORCED_FROM (ISO) if the deploy time differs.
+// Master switch. Email verification is OFF by default: without a
+// Resend-verified sending domain a confirmation mail can't actually be
+// delivered, so blocking login would lock real users out. Everything
+// behaves as before until EMAIL_VERIFICATION_ENFORCED=true (set it once
+// a real owned domain is verified). The flow, pages and token all stay
+// in the code, ready — only the gate is dark.
+export function isVerificationEnforced(): boolean {
+  return process.env.EMAIL_VERIFICATION_ENFORCED === "true";
+}
+
+// When enforced: accounts created on/before this instant are still
+// grandfathered (keep signing in, never modified) — only sign-ups after
+// it must verify. Override with EMAIL_VERIFICATION_ENFORCED_FROM (ISO).
 const ENFORCED_FROM = new Date(
   process.env.EMAIL_VERIFICATION_ENFORCED_FROM ?? "2026-05-19T00:00:00Z"
 ).getTime();
@@ -83,6 +91,7 @@ const ENFORCED_FROM = new Date(
  * anonymous quiz players (anon-*@meloman.local) are never gated.
  */
 export async function isUnverified(email: string): Promise<boolean> {
+  if (!isVerificationEnforced()) return false;
   const normalized = email.trim().toLowerCase();
   if (normalized.endsWith("@meloman.local")) return false;
   const [user] = await db

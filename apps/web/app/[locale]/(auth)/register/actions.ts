@@ -8,7 +8,10 @@ import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { registerSchema } from "@/lib/schemas/auth";
 import { getRequestOrigin } from "@/lib/origin";
-import { sendVerificationFor } from "@/lib/auth/email-verification";
+import {
+  isVerificationEnforced,
+  sendVerificationFor,
+} from "@/lib/auth/email-verification";
 
 export async function registerAction(formData: FormData) {
   const raw = {
@@ -35,6 +38,7 @@ export async function registerAction(formData: FormData) {
     return { errorKey: "emailTaken" as const };
   }
 
+  const enforced = isVerificationEnforced();
   const passwordHash = await bcrypt.hash(password, 12);
 
   await db.insert(users).values({
@@ -42,13 +46,18 @@ export async function registerAction(formData: FormData) {
     displayName,
     passwordHash,
     role: "player",
-    emailVerified: false,
+    // When verification isn't enforced (no owned/verified domain yet)
+    // the account is usable immediately — no email needed, no lockout.
+    emailVerified: !enforced,
   });
 
-  // Send the confirmation link; login is gated until the address is
-  // verified (see login action). Graceful without RESEND_API_KEY.
-  await sendVerificationFor(email, await getRequestOrigin());
-
   const locale = await getLocale();
+  if (!enforced) {
+    redirect({ href: "/login?registered=1", locale });
+  }
+
+  // Enforced: email the confirmation link (graceful without Resend)
+  // and gate login until it's confirmed.
+  await sendVerificationFor(email, await getRequestOrigin());
   redirect({ href: "/verify-email?sent=1", locale });
 }

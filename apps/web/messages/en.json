@@ -1001,6 +1001,7 @@
     "empty": "No scheduled content.",
     "saved": "Saved.",
     "invalid": "Invalid JSON or data.",
+    "forbidden": "You don't have permission for this action.",
     "delete": "Delete",
     "songHint": "Song: fill title, artist, albumCoverUrl and story (see the example below).",
     "mysteryHint": "Mystery artist: fill name, blurredImageUrl, hints and story (see the example below)."

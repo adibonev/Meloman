@@ -4,10 +4,7 @@ import { db } from "@meloman/db";
 import { dailyContent } from "@meloman/db/schema";
 import { Button } from "@/components/ui/button";
 import { createDailyAction, deleteDailyAction } from "./actions";
-import { DailyFields } from "./daily-fields";
-
-const inputCls =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm";
+import { DailyForm, type DailyResult } from "./daily-form";
 
 // Static JSON templates shown to the admin. Kept out of next-intl on
 // purpose: ICU treats `{` as an argument delimiter, so JSON literals must
@@ -46,9 +43,12 @@ export default async function AdminDailyPage({
     .from(dailyContent)
     .orderBy(desc(dailyContent.contentDate));
 
-  async function create(formData: FormData) {
+  async function create(
+    _prev: DailyResult,
+    formData: FormData
+  ): Promise<DailyResult> {
     "use server";
-    await createDailyAction(formData);
+    return createDailyAction(formData);
   }
 
   return (
@@ -57,50 +57,25 @@ export default async function AdminDailyPage({
         {t("title")}
       </h1>
 
-      <form
+      <DailyForm
         action={create}
-        className="space-y-4 rounded-lg border border-border p-6"
-      >
-        <h2 className="font-heading text-xl font-black uppercase">
-          {t("newEntry")}
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-sm text-muted-foreground">{t("date")}</span>
-            <input
-              name="contentDate"
-              type="date"
-              required
-              className={inputCls}
-            />
-          </label>
-          <DailyFields
-            songTemplate={SONG_TEMPLATE}
-            mysteryTemplate={MYSTERY_TEMPLATE}
-            typeLabel={t("type")}
-            songLabel={t("song")}
-            mysteryLabel={t("mystery")}
-            payloadLabel={t("payload")}
-          />
-        </div>
-        <div className="grid gap-3 text-xs text-muted-foreground sm:grid-cols-2">
-          <div>
-            <p className="mb-1">{t("songHint")}</p>
-            <pre className="overflow-x-auto rounded-lg border border-border bg-muted/30 p-3">
-              {SONG_TEMPLATE}
-            </pre>
-          </div>
-          <div>
-            <p className="mb-1">{t("mysteryHint")}</p>
-            <pre className="overflow-x-auto rounded-lg border border-border bg-muted/30 p-3">
-              {MYSTERY_TEMPLATE}
-            </pre>
-          </div>
-        </div>
-        <Button type="submit" size="lg">
-          {t("save")}
-        </Button>
-      </form>
+        songTemplate={SONG_TEMPLATE}
+        mysteryTemplate={MYSTERY_TEMPLATE}
+        labels={{
+          newEntry: t("newEntry"),
+          date: t("date"),
+          type: t("type"),
+          song: t("song"),
+          mystery: t("mystery"),
+          payload: t("payload"),
+          songHint: t("songHint"),
+          mysteryHint: t("mysteryHint"),
+          save: t("save"),
+          saved: t("saved"),
+          invalid: t("invalid"),
+          forbidden: t("forbidden"),
+        }}
+      />
 
       {rows.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-12 text-center">

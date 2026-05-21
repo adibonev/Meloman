@@ -6,6 +6,14 @@ nights from their phone and follow the daily music content between
 events. The web app remains the backend and the host/admin surface —
 this app talks to it over the same JSON API.
 
+## Live links
+
+| | URL |
+| --- | --- |
+| Mobile web client (Expo export) | https://meloman-mobile.vercel.app |
+| Android APK + Expo project | https://expo.dev/accounts/adibonevs-organization/projects/meloman |
+| Web app / API | https://meloman-web.vercel.app |
+
 ## What this app is
 
 - A **player + reader** client, not an admin/host tool.

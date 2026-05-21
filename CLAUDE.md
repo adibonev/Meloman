@@ -1177,7 +1177,7 @@ If asked to:
 | **Sentry** | sentry.io | (pending) | Error tracking | Free tier |
 | **PostHog** | eu.posthog.com | (pending) | Analytics (GDPR-safe EU) | Free tier |
 | **Resend** | resend.com | adibonev (existing) | Transactional email | Free 100/day |
-| **Expo / EAS** | expo.dev | (pending) | Mobile builds | Free tier (30 builds/mo) |
+| **Expo / EAS** | expo.dev/accounts/adibonevs-organization/projects/meloman | adibonev | Mobile builds (Android APK) | Free tier (30 builds/mo) |
 
 All credentials stored in `meloman-credentials.txt` (NOT in git).
 Production env vars stored in Vercel project settings.
@@ -1261,15 +1261,28 @@ Friend is providing seed content. Status:
 - ✅ Captain transfer in the lobby; Mystery Artist 4-stage timed
   reveal + cron; in-app expo-camera QR scanner; mobile jest in CI;
   Expo web static export + Vercel deploy config.
+- ✅ Public events (`/events` + `/api/events`, time-classified
+  upcoming/live/past, host-set schedule); homepage "how it works";
+  guest post-game register CTA; stories category filters.
+- ✅ Accounts: self-service password reset; **email verification +
+  Google/Facebook OAuth scaffolded but env-gated OFF by default**
+  (no owned/verified domain yet — flips on with env once a real
+  domain is verified). Pre-existing accounts grandfathered.
+- ✅ Mobile parity: register, events, about, daily archive screens +
+  home section links — mobile reaches the web feature set over REST.
+
+**Live URLs:** web `https://meloman-web.vercel.app`, mobile web client
+`https://meloman-mobile.vercel.app`, Expo project / APK builds
+`https://expo.dev/accounts/adibonevs-organization/projects/meloman`.
 
 **Remaining (Phase 6 / 7):** Loom walkthrough (owner-recorded), real
-Vidin dry-run, Expo web live URL after first deploy, friend's seed
-content. **Only deliberately deferred now: Weekly Clash** (out of
-rubric, post-defense — owner decision 2026-05-17). All other
-previously-deferred items have shipped (TipTap, password reset, Framer
-polish, host QR, fallback polling, NativeWind, captain transfer,
-themes, bilingual, Mystery 4-stage, expo-camera scanner — see
-`docs/backlog.md`).
+Vidin dry-run, friend's seed content. **Deliberately deferred: Weekly
+Clash** (out of rubric, post-defense — owner decision 2026-05-17) and
+turning on email verification + OAuth (needs an owned domain + OAuth
+app keys). All other previously-deferred items have shipped (TipTap,
+password reset, Framer polish, host QR, fallback polling, NativeWind,
+captain transfer, themes, bilingual, Mystery 4-stage, expo-camera
+scanner — see `docs/backlog.md`).
 
 Deferred-by-design trade-offs for the deadline are logged honestly in
 `docs/backlog.md` and `docs/process/final-10-day-plan.md`.

@@ -21,13 +21,22 @@ Status codes: `400` invalid JSON, `401` not signed in, `403` not admin,
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET/POST | `/api/auth/[...nextauth]` | — | Auth.js handlers (login, session, logout) |
+| GET/POST | `/api/auth/[...nextauth]` | — | Auth.js handlers (login, session, logout, OAuth callbacks) |
+| POST | `/api/auth/register` | — | Create a player; returns a bearer JWT (auto sign-in) or `{ pending: true }` when email verification is enforced |
 | POST | `/api/auth/mobile-login` | — | Email/password → bearer JWT for the Expo app |
 | GET | `/api/auth/me` | user | Current user `{ id, email, name, role }` |
+| GET | `/api/auth/verify-email?token=` | — | Confirm an email; redirects to `/login?verified=1` |
+| POST | `/api/auth/forgot-password` | — | Email a password-reset link (silent — never reveals account existence) |
+| POST | `/api/auth/reset-password` | — | Consume a reset token and set a new password |
 
 Web clients authenticate via the Auth.js session cookie; the mobile app
-sends `Authorization: Bearer <jwt>` (from `/api/auth/mobile-login`). The
-`requireUser` guard accepts either.
+sends `Authorization: Bearer <jwt>` (from `/api/auth/mobile-login` or
+`/api/auth/register`). The `requireUser` guard accepts either.
+
+Email verification and OAuth (Google / Facebook) are env-gated and ship
+disabled by default — see CLAUDE.md and `.env.example`. Password reset
+and verification email both degrade gracefully without `RESEND_API_KEY`
+(the link is logged instead of sent).
 
 ## Health
 
@@ -66,7 +75,10 @@ validation + R2 multipart media upload).
 |---|---|---|---|
 | POST | `/api/sessions` | admin | Create a session for a quiz → join code |
 | GET | `/api/sessions/[code]` | user | Session state + `serverNow` (poll fallback) |
+| GET | `/api/sessions/[code]/play` | user | Full player state (team, question, timer) for the mobile poll loop |
+| POST | `/api/sessions/[code]/answer` | user | Captain submits the team's answer |
 | GET | `/api/sessions/[code]/teams` | user | Leaderboard (teams by `total_score`) |
+| POST | `/api/sessions/[code]/teams` | user | Create or join a team |
 
 ## Helpers (admin autofill)
 
@@ -79,11 +91,13 @@ validation + R2 multipart media upload).
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/api/stories` | — | List published stories |
+| GET | `/api/stories` | — | List published stories (paginated) |
 | POST | `/api/stories` | admin | Create a story draft |
 | GET | `/api/stories/[slug]` | — | Story detail (bumps view_count) |
 | PATCH | `/api/stories/[slug]` | admin | Update + publish/unpublish |
 | GET | `/api/daily/today` | — | Today's Song of the Day / Mystery Artist |
+| GET | `/api/daily/archive` | — | Past daily entries (paginated) for the mobile archive |
+| GET | `/api/events` | — | Public quiz events, time-classified upcoming / live / past |
 | GET | `/api/users/me/progress` | user | Streak, XP and earned badges |
 
 Admin user management (ban / role) and daily content management run as

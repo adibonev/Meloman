@@ -23,9 +23,17 @@ Product hierarchy, one shared backend:
   badges.** Song of the Day, a 4-stage Mystery Artist reveal, streaks,
   badges, and editorial stories between quiz nights.
 
-- 🌐 **Live web app:** https://meloman-web.vercel.app
-- 📱 **Mobile (web client):** https://meloman-mobile.vercel.app
-- 📦 **Android APK:** Expo SDK 55 via EAS (see [Mobile App](#mobile-app))
+### Live links
+
+| | URL |
+| --- | --- |
+| 🌐 Web app | https://meloman-web.vercel.app |
+| 📱 Mobile web client (Expo export) | https://meloman-mobile.vercel.app |
+| 📦 Android APK + Expo project | https://expo.dev/accounts/adibonevs-organization/projects/meloman |
+
+The mobile app is Expo SDK 55; install the Android APK from the Expo
+project's **Builds** tab, or open the mobile web client above. See
+[Mobile App](#mobile-app) for build instructions.
 
 ## Contents
 
@@ -58,13 +66,19 @@ Product hierarchy, one shared backend:
 - **Bilingual quizzes** — optional per-question English overlay with
   locale-aware rendering and grading.
 - **Daily & editorial** — Song of the Day, 4-stage Mystery Artist
-  reveal (Sofia-time, cron-backed), magazine-style stories, artist
-  spotlight.
+  reveal (Sofia-time, cron-backed), daily archive, magazine-style
+  stories with category filters, artist spotlight.
+- **Public events** — time-classified upcoming / live / past quiz
+  nights with venue, host and join-code entry.
+- **Accounts** — email/password with optional (env-gated) email
+  verification and Google/Facebook OAuth; self-service password reset;
+  anonymous guest play for live quizzes.
 - **Admin panel** — quizzes/rounds/questions, sponsors, stories
   (TipTap), daily content, user management, analytics; server-side
   pagination across list views.
-- **Mobile app** — Expo + NativeWind, 7 screens, in-app QR scanner,
-  bearer-JWT API client.
+- **Mobile app** — Expo + NativeWind: home, live-quiz join (in-app QR
+  scanner), daily + archive, stories, events, profile, register/login;
+  bearer-JWT API client over the shared REST surface.
 - **i18n** — Bulgarian default, English under `/en` (next-intl,
   enforced BG/EN message parity).
 - **Tested** — Jest (web + mobile pure logic) and a ~40-test
@@ -142,7 +156,7 @@ architecture notes live in [CLAUDE.md](CLAUDE.md).
 meloman/
 ├── apps/
 │   ├── web/          # Next.js app: UI, REST API, server actions, admin
-│   └── mobile/       # Expo app (expo-router): 7 screens
+│   └── mobile/       # Expo app (expo-router): player + reader client
 ├── packages/
 │   ├── db/           # Drizzle schema, migrations, Neon client, seed
 │   ├── shared/       # Cross-app design tokens / shared code

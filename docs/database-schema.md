@@ -74,6 +74,10 @@ erDiagram
         timestamptz question_started_at
         timestamptz question_ends_at
         timestamptz paused_at
+        boolean public_event
+        varchar venue
+        timestamptz scheduled_start_at
+        timestamptz scheduled_end_at
     }
     teams {
         uuid id PK

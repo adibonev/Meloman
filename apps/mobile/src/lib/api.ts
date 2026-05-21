@@ -110,6 +110,8 @@ export function mobileRegister(
   });
 }
 
+export type PodiumEntry = { name: string; score: number; emoji: string };
+
 export type EventItem = {
   id: string;
   quizTitle: string;
@@ -117,6 +119,7 @@ export type EventItem = {
   host: string;
   startMs: number;
   bucket: "upcoming" | "live" | "past";
+  podium?: PodiumEntry[];
 };
 
 export function listEvents() {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import {
   ActivityIndicator,
@@ -38,7 +38,12 @@ const CENTER =
 
 export default function PlayScreen() {
   const router = useRouter();
-  const [code, setCode] = useState("");
+  // Optional ?code= deep link (e.g. from the Events join box) prefills the
+  // join field; the player still needs to be signed in to enter.
+  const params = useLocalSearchParams<{ code?: string }>();
+  const [code, setCode] = useState(
+    typeof params.code === "string" ? params.code.toUpperCase() : ""
+  );
   const [joinedCode, setJoinedCode] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [signedIn, setSignedIn] = useState(false);

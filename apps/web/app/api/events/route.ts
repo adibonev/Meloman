@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@meloman/db";
-import { gameSessions, quizzes, users } from "@meloman/db/schema";
+import { gameSessions, quizzes, teams, users } from "@meloman/db/schema";
 import { classifyEvent, eventStartMs } from "@/lib/event-status";
 
 /**
@@ -43,7 +43,37 @@ export async function GET() {
   const upcoming = classified
     .filter((e) => e.bucket === "upcoming" || e.bucket === "live")
     .sort((a, b) => a.startMs - b.startMs);
-  const past = classified.filter((e) => e.bucket === "past");
+  const pastEvents = classified.filter((e) => e.bucket === "past");
+
+  // Podium (top 3 teams) for past events — one query, mirroring the web
+  // /events page so the mobile list can show the winners.
+  const pastIds = pastEvents.map((p) => p.id);
+  const podiumRows = pastIds.length
+    ? await db
+        .select({
+          sessionId: teams.sessionId,
+          name: teams.name,
+          score: teams.totalScore,
+          emoji: teams.avatarEmoji,
+        })
+        .from(teams)
+        .where(inArray(teams.sessionId, pastIds))
+        .orderBy(desc(teams.totalScore))
+    : [];
+  const podiumBySession = new Map<string, typeof podiumRows>();
+  for (const row of podiumRows) {
+    const list = podiumBySession.get(row.sessionId) ?? [];
+    if (list.length < 3) list.push(row);
+    podiumBySession.set(row.sessionId, list);
+  }
+  const past = pastEvents.map((e) => ({
+    ...e,
+    podium: (podiumBySession.get(e.id) ?? []).map((p) => ({
+      name: p.name,
+      score: p.score,
+      emoji: p.emoji,
+    })),
+  }));
 
   return NextResponse.json({ upcoming, past });
 }

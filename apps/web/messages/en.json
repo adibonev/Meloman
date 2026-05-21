@@ -308,7 +308,12 @@
       "draft": "Draft",
       "published": "Published",
       "archived": "Archived"
-    }
+    },
+    "columnsActions": "Actions",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure? The quiz will be hidden from the lists.",
+    "deleting": "Deleting...",
+    "deleteError": "Delete failed. Please try again."
   },
   "AdminNewQuiz": {
     "title": "New quiz",
@@ -586,10 +591,29 @@
     "error": "Wikipedia did not respond. Please try again.",
     "noResults": "No results."
   },
+  "PlayHub": {
+    "title": "Join a quiz",
+    "loggedInHint": "Enter the code shown on the venue screen.",
+    "codePlaceholder": "Code (e.g. MELO42)",
+    "codeCta": "Continue",
+    "chooseHint": "How do you want to continue?",
+    "loginTitle": "Sign in to your profile",
+    "loginHint": "Keep your XP, streaks and badges and compete for prizes.",
+    "loginCta": "Sign in",
+    "or": "or",
+    "guestTitle": "Continue as guest",
+    "guestHint": "You can play right away, but you won't earn XP, streaks or badges and won't compete for prizes.",
+    "guestNamePlaceholder": "Your name",
+    "guestCodePlaceholder": "Quiz code (e.g. MELO42)",
+    "guestCta": "Play as guest",
+    "guestErrorCode": "Enter a valid code."
+  },
   "Play": {
     "eyebrow": "Live quiz · Code {code}",
     "displayNameLabel": "Your name",
     "displayNamePlaceholder": "e.g. John",
+    "hasAccount": "Already have an account?",
+    "loginInstead": "Sign in",
     "submit": "Join quiz",
     "submitting": "Joining...",
     "joinedEyebrow": "You're in!",

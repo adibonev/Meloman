@@ -308,7 +308,12 @@
       "draft": "Чернова",
       "published": "Публикуван",
       "archived": "Архивиран"
-    }
+    },
+    "columnsActions": "Действия",
+    "delete": "Изтрий",
+    "deleteConfirm": "Сигурен ли си? Куизът ще бъде скрит от списъците.",
+    "deleting": "Триене...",
+    "deleteError": "Триенето не успя. Опитай отново."
   },
   "AdminNewQuiz": {
     "title": "Нов quiz",
@@ -586,10 +591,29 @@
     "error": "Wikipedia не отговори. Опитай отново.",
     "noResults": "Няма резултати."
   },
+  "PlayHub": {
+    "title": "Влез в куиз",
+    "loggedInHint": "Въведи кода от екрана в залата.",
+    "codePlaceholder": "Код (напр. MELO42)",
+    "codeCta": "Продължи",
+    "chooseHint": "Как искаш да продължиш?",
+    "loginTitle": "Влез в профила си",
+    "loginHint": "Пазиш XP, серии и значки и участваш за награди.",
+    "loginCta": "Влез в профила",
+    "or": "или",
+    "guestTitle": "Продължи като гост",
+    "guestHint": "Можеш да играеш веднага, но няма да трупаш XP, серии и значки и не участваш за награди.",
+    "guestNamePlaceholder": "Твоето име",
+    "guestCodePlaceholder": "Код на куиза (напр. MELO42)",
+    "guestCta": "Влез като гост",
+    "guestErrorCode": "Въведи валиден код."
+  },
   "Play": {
     "eyebrow": "Live quiz · Код {code}",
     "displayNameLabel": "Твоето име",
     "displayNamePlaceholder": "напр. Иван",
+    "hasAccount": "Вече имаш профил?",
+    "loginInstead": "Влез в профила",
     "submit": "Влез в quiz-а",
     "submitting": "Влизане...",
     "joinedEyebrow": "Готов си!",

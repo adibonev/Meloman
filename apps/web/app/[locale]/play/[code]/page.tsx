@@ -8,7 +8,7 @@ import {
   teams,
 } from "@meloman/db/schema";
 import { auth } from "@/auth";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { JoinForm } from "./join-form";
 import { TeamSelection } from "./team-selection";
 
@@ -107,6 +107,15 @@ export default async function PlayLandingPage({
           </h1>
         </header>
         <JoinForm code={upperCode} />
+        <p className="text-center text-sm text-muted-foreground">
+          {t("hasAccount")}{" "}
+          <Link
+            href="/login"
+            className="font-semibold text-primary hover:underline"
+          >
+            {t("loginInstead")}
+          </Link>
+        </p>
       </div>
     );
   }

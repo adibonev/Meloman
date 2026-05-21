@@ -96,7 +96,7 @@ export default async function HomePage({
               {t("ctaEvents")}
             </Link>
             <Link
-              href="/events"
+              href="/play"
               className={buttonVariants({
                 variant: "secondary",
                 className: "h-11 px-8 text-sm",

@@ -104,17 +104,6 @@ export default async function HomePage({
             >
               {t("ctaJoin")}
             </Link>
-            {!session?.user && (
-              <Link
-                href="/register"
-                className={buttonVariants({
-                  variant: "secondary",
-                  className: "h-11 px-8 text-sm",
-                })}
-              >
-                {t("ctaRegister")}
-              </Link>
-            )}
           </div>
         </section>
 

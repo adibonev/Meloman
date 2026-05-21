@@ -4,18 +4,14 @@ test.describe("public and auth smoke flow", () => {
   test("home CTAs navigate between auth screens", async ({ page }) => {
     await page.goto("/en");
 
-    // Redesigned hero: logo image (no MELOMAN wordmark heading), then a
-    // kicker + tagline. Assert the unique translated copy rather than the
-    // logo image — the nav and hero both render an alt="Meloman" img, so
-    // an image-role locator is ambiguous.
     await expect(
-      page.getByText("Music quiz · stories · song of the day")
+      page.getByRole("heading", { name: "Meloman", exact: true })
     ).toBeVisible();
     await expect(
-      page.getByText("Music quiz and daily entertainment")
+      page.getByText("Live quizzes and daily music fun")
     ).toBeVisible();
 
-    await page.getByRole("link", { name: "Sign in" }).click();
+    await page.getByRole("link", { name: "Log in" }).click();
     await expect(page).toHaveURL(/\/en\/login$/);
     await expect(page.getByText("Sign in to your account")).toBeVisible();
 

@@ -81,7 +81,13 @@ export function AnswerOverridePanel({
               key={row.id}
               className="flex flex-wrap items-center gap-3 rounded-md border bg-card px-4 py-3"
               style={{
-                borderColor: row.isCorrect
+                borderTopColor: row.isCorrect
+                  ? "rgb(34 197 94 / 0.6)"
+                  : undefined,
+                borderRightColor: row.isCorrect
+                  ? "rgb(34 197 94 / 0.6)"
+                  : undefined,
+                borderBottomColor: row.isCorrect
                   ? "rgb(34 197 94 / 0.6)"
                   : undefined,
                 borderLeftColor: row.teamColor,

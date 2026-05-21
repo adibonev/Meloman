@@ -229,7 +229,9 @@ function BetweenRoundsPanel({
               key={team.id}
               className="flex items-center gap-3 rounded-md border bg-background px-3 py-2"
               style={{
-                borderColor: isMine ? team.color : undefined,
+                borderTopColor: isMine ? team.color : undefined,
+                borderRightColor: isMine ? team.color : undefined,
+                borderBottomColor: isMine ? team.color : undefined,
                 borderLeftColor: team.color,
                 borderLeftWidth: 4,
                 opacity: cutoffApplied && !team.isActive ? 0.45 : 1,

@@ -95,6 +95,15 @@ export function mobileLogin(email: string, password: string) {
   });
 }
 
+// Anonymous quiz entry — no account. Mints a throwaway player tied to a
+// joinable session and returns a bearer token. Guests earn no XP/prizes.
+export function guestLogin(displayName: string, code: string) {
+  return request<LoginResult>("/api/auth/guest", {
+    method: "POST",
+    body: { displayName, code },
+  });
+}
+
 // Registration: returns a token (auto sign-in) when email verification
 // isn't enforced, or { pending: true } when a confirmation mail was sent.
 export type RegisterResult = Partial<LoginResult> & { pending?: boolean };

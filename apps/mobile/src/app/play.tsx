@@ -12,12 +12,13 @@ import {
 import {
   createTeam,
   getPlayState,
+  guestLogin,
   joinTeam,
   submitAnswer,
   type PlayState,
   type SubmitAnswerPayload,
 } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+import { getToken, saveToken } from "@/lib/auth";
 import { getDeviceId } from "@/lib/device";
 import { colors, quizPalette } from "@/lib/theme";
 import { QrScanner } from "@/components/qr-scanner";
@@ -51,6 +52,37 @@ export default function PlayScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [scanning, setScanning] = useState(false);
+  // Guest (no-account) entry on the signed-out screen.
+  const [showGuest, setShowGuest] = useState(false);
+  const [guestName, setGuestName] = useState("");
+  const [guestCode, setGuestCode] = useState(
+    typeof params.code === "string" ? params.code.toUpperCase() : ""
+  );
+
+  async function enterAsGuest() {
+    const c = guestCode.trim().toUpperCase();
+    if (guestName.trim().length < 2) {
+      setError("Въведи име (поне 2 знака).");
+      return;
+    }
+    if (c.length < 4) {
+      setError("Въведи валиден код.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await guestLogin(guestName.trim(), c);
+      await saveToken(res.token);
+      setSignedIn(true);
+      setState(null);
+      setJoinedCode(c);
+    } catch (e) {
+      setError(String((e as Error).message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     getToken().then((t) => {
@@ -103,7 +135,17 @@ export default function PlayScreen() {
 
   if (!signedIn) {
     return (
-      <View className={CENTER}>
+      <ScrollView
+        className="flex-1 bg-bg"
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 16,
+          padding: 24,
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Image
           source={require("../../assets/images/meloman-logo-white.png")}
           style={{ width: 160, height: 160 }}
@@ -112,16 +154,67 @@ export default function PlayScreen() {
         <Text className="text-[44px] font-black tracking-[8px] text-fg">
           МЕЛОМАН
         </Text>
-        <Text className={`${MUTED} text-center`}>
-          Влез в профила си, за да играеш.
-        </Text>
+
         <Pressable
-          className="mt-[16px] w-full items-center rounded-[16px] bg-accent py-[18px]"
+          className="w-full items-center rounded-[16px] bg-accent py-[18px]"
           onPress={() => router.push("/login")}
         >
           <Text className="text-[18px] font-extrabold text-bg">Вход</Text>
         </Pressable>
-      </View>
+
+        {!showGuest ? (
+          <Pressable
+            className="w-full items-center rounded-[16px] border border-border-strong py-[16px]"
+            onPress={() => {
+              setError(null);
+              setShowGuest(true);
+            }}
+          >
+            <Text className="text-[16px] font-extrabold text-fg">
+              Влез в куиз без регистрация
+            </Text>
+          </Pressable>
+        ) : (
+          <View className="w-full gap-[8px]">
+            <TextInput
+              value={guestName}
+              onChangeText={setGuestName}
+              placeholder="Твоето име"
+              placeholderTextColor={colors.dim}
+              className={FIELD}
+            />
+            <TextInput
+              value={guestCode}
+              onChangeText={setGuestCode}
+              placeholder="Код на куиза (напр. MELO42)"
+              placeholderTextColor={colors.dim}
+              autoCapitalize="characters"
+              className={`${FIELD} text-center tracking-[4px]`}
+              onSubmitEditing={enterAsGuest}
+            />
+            <Pressable
+              className={`mt-[4px] w-full items-center rounded-[16px] bg-accent py-[16px] ${
+                busy ? "opacity-50" : ""
+              }`}
+              disabled={busy}
+              onPress={enterAsGuest}
+            >
+              <Text className="text-[16px] font-extrabold text-bg">
+                Влез като гост
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
+        <Text className={`${MUTED} text-center`}>
+          Като гост можеш да играеш, но няма да трупаш XP, серии и значки и
+          не участваш за награди. Влез или се регистрирай, за да ги пазиш.
+        </Text>
+
+        {error ? (
+          <Text className="text-center text-danger">{error}</Text>
+        ) : null}
+      </ScrollView>
     );
   }
 

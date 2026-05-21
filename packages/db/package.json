@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx --env-file=../../.env.local --env-file=../../apps/web/.env.local seed.ts",
     "db:seed:bulk": "tsx --env-file=../../.env.local --env-file=../../apps/web/.env.local seed-bulk.ts",
-    "db:clean:test": "tsx --env-file=../../.env.local --env-file=../../apps/web/.env.local clean-test-data.ts"
+    "db:clean:test": "tsx --env-file=../../.env.local --env-file=../../apps/web/.env.local clean-test-data.ts",
+    "db:cleanup:prod": "tsx --env-file=../../.env.local --env-file=../../apps/web/.env.local cleanup-prod.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1041.0",

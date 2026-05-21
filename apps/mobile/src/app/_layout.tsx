@@ -18,7 +18,11 @@ export default function RootLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ title: "Вход" }} />
+        <Stack.Screen name="register" options={{ title: "Регистрация" }} />
         <Stack.Screen name="play" options={{ title: "Влез в куиз" }} />
+        <Stack.Screen name="events" options={{ title: "Събития" }} />
+        <Stack.Screen name="about" options={{ title: "За нас" }} />
+        <Stack.Screen name="daily-archive" options={{ title: "Архив" }} />
         <Stack.Screen name="story/[slug]" options={{ title: "История" }} />
       </Stack>
     </ToastProvider>

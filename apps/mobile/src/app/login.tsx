@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Pressable,
@@ -70,6 +70,13 @@ export default function LoginScreen() {
           <Text className="text-[16px] font-extrabold text-bg">Влез</Text>
         )}
       </Pressable>
+      <Link href="/register" asChild>
+        <Pressable className="mt-[16px]">
+          <Text className="text-center text-[15px] text-muted">
+            Нямаш акаунт? <Text className="text-accent">Регистрирай се</Text>
+          </Text>
+        </Pressable>
+      </Link>
       {error ? (
         <Text className="mt-[16px] text-center text-danger">{error}</Text>
       ) : null}

@@ -95,6 +95,50 @@ export function mobileLogin(email: string, password: string) {
   });
 }
 
+// Registration: returns a token (auto sign-in) when email verification
+// isn't enforced, or { pending: true } when a confirmation mail was sent.
+export type RegisterResult = Partial<LoginResult> & { pending?: boolean };
+
+export function mobileRegister(
+  email: string,
+  password: string,
+  displayName: string
+) {
+  return request<RegisterResult>("/api/auth/register", {
+    method: "POST",
+    body: { email, password, displayName },
+  });
+}
+
+export type EventItem = {
+  id: string;
+  quizTitle: string;
+  venue: string | null;
+  host: string;
+  startMs: number;
+  bucket: "upcoming" | "live" | "past";
+};
+
+export function listEvents() {
+  return request<{ upcoming: EventItem[]; past: EventItem[] }>(
+    "/api/events"
+  );
+}
+
+export type DailyArchiveItem = {
+  contentDate: string;
+  contentType: "song_of_day" | "mystery_artist";
+  label: string | null;
+};
+
+export function listDailyArchive(page = 1) {
+  return request<{
+    items: DailyArchiveItem[];
+    page: number;
+    totalPages: number;
+  }>(`/api/daily/archive?page=${page}`);
+}
+
 export type Progress = {
   progress: {
     totalXp: number;

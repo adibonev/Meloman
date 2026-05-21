@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "expo-router";
 import { SpotifyIcon, YouTubeIcon } from "@/components/brand-icons";
 import {
   ActivityIndicator,
@@ -39,9 +40,16 @@ export default function DailyScreen() {
       className="flex-1 bg-bg"
       contentContainerStyle={{ padding: 24, paddingBottom: 120 }}
     >
-      <Text className="mb-[24px] text-[32px] font-black text-fg">
-        Песен на деня
-      </Text>
+      <View className="mb-[24px] flex-row items-center justify-between">
+        <Text className="text-[32px] font-black text-fg">Песен на деня</Text>
+        <Link href="/daily-archive" asChild>
+          <Pressable>
+            <Text className="text-[14px] font-semibold text-accent">
+              Архив →
+            </Text>
+          </Pressable>
+        </Link>
+      </View>
       {error ? (
         <Text className="text-danger">{error}</Text>
       ) : !data ? (

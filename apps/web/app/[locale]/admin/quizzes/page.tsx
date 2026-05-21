@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { PaginationNav } from "@/components/pagination-nav";
 import { getPageParams, pageMeta } from "@/lib/pagination";
+import { DeleteQuizButton } from "./delete-quiz-button";
 
 export default async function AdminQuizzesPage({
   params,
@@ -67,6 +68,9 @@ export default async function AdminQuizzesPage({
                 <th className="px-4 py-3 font-medium">{t("columns.status")}</th>
                 <th className="px-4 py-3 font-medium">{t("columns.theme")}</th>
                 <th className="px-4 py-3 font-medium">{t("columns.created")}</th>
+                <th className="px-4 py-3 font-medium text-right">
+                  {t("columnsActions")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -88,6 +92,9 @@ export default async function AdminQuizzesPage({
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {quiz.createdAt.toLocaleDateString(locale)}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <DeleteQuizButton id={quiz.id} />
                   </td>
                 </tr>
               ))}

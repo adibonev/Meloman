@@ -99,12 +99,22 @@ export default function PlayScreen() {
   if (!signedIn) {
     return (
       <View className={CENTER}>
-        <Text className="mb-[8px] text-[12px] font-bold uppercase tracking-[3px] text-accent">
-          Меломан
+        <Image
+          source={require("../../assets/images/meloman-logo-white.png")}
+          style={{ width: 160, height: 160 }}
+          contentFit="contain"
+        />
+        <Text className="text-[44px] font-black tracking-[8px] text-fg">
+          МЕЛОМАН
         </Text>
-        <Text className={MUTED}>Влез в профила си, за да играеш.</Text>
-        <Pressable className={BTN_PRIMARY} onPress={() => router.push("/login")}>
-          <Text className={TXT_PRIMARY}>Вход</Text>
+        <Text className={`${MUTED} text-center`}>
+          Влез в профила си, за да играеш.
+        </Text>
+        <Pressable
+          className="mt-[16px] w-full items-center rounded-[16px] bg-accent py-[18px]"
+          onPress={() => router.push("/login")}
+        >
+          <Text className="text-[18px] font-extrabold text-bg">Вход</Text>
         </Pressable>
       </View>
     );

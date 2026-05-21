@@ -62,11 +62,6 @@ export default function HomeScreen() {
             <Text className="text-[16px] font-semibold text-fg">Вход</Text>
           </Pressable>
         </Link>
-        <Link href="/register" asChild>
-          <Pressable className="items-center py-[8px]">
-            <Text className="text-[15px] text-accent">Регистрирай се</Text>
-          </Pressable>
-        </Link>
       </View>
 
       {/* How the quiz works */}
